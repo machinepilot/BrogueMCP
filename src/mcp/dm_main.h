@@ -1,7 +1,7 @@
 /**
- * Main integration for Brogue Dungeon Master AI
+ * Dungeon Master Agent Main Functions
  *
- * Provides public interface functions for game integration
+ * Provides the main interface for the DM agent integration with Brogue
  */
 
 #ifndef DM_MAIN_H
@@ -9,15 +9,22 @@
 
 #include "../brogue/Rogue.h"
 
-// Initialization and cleanup
-void initialize_dungeon_master_ai(void);
-void cleanup_dungeon_master_ai(void);
+// Initialize the DM agent
+boolean initialize_dm_agent(void);
 
-// Event handlers for game events
-void dm_on_monster_discovered(creature *monst);
-void dm_on_monster_killed(creature *monst, char *killedBy);
-void dm_on_item_discovered(item *theItem);
-void dm_on_new_level(short depth, short stairDirection);
-void dm_on_player_died(char *killedBy);
+// Clean up the DM agent resources
+void cleanup_dm_agent(void);
+
+// Handle player keypresses
+boolean dm_handle_keypress(int key);
+
+// Called when the player moves
+void dm_handle_player_move(short x, short y);
+
+// Called when a monster is seen
+void dm_handle_monster_seen(int monsterID, char *monsterName, short x, short y);
+
+// Called when an item is discovered
+void dm_handle_item_discovered(int itemID, char *itemName);
 
 #endif /* DM_MAIN_H */ 

@@ -1196,6 +1196,7 @@ enum tileFlags {
 #define AUTOPLAY_KEY        'A'
 #define SEED_KEY            '~'
 #define EASY_MODE_KEY       '&'
+#define NARRATOR_KEY        '@'  // ASCII 64 for @ symbol
 #define ESCAPE_KEY          '\033'
 #define RETURN_KEY          '\012'
 #define DELETE_KEY          '\177'
@@ -3042,6 +3043,7 @@ extern "C" {
     void nextBrogueEvent(rogueEvent *returnEvent, boolean textInput, boolean colorsDance, boolean realInputEvenInPlayback);
     void executeMouseClick(rogueEvent *theEvent);
     void executeKeystroke(signed long keystroke, boolean controlKey, boolean shiftKey);
+    void launchNarratorUI(void);
     boolean placeStairs(pos *upStairsLoc);
     void initializeLevel(pos upStairsLoc);
     void startLevel (short oldLevelNumber, short stairDirection);

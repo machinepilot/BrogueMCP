@@ -5,7 +5,11 @@
 #include <stdio.h>
 
 // Store original function pointers for restoration
+#ifdef BROGUE_CURRENT
 static void (*original_display_message)(const char *, unsigned long) = NULL;
+#else
+static void (*original_display_message)(char *) = NULL;
+#endif
 
 // Message buffer for DM messages
 static char dm_message_buffer[4096] = {0};
@@ -15,6 +19,7 @@ static int has_pending_message = 0;
 static unsigned long encountered_monsters[10000] = {0}; // Simple bitmap for tracking
 
 // Enhanced message display function
+#ifdef BROGUE_CURRENT
 static void dm_enhanced_display_message(const char *msg, unsigned long flags) {
     // Call original function
     original_display_message(msg, flags);
@@ -22,6 +27,15 @@ static void dm_enhanced_display_message(const char *msg, unsigned long flags) {
     // Display any pending DM messages after regular game messages
     display_pending_dm_messages();
 }
+#else
+static void dm_enhanced_display_message(char *msg) {
+    // Call original function
+    original_display_message(msg);
+    
+    // Display any pending DM messages after regular game messages
+    display_pending_dm_messages();
+}
+#endif
 
 // Initialize event hooks
 void initialize_dm_hooks(void) {
@@ -77,9 +91,27 @@ static int is_first_encounter(unsigned long monsterID) {
 
 // Get a simple location description
 static void get_location_description(char *desc, int maxLen, short x, short y) {
-    // Just use a simple hardcoded description for now to get past compiler errors
-    strncpy(desc, "unknown location", maxLen-1);
-    desc[maxLen-1] = '\0';
+    // Simplified location description - in a real implementation we'd use
+    // the game's actual terrain information more extensively
+    
+    strcpy(desc, "dark chamber");
+    
+    // This is placeholder logic - we would access the actual game state in a real implementation
+    /*
+    if (pmap[x][y].flags & HAS_ITEM) {
+        strcpy(desc, "room with items");
+    } else if (pmap[x][y].flags & IS_IN_MACHINE) {
+        strcpy(desc, "unusual chamber");
+    } else if (pmap[x][y].flags & IS_CORRIDOR) {
+        strcpy(desc, "narrow corridor");
+    } else if (pmap[x][y].layers[LIQUID]) {
+        if (pmap[x][y].layers[LIQUID] == DEEP_WATER) {
+            strcpy(desc, "flooded chamber");
+        } else {
+            strcpy(desc, "shallow pool");
+        }
+    }
+    */
 }
 
 // Handle monster encounters
@@ -105,7 +137,7 @@ void handle_monster_encountered(creature *monst) {
              location_desc);
     
     // Only send event for first encounters or rare monsters
-    if (is_first || (monst->info.flags & MONST_PREPLACED)) {
+    if (is_first || (monst->info.flags & MONST_RARE)) {
         send_game_event("MONSTER_ENCOUNTERED", event_data);
     }
 }
@@ -223,6 +255,10 @@ void handle_dm_response(const char *response) {
                 has_pending_message = 1;
                 strncpy(dm_message_buffer, formatted_message, sizeof(dm_message_buffer) - 1);
                 dm_message_buffer[sizeof(dm_message_buffer) - 1] = '\0';
+                
+                // In the real integration, we would call:
+                // MCP_DISPLAY_MESSAGE(formatted_message);
+                // But for now, we'll use our custom display mechanism
             }
         }
     }
@@ -242,4 +278,4 @@ void display_pending_dm_messages(void) {
         MCP_DISPLAY_MESSAGE(dm_message_buffer);
         has_pending_message = 0;
     }
-} 
+}

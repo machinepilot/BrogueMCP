@@ -1191,631 +1191,116 @@ const monsterWords monsterText[NUMBER_MONSTER_KINDS] = {
         "gazing at", "Gazing",
         {"bumps", {0}},
         "bursts, causing the floor underneath $HIMHER to disappear!"},
-    {"A filthy little primate, the tribalistic goblin often travels in packs and carries a makeshift stone spear.",
-        "chanting over", "Chanting",
-        {"cuts", "stabs", "skewers", {0}}},
-    {"This goblin is covered with glowing sigils that pulse with power. $HESHE can call into existence phantom blades to attack $HISHER foes.",
-        "performing a ritual on", "Performing ritual",
-        {"thumps", "whacks", "wallops", {0}},
-        {0},
-        "gestures ominously!"},
-    {"This goblin carries no weapon, and $HISHER eyes sparkle with golden light. $HESHE can invoke a powerful shielding magic to protect $HISHER escorts from harm.",
-        "performing a ritual on", "Performing ritual",
-        {"slaps", "punches", "kicks", {0}}},
-    {"Goblins have created this makeshift totem and imbued $HIMHER with a shamanistic power.",
-        "gazing at", "Gazing",
-        {"hits", {0}}},
-    {"This mass of caustic pink goo slips across the ground in search of a warm meal.",
-        "absorbing", "Feeding",
-        {"smears", "slimes", "drenches"}},
-    {"The enormous, warty toad secretes a powerful hallucinogenic slime to befuddle the senses of any creatures that come in contact with $HIMHER.",
-        "eating", "Eating",
-        {"slimes", "slams", {0}}},
-    {"Often hunting in packs, leathery wings and keen senses guide the vampire bat unerringly to $HISHER prey.",
-        "draining", "Feeding",
-        {"nips", "bites", {0}}},
-    {"A mechanical contraption embedded in the wall, the spring-loaded arrow turret will fire volley after volley of arrows at intruders.",
-        "gazing at", "Gazing",
-        {"shoots", {0}}},
-    {"The acid mound squelches softly across the ground, leaving a trail of hissing goo in $HISHER path.",
-        "liquefying", "Feeding",
-        {"slimes", "douses", "drenches", {0}}},
-    {"This monstrous centipede's incisors are imbued with a horrible venom that will slowly kill $HISHER prey.",
-        "eating", "Eating",
-        {"pricks", "stings", {0}}},
-    {"This lumbering creature carries an enormous club that $HESHE can swing with incredible force.",
-        "examining", "Studying",
-        {"cudgels", "clubs", "batters", {0}}},
-    {"The horrifying bog monster dwells beneath the surface of mud-filled swamps. When $HISHER prey ventures into the mud, the bog monster will ensnare the unsuspecting victim in $HISHER pale tentacles and squeeze its life away.",
-        "draining", "Feeding",
-        {"squeezes", "strangles", "crushes", {0}}},
-    {"Ancient ogres versed in the eldritch arts have assembled this totem and imbued $HIMHER with occult power.",
-        "gazing at", "Gazing",
-        {"hits", {0}}},
-    {"The spider's red eyes pierce the darkness in search of enemies to ensnare with $HISHER projectile webs and dissolve with deadly poison.",
-        "draining", "Feeding",
-        {"bites", "stings", {0}}},
-    {"This contraption hums with electrical charge that $HISHER embedded crystals and magical sigils can direct at intruders in deadly arcs.",
-        "gazing at", "Gazing",
-        {"shocks", {0}}},
-    {"An ethereal blue flame dances through the air, flickering and pulsing in time to an otherworldly rhythm.",
-        "consuming", "Feeding",
-        {"scorches", "burns", {0}}},
-    {"The wraith's hollow eye sockets stare hungrily at the world from $HISHER emaciated frame, and $HISHER long, bloodstained nails grope ceaselessly at the air for a fresh victim.",
-        "devouring", "Feeding",
-        {"clutches", "claws", "bites", {0}}},
-    {"The zombie is the accursed product of a long-forgotten ritual. Perpetually decaying flesh hangs from $HISHER bones in shreds and releases a flammable stench that will induce violent nausea with one whiff.",
-        "rending", "Eating",
-        {"hits", "bites", {0}}},
-    {"An enormous, disfigured creature covered in phlegm and warts, the troll regenerates very quickly and attacks with astonishing strength. Many adventures have ended at $HISHER misshapen hands.",
-        "eating", "Eating",
-        {"cudgels", "clubs", "bludgeons", "pummels", "batters"}},
-    {"This ogre is bent with age, but what $HESHE has lost in physical strength, $HESHE has more than gained in occult power.",
-        "performing a ritual on", "Performing ritual",
-        {"cudgels", "clubs", {0}},
-        {0},
-        "chants in a harsh, guttural tongue!"},
-    {"The serpentine naga live beneath the subterranean waters and emerge to attack unsuspecting adventurers.",
-        "studying", "Studying",
-        {"claws", "bites", "tail-whips", {0}}},
-    {"A serpent wreathed in flames and carrying a burning lash, salamanders dwell in lakes of fire and emerge when they sense a nearby victim, leaving behind a trail of glowing embers.",
-        "studying", "Studying",
-        {"whips", "lashes", {0}}},
-    {"This rare subspecies of bloat is little more than a thin membrane surrounding a bladder of highly explosive gases. The slightest stress will cause $HIMHER to rupture in spectacular and deadly fashion.",
+    {"This rare subspecies of bloat is filled with a peculiar vapor that, if released, will cause nearby creatures to be yanked toward $HIMHER.",
         "gazing at", "Gazing",
         {"bumps", {0}},
-        "detonates with terrifying force!"},
-    {"An elf of the deep, the dar blademaster leaps toward $HISHER enemies with frightening speed to engage in deadly swordplay.",
-        "studying", "Studying",
-        {"grazes", "cuts", "slices", "slashes", "stabs"}},
-    {"The dar priestess carries a host of religious relics that jangle as $HESHE walks.",
+        "bursts, pulling all nearby creatures toward the site of the explosion!"},
+    {"The goblin is a vicious, cunning humanoid whose short stature belies $HISHER strength and speed.",
+        "poking at", "Examining",
+        {"clubs", "bashes", "stabs", {0}}},
+    {"A filthy little primate, the tribalistic goblin shaman commands strange powers of the mind.",
+        "performing rituals on", "Performing rituals",
+        {"hits", "thumps", {0}}},
+    {"This goblin has been decorated with mystic markings and equipped with strange implements of war.",
+        "performing rituals on", "Performing rituals",
+        {"clubs", "stabs", {0}}},
+    {"A troll's warty, towering form can be smelled from across the room. Trolls are famous for their regenerative capabilities.",
+        "eating", "Eating",
+        {"cudgels", "bludgeons", "pummels", {0}}},
+    {"An ogre is a massive humanoid who uses $HISHER size and strength to overpower $HISHER prey.",
+        "dismembering", "Eating",
+        {"cudgels", "smashes", "batters", {0}}},
+    {"The centipede's chitin gleams as $HESHE skitters across the ground on dozens of legs.",
+        "eating", "Eating",
+        {"pricks", "stings", {0}}},
+    {"This monstrous arachnid silently stalks the caverns, leaving behind strands of web that glisten with venom.",
+        "eating", "Eating",
+        {"bites", {0}}},
+    {"This lumbering creature carries a thick shell on $HISHER back. $HESHE can retreat into the shell for protection and balance on one foot to roll at enemies.",
+        "eating", "Eating",
+        {"bumps", "bashes", {0}}},
+    {"The dar blademaster leaps toward you with $HISHER sword raised! Dar blademasters are deft fighters who can parry your attacks.",
+        "dissecting", "Examining",
+        {"grazes", "cuts", "slices", "slashes", {0}}},
+    {"The dar priestess chants in a strange language. What $HESHE lacks in physical prowess, $HESHE makes up for with $HISHER ability to heal $HISHER allies.",
         "praying over", "Praying",
-        {"cuts", "slices", {0}}},
-    {"The dar battlemage's eyes glow like embers and $HISHER hands radiate an occult heat.",
-        "transmuting", "Transmuting",
         {"cuts", {0}}},
-    {"A jelly subsisting on a diet of acid mounds will eventually express the characteristics of $HISHER prey, corroding any unprotected weapons or armor that come in contact with $HIMHER.",
-        "transmuting", "Transmuting",
-        {"burns", {0}}},
-    {"Half man and half horse, the centaur is an expert with the bow and arrow -- hunter and steed fused into a single creature.",
-        "studying", "Studying",
-        {"shoots", {0}}},
-    {"A strange and horrifying creature of the earth's deepest places, larger than an ogre but capable of squeezing through tiny openings. When hungry, the underworm will burrow behind the walls of a cavern and lurk dormant and motionless -- often for months -- until $HESHE can feel the telltale vibrations of nearby prey.",
-        "consuming", "Consuming",
-        {"slams", "bites", "tail-whips", {0}}},
-    {"An ancient statue of an unrecognizable humanoid figure, the sentinel holds aloft a crystal that gleams with ancient warding magic. Sentinels are always found in groups, and each will attempt to repair any damage done to the others.",
-        "focusing on", "Focusing",
-        {"hits", {0}}},
-    {"This spring-loaded contraption fires darts that are imbued with a strength-sapping poison.",
-        "gazing at", "Gazing",
-        {"pricks", {0}}},
-    {"This tentacled nightmare will emerge from the subterranean waters to ensnare and devour any creature foolish enough to set foot into $HISHER lake.",
-        "devouring", "Feeding",
-        {"slaps", "smites", "batters", {0}}},
-    {"The desiccated form of an ancient sorcerer, animated by dark arts and lust for power, commands the obedience of the infernal planes. $HISHER essence is anchored to reality by a phylactery that is always in $HISHER possession, and the lich cannot die unless $HISHER phylactery is destroyed.",
+    {"The dar battlemage's eyes glow like embers as $HESHE chants. Battlemages command powerful battle magic, and are not to be trifled with.",
         "enchanting", "Enchanting",
-        {"touches", {0}},
-        {0},
-        "rasps a terrifying incantation!"},
-    {"This gem was the fulcrum of a dark rite, performed centuries ago, that bound the soul of an ancient and terrible sorcerer. Hurry and destroy the gem, before the lich can gather its power and regenerate its corporeal form!",
-        "enchanting", "Enchanting",
-        {"touches", {0}},
-        {0},
-        "swirls with dark sorcery as the lich regenerates its form!"},
-    {"A tiny humanoid sparkles in the gloom, the hum of $HISHER beating wings punctuated by intermittent peals of high-pitched laughter. What $HESHE lacks in physical endurance, $HESHE makes up for with $HISHER wealth of mischievous magical abilities.",
-        "sprinkling dust on", "Dusting",
+        {"cuts", {0}}},
+    {"A strange being from a strange land, the pixie can fly and $HESHE knows basic magic.",
+        "sprinkling dust on", "Examining",
         {"pokes", {0}}},
-    {"A silhouette of mournful rage against an empty backdrop, the phantom slips through the dungeon invisibly in clear air, leaving behind glowing droplets of ectoplasm and the cries of $HISHER unsuspecting victims.",
-        "permeating", "Permeating",
-        {"hits", {0}}},
-    {"This infernal contraption spits blasts of flame at intruders.",
-        "incinerating", "Incinerating",
-        {"pricks", {0}}},
-    {"This trickster demon moves with astonishing speed and delights in stealing from $HISHER enemies and blinking away.",
-        "dissecting", "Dissecting",
-        {"slices", "cuts", {0}}},
-    {"A creature of inchoate rage made flesh, the fury's moist wings beat loudly in the darkness.",
-        "flagellating", "Flagellating",
-        {"drubs", "fustigates", "castigates", {0}}},
-    {"This unholy specter stalks the deep places of the earth without fear, impervious to conventional attacks.",
-        "desecrating", "Desecrating",
-        {"hits", {0}}},
-    {"This seething, towering nightmare of fleshy tentacles slinks through the bowels of the world. The tentacle horror's incredible strength and regeneration make $HIMHER one of the most fearsome creatures of the dungeon.",
-        "sucking on", "Consuming",
-        {"slaps", "batters", "crushes", {0}}},
-    {"A statue animated by an ancient and tireless magic, the golem does not regenerate and attacks with only moderate strength, but $HISHER stone form can withstand incredible damage before collapsing into rubble.",
-        "cradling", "Cradling",
-        {"backhands", "punches", "kicks", {0}}},
-    {"An ancient serpent of the world's deepest places, the dragon's immense form belies its lightning-quick speed and testifies to $HISHER breathtaking strength. An undying furnace of white-hot flames burns within $HISHER scaly hide, and few could withstand a single moment under $HISHER infernal lash.",
+    {"The acid mound squelches as $HESHE moves, leaving behind a trail of caustic slime.",
         "consuming", "Consuming",
-        {"claws", "tail-whips", "bites", {0}}},
-
-    {"Taller, stronger and smarter than other goblins, the warlord commands the loyalty of $HISHER kind and can summon them into battle.",
-        "chanting over", "Chanting",
-        {"slashes", "cuts", "stabs", "skewers", {0}},
-        {0},
-        "lets loose a deafening war cry!"},
-    {"This blob of jet-black goo is as rare as $HESHE is deadly. Few creatures of the dungeon can withstand $HISHER caustic assault. Beware.",
-        "absorbing", "Feeding",
-        {"smears", "slimes", "drenches"}},
-    {"This vampire lives a solitary life deep underground, consuming any warm-blooded creature unfortunate enough to venture near $HISHER lair.",
-        "draining", "Drinking",
-        {"grazes", "bites", "buries $HISHER fangs in", {0}},
-        {0},
-        "spreads his cloak and bursts into a cloud of bats!"},
-    {"An elemental creature from another plane of existence, the infernal flamedancer burns with such intensity that $HESHE is painful to behold.",
-        "immolating", "Consuming",
-        {"singes", "burns", "immolates", {0}}},
-
-    {"Eldritch forces have coalesced to form this flickering, ethereal weapon.",
-        "gazing at", "Gazing",
-        {"nicks",  {0}}},
-    {"Eldritch energies bound up in your equipment have leapt forth to project this spectral image.",
-        "gazing at", "Gazing",
-        {"hits",  {0}}},
-    {"Guarding the room is a weathered stone statue of a knight carrying a battleaxe, connected to the glowing glyphs on the floor by invisible strands of enchantment.",
-        "gazing at", "Gazing",
-        {"strikes",  {0}}},
-    {"A statue of a sword-wielding angel surveys the room, connected to the glowing glyphs on the floor by invisible strands of enchantment.",
-        "gazing at", "Gazing",
-        {"strikes",  {0}}},
-    {"A spectral outline of a knight carrying a battleaxe casts an ethereal light on $HISHER surroundings.",
-        "gazing at", "Gazing",
-        {"strikes",  {0}}},
-    {"An immortal presence stalks through the dungeon, implacably hunting that which was taken... and the one who took it.",
-        "gazing at", "Gazing",
-        {"strikes",  {0}}},
-    {"This totem sits at the center of a summoning circle that radiates a strange energy.",
-        "gazing at", "Gazing",
-        {"strikes",  {0}},
-        {0},
-        "crackles with energy as you touch the glyph!"},
-    {"A prism of shoulder-high mirrored surfaces gleams in the darkness.",
-        "gazing at", "Gazing",
-        {"strikes",  {0}}},
-
-    {"The unicorn's flowing mane and tail shine with rainbow light, $HISHER horn glows with healing and protective magic, and $HISHER eyes implore you to always chase your dreams. Unicorns are rumored to be attracted to virgins -- is there a hint of accusation in $HISHER gaze?",
-        "consecrating", "Consecrating",
+        {"slimes", "dribbles on", "splashes", {0}}},
+    {"The centaur's human half gives a barbaric war cry as $HESHE nocks an arrow with $HISHER equine half's rippling muscles.",
+        "field dressing", "Examining",
+        {"shoots", "kicks", {0}}},
+    {"A strange humanoid with pale gray skin, the underworm is blind and hunts with $HISHER other senses.",
+        "feeling", "Examining",
+        {"hits", "thumps", {0}}},
+    {"This four-armed humanoid is adorned with spectacular jewels and strange tattoos. Sentinel wizards are powerful spellcasters.",
+        "enchanting", "Enchanting",
+        {"thumps", {0}}},
+    {"The acidic jelly bubbles and glops across the ground, leaving caustic moisture in its wake.",
+        "consuming", "Consuming",
+        {"burns", {0}}},
+    {"This monstrous serpent slithers near-invisibly through the darkness, ready to strike.",
+        "consuming", "Consuming",
+        {"strikes at", "bites", {0}}},
+    {"This dart-shaped aquatic creature's powerful fins propel it rapidly through the water.",
+        "eating", "Eating",
+        {"bumps", "rams", "impales", {0}}},
+    {"The vampire bat's wings beat silently in the darkness as $HESHE circles $HISHER prey.",
+        "draining", "Examining",
+        {"nips", "bites", {0}}},
+    {"The vampire's eyes burn with an unnatural hunger as $HESHE approaches.",
+        "draining", "Examining",
+        {"grazes", "hits", "bites", {0}}},
+    {"The flamedancer's beautiful undulations leave a swirling trail of flames.",
+        "immolating", "Examining",
+        {"singes", "burns", {0}}},
+    {"A zombified adventurer lurches through the darkness, the remnants of $HISHER gear still hanging from $HISHER rotting frame. A strange green light flickers in $HISHER eye sockets.",
+        "rending", "Examining",
+        {"hits", "bites", {0}}},
+    {"The phantom is a cloud of supernatural mist that can only be harmed by magical means.",
+        "permeating", "Examining",
+        {"hits", {0}}},
+    {"The lich's eyes burn with ancient malevolence. Few creatures can rival $HISHER command of magic.",
+        "enchanting", "Examining",
+        {"touches", {0}}},
+    {"The tentacle horror's writhing appendages grip the ground as $HISHER eyestalks swing in your direction.",
+        "consuming", "Examining",
+        {"slaps", "batters", "squeezes", {0}}},
+    {"This dragon's scales gleam as $HESHE unfolds $HISHER wings. Ancient beyond measure, the dragon radiates power.",
+        "consuming", "Examining",
+        {"claws", "bites", {0}}},
+    {"The goblin totem is crudely carved out of wood, bone and precious metals. Strange runes of power spiral down its surface.",
+        "", "",
+        {"", {0}}},
+    {"The warden is tasked with guarding the Amulet of Yendor. $HESHE wields considerable power.",
+        "", "",
+        {"", {0}}},
+    {"The eldritch totem pulses with power. The air around it shimmers with hidden energies.",
+        "", "",
+        {"", {0}}},
+    {"The mirrored totem reflects the world around it in unpredictable ways.",
+        "", "",
+        {"", {0}}},
+    {"A unicorn's horn is thought to be able to purify water and heal the sick and wounded.",
+        "healing", "Healing",
         {"pokes", "stabs", "gores", {0}}},
-    {"A whirling desert storm given human shape, the ifrit's twin scimitars flicker in the darkness and $HISHER eyes burn with otherworldly zeal.",
-        "absorbing", "Absorbing",
-        {"cuts", "slashes", "lacerates", {0}}},
-    {"This legendary bird shines with a brilliant light, and $HISHER wings crackle and pop like embers as they beat the air. When $HESHE dies, legend has it that an egg will form and a newborn phoenix will rise from its ashes.",
-        "cremating", "Cremating",
-        {"pecks", "scratches", "claws", {0}}},
-    {"Cradled in a nest of cooling ashes, the translucent membrane of the phoenix egg reveals a yolk that glows brighter by the second.",
-        "cremating", "Cremating",
-        {"touches", {0}},
-        {0},
-        "bursts as a newborn phoenix rises from the ashes!"},
-    {"This mangrove dryad is as old as the earth, and $HISHER gnarled figure houses an ancient power. When angered, $HESHE can call upon the forces of nature to bind $HISHER foes and tear them to shreds.",
-        "absorbing", "Absorbing",
-        {"whips", "lashes", "thrashes", "lacerates", {0}}},
-};
-
-const mutation mutationCatalog[NUMBER_MUTATORS] = {
-    //Title         textColor       healthFactor    moveSpdMult attackSpdMult   defMult damMult DF% DFtype  light   monstFlags  abilityFlags    forbiddenFlags      forbiddenAbilities      canBeNegated
-    {"explosive",   &orange,        50,             100,        100,            50,     100,    0,  DF_MUTATION_EXPLOSION, EXPLOSIVE_BLOAT_LIGHT, 0, MA_DF_ON_DEATH, MONST_SUBMERGES, 0,
-        "A rare mutation will cause $HIMHER to explode violently when $HESHE dies.",    true},
-    {"infested",    &lichenColor,   50,             100,        100,            50,     100,    0,  DF_MUTATION_LICHEN, 0, 0,   MA_DF_ON_DEATH, 0,               0,
-        "$HESHE has been infested by deadly lichen spores; poisonous fungus will spread from $HISHER corpse when $HESHE dies.", true},
-    {"agile",       &lightBlue,     100,            50,         100,            150,    100,    -1, 0,      0,      MONST_FLEES_NEAR_DEATH, 0, MONST_FLEES_NEAR_DEATH, 0,
-        "A rare mutation greatly enhances $HISHER mobility.",   false},
-    {"juggernaut",  &brown,         300,            200,        200,            75,     200,    -1, 0,      0,      0,          MA_ATTACKS_STAGGER, MONST_MAINTAINS_DISTANCE, 0,
-        "A rare mutation has hardened $HISHER flesh, increasing $HISHER health and power but compromising $HISHER speed.",  false},
-    {"grappling",   &tanColor,      150,            100,        100,            50,     100,    -1, 0,      0,      0,          MA_SEIZES,      MONST_MAINTAINS_DISTANCE, MA_SEIZES,
-        "A rare mutation has caused suckered tentacles to sprout from $HISHER frame, increasing $HISHER health and allowing $HIMHER to grapple with $HISHER prey.", true},
-    {"vampiric",    &red,           100,            100,        100,            100,    100,    -1, 0,      0,      0,          MA_TRANSFERENCE, MONST_MAINTAINS_DISTANCE, MA_TRANSFERENCE,
-        "A rare mutation allows $HIMHER to heal $HIMSELFHERSELF with every attack.",    true},
-    {"toxic",       &green,         100,            100,        200,            100,    20,     -1, 0,      0,      0,          (MA_CAUSES_WEAKNESS | MA_POISONS), MONST_MAINTAINS_DISTANCE, (MA_CAUSES_WEAKNESS | MA_POISONS),
-        "A rare mutation causes $HIMHER to poison $HISHER victims and sap their strength with every attack.",   true},
-    {"reflective",  &darkTurquoise, 100,            100,        100,            100,    100,    -1, 0,      0,      MONST_REFLECT_50, 0,         (MONST_REFLECT_50 | MONST_ALWAYS_USE_ABILITY), 0,
-        "A rare mutation has coated $HISHER flesh with reflective scales.",     true},
-};
-
-const monsterClass monsterClassCatalog[MONSTER_CLASS_COUNT] = {
-    // name             frequency   maxDepth    member list
-    {"abomination",     10,         -1,         {MK_BOG_MONSTER, MK_UNDERWORM, MK_KRAKEN, MK_TENTACLE_HORROR}},
-    {"dar",             10,         22,         {MK_DAR_BLADEMASTER, MK_DAR_PRIESTESS, MK_DAR_BATTLEMAGE}},
-    {"animal",          10,         10,         {MK_RAT, MK_MONKEY, MK_JACKAL, MK_EEL, MK_TOAD, MK_VAMPIRE_BAT, MK_CENTIPEDE, MK_SPIDER}},
-    {"goblin",          10,         10,         {MK_GOBLIN, MK_GOBLIN_CONJURER, MK_GOBLIN_MYSTIC, MK_GOBLIN_TOTEM, MK_GOBLIN_CHIEFTAN, MK_SPECTRAL_BLADE}},
-    {"ogre",            10,         16,         {MK_OGRE, MK_OGRE_SHAMAN, MK_OGRE_TOTEM}},
-    {"dragon",          10,         -1,         {MK_DRAGON}},
-    {"undead",          10,         -1,         {MK_ZOMBIE, MK_WRAITH, MK_VAMPIRE, MK_PHANTOM, MK_LICH, MK_REVENANT}},
-    {"jelly",           10,         15,         {MK_PINK_JELLY, MK_BLACK_JELLY, MK_ACID_JELLY}},
-    {"turret",          5,          18,         {MK_ARROW_TURRET, MK_SPARK_TURRET, MK_DART_TURRET, MK_FLAME_TURRET}},
-    {"infernal",        10,         -1,         {MK_FLAMEDANCER, MK_IMP, MK_REVENANT, MK_FURY, MK_PHANTOM, MK_IFRIT}},
-    {"mage",            10,         -1,         {MK_GOBLIN_CONJURER, MK_GOBLIN_MYSTIC, MK_OGRE_SHAMAN, MK_DAR_PRIESTESS, MK_DAR_BATTLEMAGE, MK_PIXIE, MK_LICH}},
-    {"waterborne",      10,         17,         {MK_EEL, MK_NAGA, MK_KRAKEN}},
-    {"airborne",        10,         15,         {MK_VAMPIRE_BAT, MK_WILL_O_THE_WISP, MK_PIXIE, MK_PHANTOM, MK_FURY, MK_IFRIT, MK_PHOENIX}},
-    {"fireborne",       10,         12,         {MK_WILL_O_THE_WISP, MK_SALAMANDER, MK_FLAMEDANCER, MK_PHOENIX}},
-    {"troll",           10,         15,         {MK_TROLL}},
-};
-
-// ITEMS
-
-char itemTitles[NUMBER_ITEM_TITLES][30];
-
-const char itemCategoryNames[NUMBER_ITEM_CATEGORIES][11] = {
-        "food",
-        "weapon",
-        "armor",
-        "potion",
-        "scroll",
-        "staff",
-        "wand",
-        "ring",
-        "charm",
-        "gold",
-        "amulet",
-        "lumenstone",
-        "key"
-};
-
-const char titlePhonemes[NUMBER_TITLE_PHONEMES][30] = {
-    "glorp",
-    "snarg",
-    "gana",
-    "flin",
-    "herba",
-    "pora",
-    "nuglo",
-    "greep",
-    "nur",
-    "lofa",
-    "poder",
-    "nidge",
-    "pus",
-    "wooz",
-    "flem",
-    "bloto",
-    "porta",
-    "ermah",
-    "gerd",
-    "nurt",
-    "flurx",
-};
-
-char itemColors[NUMBER_ITEM_COLORS][30];
-
-const char itemColorsRef[NUMBER_ITEM_COLORS][30] = {
-    "crimson",
-    "scarlet",
-    "orange",
-    "yellow",
-    "green",
-    "blue",
-    "indigo",
-    "violet",
-    "puce",
-    "mauve",
-    "burgundy",
-    "turquoise",
-    "aquamarine",
-    "gray",
-    "pink",
-    "white",
-    "lavender",
-    "tan",
-    "brown",
-    "cyan",
-    "black"
-};
-
-char itemWoods[NUMBER_ITEM_WOODS][30];
-
-const char itemWoodsRef[NUMBER_ITEM_WOODS][30] = {
-    "teak",
-    "oak",
-    "redwood",
-    "rowan",
-    "willow",
-    "mahogany",
-    "pinewood",
-    "maple",
-    "bamboo",
-    "ironwood",
-    "pearwood",
-    "birch",
-    "cherry",
-    "eucalyptus",
-    "walnut",
-    "cedar",
-    "rosewood",
-    "yew",
-    "sandalwood",
-    "hickory",
-    "hemlock",
-};
-
-char itemMetals[NUMBER_ITEM_METALS][30];
-
-const char itemMetalsRef[NUMBER_ITEM_METALS][30] = {
-    "bronze",
-    "steel",
-    "brass",
-    "pewter",
-    "nickel",
-    "copper",
-    "aluminum",
-    "tungsten",
-    "titanium",
-    "cobalt",
-    "chromium",
-    "silver",
-};
-
-char itemGems[NUMBER_ITEM_GEMS][30];
-
-const char itemGemsRef[NUMBER_ITEM_GEMS][30] = {
-    "diamond",
-    "opal",
-    "garnet",
-    "ruby",
-    "amethyst",
-    "topaz",
-    "onyx",
-    "tourmaline",
-    "sapphire",
-    "obsidian",
-    "malachite",
-    "aquamarine",
-    "emerald",
-    "jade",
-    "alexandrite",
-    "agate",
-    "bloodstone",
-    "jasper"
-};
-
-itemTable keyTable[NUMBER_KEY_TYPES] = {
-    {"door key",            "", "", 1, 0,   0, 0, {0,0,0}, true, false, 0, false, "The notches on this ancient iron key are well worn; its leather lanyard is battered by age. What door might it open?"},
-    {"cage key",            "", "", 1, 0,   0, 0, {0,0,0}, true, false, 0, false, "The rust accreted on this iron key has been stained with flecks of blood; it must have been used recently. What cage might it open?"},
-    {"crystal orb",         "", "", 1, 0,   0, 0, {0,0,0}, true, false, 0, false, "A faceted orb, seemingly cut from a single crystal, sparkling and perpetually warm to the touch. What manner of device might such an object activate?"},
-};
-
-itemTable foodTable[NUMBER_FOOD_KINDS] = {
-    {"ration of food",      "", "", 3, 25,  0, 1800, {0,0,0}, true, false, 0, false, "A ration of food. Was it left by former adventurers? Is it a curious byproduct of the subterranean ecosystem?"},
-    {"mango",               "", "", 1, 15,  0, 1550, {0,0,0}, true, false, 0, false, "An odd fruit to be found so deep beneath the surface of the earth, but only slightly less filling than a ration of food."}
-};
-
-itemTable weaponTable[NUMBER_WEAPON_KINDS] = {
-    {"dagger",              "", "", 10, 190,        12, 0, {3, 4,  1},     true, false, 0, false, "A simple iron dagger with a well-worn wooden handle. Daggers will deal quintuple damage upon a successful sneak attack instead of triple damage."},
-    {"sword",               "", "", 10, 440,        14, 0, {7, 9,  1},     true, false, 0, false, "The razor-sharp length of steel blade shines reassuringly."},
-    {"broadsword",          "", "", 10, 990,        19, 0, {14, 22, 1},    true, false, 0, false, "This towering blade inflicts heavy damage by investing its heft into every cut."},
-
-    {"whip",                "", "", 10, 440,        14, 0, {3, 5,  1},     true, false, 0, false, "The lash from this coil of braided leather can tear bark from trees, and it will reach opponents up to five spaces away."},
-    {"rapier",              "", "", 10, 440,        15, 0, {3, 5,  1},     true, false, 0, false, "This blade is thin and flexible, designed for deft and rapid maneuvers. It inflicts less damage than comparable weapons, but permits you to attack twice as quickly. If there is one space between you and an enemy and you step directly toward it, you will perform a devastating lunge attack, which deals triple damage and never misses."},
-    {"flail",               "", "", 10, 440,        17, 0, {9, 15, 1},     true, false, 0, false, "This spiked iron ball can be whirled at the end of its chain in synchronicity with your movement, allowing you a free attack whenever moving between two spaces that are adjacent to an enemy."},
-
-    {"mace",                "", "", 10, 660,        16, 0, {16, 20, 1},    true, false, 0, false, "The iron flanges at the head of this weapon inflict substantial damage with every weighty blow. Because of its heft, it takes an extra turn to recover when it hits, and will push your opponent backward if there is room."},
-    {"war hammer",          "", "", 10, 1100,       20, 0, {25, 35, 1},    true, false, 0, false, "Few creatures can withstand the crushing blow of this towering mass of lead and steel, but only the strongest of adventurers can effectively wield it. Because of its heft, it takes an extra turn to recover when it hits, and will push your opponent backward if there is room."},
-
-    {"spear",               "", "", 10, 330,        13, 0, {4, 5, 1},      true, false, 0, false, "A slender wooden rod tipped with sharpened iron. The reach of the spear permits you to simultaneously attack an adjacent enemy and the enemy directly behind it."},
-    {"war pike",            "", "", 10, 880,        18, 0, {11, 15, 1},    true, false, 0, false, "A long steel pole ending in a razor-sharp point. The reach of the pike permits you to simultaneously attack an adjacent enemy and the enemy directly behind it."},
-
-    {"axe",                 "", "", 10, 550,        15, 0, {7, 9, 1},      true, false, 0, false, "The blunt iron edge on this axe glints in the darkness. The arc of its swing permits you to attack all adjacent enemies simultaneously."},
-    {"war axe",             "", "", 10, 990,        19, 0, {12, 17, 1},    true, false, 0, false, "The enormous steel head of this war axe puts considerable heft behind each stroke. The arc of its swing permits you to attack all adjacent enemies simultaneously."},
-
-    {"dart",                "", "", 0,  15,         10, 0, {2, 4,  1},     true, false, 0, false, "These simple metal spikes are weighted to fly true and sting their prey with a flick of the wrist."},
-    {"incendiary dart",     "", "", 10, 25,         12, 0, {1, 2,  1},     true, false, 0, false, "The barbed spike on each of these darts is designed to stick to its target while the compounds strapped to its length explode into flame."},
-    {"javelin",             "", "", 10, 40,         15, 0, {3, 11, 3},     true, false, 0, false, "This length of metal is weighted to keep the spike at its tip foremost as it sails through the air."},
-};
-
-itemTable armorTable[NUMBER_ARMOR_KINDS] = {
-    {"leather armor",   "", "", 10, 250,        10, 0, {30,30,0},      true, false, 0, false, "This lightweight armor offers basic protection."},
-    {"scale mail",      "", "", 10, 350,        12, 0, {40,40,0},      true, false, 0, false, "Bronze scales cover the surface of treated leather, offering greater protection than plain leather with minimal additional weight."},
-    {"chain mail",      "", "", 10, 500,        13, 0, {50,50,0},      true, false, 0, false, "Interlocking metal links make for a tough but flexible suit of armor."},
-    {"banded mail",     "", "", 10, 800,        15, 0, {70,70,0},      true, false, 0, false, "Overlapping strips of metal horizontally encircle a chain mail base, offering an additional layer of protection at the cost of greater weight."},
-    {"splint mail",     "", "", 10, 1000,       17, 0, {90,90,0},      true, false, 0, false, "Thick plates of metal are embedded into a chain mail base, providing the wearer with substantial protection."},
-    {"plate armor",     "", "", 10, 1300,       19, 0, {110,110,0},    true, false, 0, false, "Enormous plates of metal are joined together into a suit that provides unmatched protection to any adventurer strong enough to bear its staggering weight."}
-};
-
-const char weaponRunicNames[NUMBER_WEAPON_RUNIC_KINDS][30] = {
-    "speed",
-    "quietus",
-    "paralysis",
-    "multiplicity",
-    "slowing",
-    "confusion",
-    "force",
-    "slaying",
-    "mercy",
-    "plenty"
-};
-
-const char armorRunicNames[NUMBER_ARMOR_ENCHANT_KINDS][30] = {
-    "multiplicity",
-    "mutuality",
-    "absorption",
-    "reprisal",
-    "immunity",
-    "reflection",
-    "respiration",
-    "dampening",
-    "burden",
-    "vulnerability",
-    "immolation",
-};
-
-itemTable staffTable[NUMBER_STAFF_KINDS] = {
-    {"lightning",       itemWoods[0], "",   15, 1300,   0, BOLT_LIGHTNING,     {2,4,1}, false, false, 1,  false, "This staff conjures forth deadly arcs of electricity to damage to any number of creatures in a straight line."},
-    {"firebolt",        itemWoods[1], "",   15, 1300,   0, BOLT_FIRE,          {2,4,1}, false, false, 1,  false, "This staff unleashes bursts of magical fire. It will ignite flammable terrain and burn any creature that it hits. Creatures with an immunity to fire will be unaffected by the bolt."},
-    {"poison",          itemWoods[3], "",   10, 1200,   0, BOLT_POISON,        {2,4,1}, false, false, 1,  false, "The vile blast of this twisted staff will imbue its target with a deadly venom. Each turn, a creature that is poisoned will suffer one point of damage per dose of poison it has received, and poisoned creatures will not regenerate lost health until the poison clears."},
-    {"tunneling",       itemWoods[4], "",   10, 1000,   0, BOLT_TUNNELING,     {2,4,1}, false, false, 1,  false, "Bursts of magic from this staff will pass harmlessly through creatures but will reduce most obstructions to rubble."},
-    {"blinking",        itemWoods[5], "",   11, 1200,   0, BOLT_BLINKING,      {2,4,1}, false, false, 1,  false, "This staff will allow you to teleport in the chosen direction. Creatures and inanimate obstructions will block the teleportation."},
-    {"entrancement",    itemWoods[6], "",   6,  1000,   0, BOLT_ENTRANCEMENT,  {2,4,1}, false, false, 1,  false, "This staff will send creatures into a temporary trance, causing them to mindlessly mirror your movements. You can use the effect to cause one creature to attack another or to step into hazardous terrain, but the spell will be broken if you attack the creature under the effect."},
-    {"obstruction",     itemWoods[7], "",   10, 1000,   0, BOLT_OBSTRUCTION,   {2,4,1}, false, false, 1,  false, "This staff will conjure a mass of impenetrable green crystal, preventing anything from moving through the affected area and temporarily entombing anything that is already there. The crystal will dissolve into the air as time passes. Higher level staffs will create larger obstructions."},
-    {"discord",         itemWoods[8], "",   10, 1000,   0, BOLT_DISCORD,       {2,4,1}, false, false, 1,  false, "This staff will alter the perception of a creature and cause it to lash out indiscriminately. Strangers and allies alike will turn on the victim."},
-    {"conjuration",     itemWoods[9], "",   8,  1000,   0, BOLT_CONJURATION,   {2,4,1}, false, false, 1,  false, "A flick of this staff will summon a number of phantom blades to fight on your behalf."},
-    {"healing",         itemWoods[10], "",  5,  1100,   0, BOLT_HEALING,       {2,4,1}, false, false, -1, false, "This staff will heal any creature, friend or foe. Unfortunately, you cannot use this or any staff on yourself except by reflecting the bolt."},
-    {"haste",           itemWoods[11], "",  5,  900,    0, BOLT_HASTE,         {2,4,1}, false, false, -1, false, "This staff will temporarily double the speed of any creature, friend or foe. Unfortunately, you cannot use this or any staff on yourself except by reflecting the bolt."},
-    {"protection",      itemWoods[12], "",  5,  900,    0, BOLT_SHIELDING,     {2,4,1}, false, false, -1, false, "This staff will bathe a creature in a protective light that will absorb all damage until it is depleted. Unfortunately, you cannot use this or any staff on yourself except by reflecting the bolt."},
-};
-
-itemTable ringTable[NUMBER_RING_KINDS] = {
-    {"clairvoyance",    itemGems[0], "",    1,  900,    0, 0, {1,3,1}, false, false, 1, false, "This ring of eldritch scrying will permit you to see through nearby walls and doors, within a radius determined by the level of the ring. A cursed ring of clairvoyance will blind you to your immediate surroundings."},
-    {"stealth",         itemGems[1], "",    1,  800,    0, 0, {1,3,1}, false, false, 1, false, "This ring of silent passage will reduce your stealth range, making enemies less likely to notice you and more likely to lose your trail. Staying motionless and lurking in the shadows will make you even harder to spot. Cursed rings of stealth will increase your stealth range, making you easier to spot and to track."},
-    {"regeneration",    itemGems[2], "",    1,  750,    0, 0, {1,3,1}, false, false, 1, false, "This ring of sacred life will allow you to recover lost health at an accelerated rate. Cursed rings will decrease or even halt your natural regeneration."},
-    {"transference",    itemGems[3], "",    1,  750,    0, 0, {1,3,1}, false, false, 1, false, "This ring of blood magic will heal you in proportion to the damage you inflict on others. Cursed rings will cause you to lose health when inflicting damage."},
-    {"light",           itemGems[4], "",    1,  600,    0, 0, {1,3,1}, false, false, 1, false, "This ring of preternatural vision will allow you to see farther in the dimming light of the deeper dungeon levels. It will not make you more noticeable to enemies."},
-    {"awareness",       itemGems[5], "",    1,  700,    0, 0, {1,3,1}, false, false, 1, false, "This ring of effortless vigilance will enable you to notice traps, secret doors and hidden levers more often and from a greater distance. Cursed rings of awareness will dull your senses, making it harder to notice secrets without actively searching for them."},
-    {"wisdom",          itemGems[6], "",    1,  700,    0, 0, {1,3,1}, false, false, 1, false, "This ring of arcane power will cause your staffs to recharge at an accelerated rate. Cursed rings of wisdom will cause your staffs to recharge more slowly."},
-    {"reaping",         itemGems[7], "",    1,  700,    0, 0, {1,3,1}, false, false, 1, false, "This ring of blood magic will recharge your staffs and charms every time you hit an enemy. Cursed rings of reaping will drain your staffs and charms with every hit."},
-};
-
-const monsterBehavior monsterBehaviorCatalog[32] = {
-    {"is invisible",                    true},          // MONST_INVISIBLE
-    {"is an inanimate object",          false},         // MONST_INANIMATE
-    {"cannot move",                     false},         // MONST_IMMOBILE
-    {"",                                false},         // MONST_CARRY_ITEM_100
-    {"",                                false},         // MONST_CARRY_ITEM_25
-    {"",                                false},         // MONST_ALWAYS_HUNTING
-    {"flees at low health",             false},         // MONST_FLEES_NEAR_DEATH
-    {"",                                false},         // MONST_ATTACKABLE_THRU_WALLS
-    {"corrodes weapons when hit",       true},          // MONST_DEFEND_DEGRADE_WEAPON
-    {"is immune to weapon damage",      true},          // MONST_IMMUNE_TO_WEAPONS
-    {"flies",                           true},          // MONST_FLIES
-    {"moves erratically",               true},          // MONST_FLITS
-    {"is immune to fire",               true},          // MONST_IMMUNE_TO_FIRE
-    {"",                                false},         // MONST_CAST_SPELLS_SLOWLY
-    {"cannot be entangled",             false},         // MONST_IMMUNE_TO_WEBS
-    {"can reflect magic spells",        true},          // MONST_REFLECT_50
-    {"never sleeps",                    false},         // MONST_NEVER_SLEEPS
-    {"burns unceasingly",               true},          // MONST_FIERY
-    {"is invulnerable",                 false},         // MONST_INVULNERABLE
-    {"is at home in water",             false},         // MONST_IMMUNE_TO_WATER
-    {"cannot venture onto dry land",    false},         // MONST_RESTRICTED_TO_LIQUID
-    {"submerges",                       false},         // MONST_SUBMERGES
-    {"keeps $HISHER distance",          true},          // MONST_MAINTAINS_DISTANCE
-    {"",                                false},         // MONST_WILL_NOT_USE_STAIRS
-    {"is animated purely by magic",     false},         // MONST_DIES_IF_NEGATED
-    {"",                                false},         // MONST_MALE
-    {"",                                false},         // MONST_FEMALE
-    {"",                                false},         // MONST_NOT_LISTED_IN_SIDEBAR
-    {"moves only when activated",       false},         // MONST_GETS_TURN_ON_ACTIVATION
-};
-
-const monsterAbility monsterAbilityCatalog[32] = {
-    {"can induce hallucinations",                   true},  // MA_HIT_HALLUCINATE
-    {"can steal items",                             true},  // MA_HIT_STEAL_FLEE
-    {"lights enemies on fire when $HESHE hits",     true},  // MA_HIT_BURN
-    {"can possess $HISHER summoned allies",         true},  // MA_ENTER_SUMMONS
-    {"corrodes armor when $HESHE hits",             true},  // MA_HIT_DEGRADE_ARMOR
-    {"can summon allies",                           true},  // MA_CAST_SUMMON
-    {"immobilizes $HISHER prey",                    true},  // MA_SEIZES
-    {"injects poison when $HESHE hits",             true},  // MA_POISONS
-    {"",                                            true},  // MA_DF_ON_DEATH
-    {"divides in two when struck",                  true},  // MA_CLONE_SELF_ON_DEFEND
-    {"dies when $HESHE attacks",                    true},  // MA_KAMIKAZE
-    {"recovers health when $HESHE inflicts damage", true},  // MA_TRANSFERENCE
-    {"saps strength when $HESHE inflicts damage",   true},  // MA_CAUSE_WEAKNESS
-    {"attacks up to two opponents in a line",       false}, // MA_ATTACKS_PENETRATE
-    {"attacks all adjacent opponents at once",      false}, // MA_ATTACKS_ALL_ADJACENT
-    {"attacks with a whip",                         false}, // MA_ATTACKS_EXTEND
-    {"pushes opponents backward when $HESHE hits",  false}, // MA_ATTACKS_STAGGER
-    {"avoids attacking in corridors in a group",    true},  // MA_AVOID_CORRIDORS
-};
-
-const char monsterBehaviorFlagDescriptions[32][COLS] = {
-    "is invisible",                             // MONST_INVISIBLE
-    "is an inanimate object",                   // MONST_INANIMATE
-    "cannot move",                              // MONST_IMMOBILE
-    "",                                         // MONST_CARRY_ITEM_100
-    "",                                         // MONST_CARRY_ITEM_25
-    "",                                         // MONST_ALWAYS_HUNTING
-    "flees at low health",                      // MONST_FLEES_NEAR_DEATH
-    "",                                         // MONST_ATTACKABLE_THRU_WALLS
-    "corrodes weapons when hit",                // MONST_DEFEND_DEGRADE_WEAPON
-    "is immune to weapon damage",               // MONST_IMMUNE_TO_WEAPONS
-    "flies",                                    // MONST_FLIES
-    "moves erratically",                        // MONST_FLITS
-    "is immune to fire",                        // MONST_IMMUNE_TO_FIRE
-    "",                                         // MONST_CAST_SPELLS_SLOWLY
-    "cannot be entangled",                      // MONST_IMMUNE_TO_WEBS
-    "can reflect magic spells",                 // MONST_REFLECT_50
-    "never sleeps",                             // MONST_NEVER_SLEEPS
-    "burns unceasingly",                        // MONST_FIERY
-    "is invulnerable",                          // MONST_INVULNERABLE
-    "is at home in water",                      // MONST_IMMUNE_TO_WATER
-    "cannot venture onto dry land",             // MONST_RESTRICTED_TO_LIQUID
-    "submerges",                                // MONST_SUBMERGES
-    "keeps $HISHER distance",                   // MONST_MAINTAINS_DISTANCE
-    "",                                         // MONST_WILL_NOT_USE_STAIRS
-    "is animated purely by magic",              // MONST_DIES_IF_NEGATED
-    "",                                         // MONST_MALE
-    "",                                         // MONST_FEMALE
-    "",                                         // MONST_NOT_LISTED_IN_SIDEBAR
-    "moves only when activated",                // MONST_GETS_TURN_ON_ACTIVATION
-};
-
-const char monsterAbilityFlagDescriptions[32][COLS] = {
-    "can induce hallucinations",                // MA_HIT_HALLUCINATE
-    "can steal items",                          // MA_HIT_STEAL_FLEE
-    "lights enemies on fire when $HESHE hits",  // MA_HIT_BURN
-    "can possess $HISHER summoned allies",      // MA_ENTER_SUMMONS
-    "corrodes armor when $HESHE hits",          // MA_HIT_DEGRADE_ARMOR
-    "can summon allies",                        // MA_CAST_SUMMON
-    "immobilizes $HISHER prey",                 // MA_SEIZES
-    "injects poison when $HESHE hits",          // MA_POISONS
-    "",                                         // MA_DF_ON_DEATH
-    "divides in two when struck",               // MA_CLONE_SELF_ON_DEFEND
-    "dies when $HESHE attacks",                 // MA_KAMIKAZE
-    "recovers health when $HESHE inflicts damage",// MA_TRANSFERENCE
-    "saps strength when $HESHE inflicts damage",// MA_CAUSE_WEAKNESS
-
-    "attacks up to two opponents in a line",    // MA_ATTACKS_PENETRATE
-    "attacks all adjacent opponents at once",   // MA_ATTACKS_ALL_ADJACENT
-    "attacks with a whip",                      // MA_ATTACKS_EXTEND
-    "pushes opponents backward when $HESHE hits", // MA_ATTACKS_STAGGER
-    "avoids attacking in corridors in a group", // MA_AVOID_CORRIDORS
-    "reflects magic spells back at the caster", // MA_REFLECT_100
-};
-
-const char monsterBookkeepingFlagDescriptions[32][COLS] = {
-    "",                                         // MB_WAS_VISIBLE
-    "is telepathically bonded with you",        // MB_TELEPATHICALLY_REVEALED
-    "",                                         // MB_PREPLACED
-    "",                                         // MB_APPROACHING_UPSTAIRS
-    "",                                         // MB_APPROACHING_DOWNSTAIRS
-    "",                                         // MB_APPROACHING_PIT
-    "",                                         // MB_LEADER
-    "",                                         // MB_FOLLOWER
-    "",                                         // MB_CAPTIVE
-    "has been immobilized",                     // MB_SEIZED
-    "is currently holding $HISHER prey immobile",// MB_SEIZING
-    "is submerged",                             // MB_SUBMERGED
-    "",                                         // MB_JUST_SUMMONED
-    "",                                         // MB_WILL_FLASH
-    "is anchored to reality by $HISHER summoner",// MB_BOUND_TO_LEADER
-    "is marked for demonic sacrifice",          // MB_MARKED_FOR_SACRIFICE
-};
-
-const statusEffect statusEffectCatalog[NUMBER_OF_STATUS_EFFECTS] = {
-    {"Searching",       false, 0}, // STATUS_SEARCHING
-    {"Donning Armor",   false, 0}, // STATUS_DONNING
-    {"Weakened: -",     false, 0}, // STATUS_WEAKENED
-    {"Telepathic",      true,  1}, // STATUS_TELEPATHIC
-    {"Hallucinating",   true,  0}, // STATUS_HALLUCINATING
-    {"Levitating",      true,  1}, // STATUS_LEVITATING
-    {"Slowed",          true,  0}, // STATUS_SLOWED
-    {"Hasted",          true,  0}, // STATUS_HASTED
-    {"Confused",        true,  0}, // STATUS_CONFUSED
-    {"Burning",         false, 0}, // STATUS_BURNING
-    {"Paralyzed",       false, 0}, // STATUS_PARALYZED
-    {"Poisoned",        false, 0}, // STATUS_POISONED
-    {"Stuck",           false, 0}, // STATUS_STUCK
-    {"Nauseous",        false, 0}, // STATUS_NAUSEOUS
-    {"Discordant",      true,  0}, // STATUS_DISCORDANT
-    {"Immune to Fire",  true,  1}, // STATUS_IMMUNE_TO_FIRE
-    {"",                false, 0}, // STATUS_EXPLOSION_IMMUNITY,
-    {"",                false, 0}, // STATUS_NUTRITION,
-    {"",                false, 0}, // STATUS_ENTERS_LEVEL_IN,
-    {"",                false, 0}, // STATUS_ENRAGED,
-    {"Frightened",      true,  0}, // STATUS_MAGICAL_FEAR
-    {"Entranced",       true,  0}, // STATUS_ENTRANCED
-    {"Darkened",        true,  0}, // STATUS_DARKNESS
-    {"Lifespan",        false, 0}, // STATUS_LIFESPAN_REMAINING
-    {"Shielded",        true,  0}, // STATUS_SHIELDED
-    {"Invisible",       true,  0}, // STATUS_INVISIBLE
+    {"A spirit of flame, the ifrit flits through the air, leaving a trail of burning embers in $HISHER wake.",
+        "immolating", "Examining",
+        {"singes", "burns", {0}}},
+    {"The phoenix shines with an inner light. Legends say that this bird can be reborn in fire.",
+        "immolating", "Examining",
+        {"pecks", "claws", {0}}},
+    {"The phoenix egg glows white-hot. It looks like it's about to hatch - or explode.",
+        "", "",
+        {"", {0}}},
+    {"This ancient nature spirit commands the destructive power of carnivorous plants.",
+        "communing with", "Examining",
+        {"touches", {0}}},
 };

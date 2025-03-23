@@ -4,6 +4,10 @@
 #include "mcp_client.h"
 #include <string.h>
 #include <stdlib.h>
+#include "../brogue/Rogue.h"
+
+// Declare the external variable we'll need to access
+extern boolean narratorUIActive;
 
 /**
  * Initialize the Dungeon Master AI integration
@@ -76,8 +80,8 @@ void dm_on_player_died(char *killedBy) {
     handle_player_died(killedBy);
 }
 
-// Function to open a URL in the default browser
-void open_narrator_settings() {
+// Open the narrator settings UI in the browser
+void open_narrator_settings(void) {
     #ifdef _WIN32
     system("start http://localhost:3001/narrator");
     #elif __APPLE__
@@ -85,6 +89,12 @@ void open_narrator_settings() {
     #else // Linux and others
     system("xdg-open http://localhost:3001/narrator");
     #endif
+}
+
+// Close the narrator UI
+void close_narrator_settings(void) {
+    // Set the local state in IO.c to false
+    narratorUIActive = false;
 }
 
 // Main initialization function for DM agent

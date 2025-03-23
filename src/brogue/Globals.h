@@ -136,3 +136,7 @@ extern const char armorRunicNames[NUMBER_ARMOR_ENCHANT_KINDS][30];
 
 extern const char *mainMenuTitle;
 extern const levelFeeling *levelFeelings;
+
+// Narrator UI state variables
+extern boolean narratorUIActive;        // Whether the narrator UI is currently active
+extern boolean narratorSettingsChanged;  // Whether settings have been changed
