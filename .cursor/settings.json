@@ -1,0 +1,7 @@
+{
+  "terminal": {
+    "env": {
+      "PATH": "${env:PATH};C:\\msys2\\mingw64\\bin"
+    }
+  }
+} 

@@ -1,0 +1,871 @@
+---
+description: 
+globs: **/*.c,**/*.h
+alwaysApply: false
+---
+ ---
+title: "Procedural Generation Guidelines"
+description: "Detailed guidelines for implementing procedural generation in BrogueMCP"
+glob: "**/*.c,**/*.h"
+priority: 800
+related: ["game/roguelike-patterns.mdc", "memory/procedural-structures.mdc"]
+---
+
+# Procedural Generation Guidelines
+
+## Overview
+
+This document provides guidance for implementing procedural content generation in BrogueMCP, focusing on dungeon generation, entity placement, and environmental features.
+
+## Core Principles
+
+### Seed-Based Generation
+
+All procedural generation should be deterministic based on a seed value:
+
+```c
+typedef struct DungeonGenContext {
+    unsigned int seed;           // Master seed for this dungeon
+    int dungeonLevel;            // Current depth level
+    unsigned int regionSeeds[4]; // Derived seeds for different generation phases
+    // Other generation parameters
+} DungeonGenContext;
+
+void initDungeonGenContext(DungeonGenContext* context, unsigned int seed, int level) {
+    context->seed = seed;
+    context->dungeonLevel = level;
+    
+    // Create derived seeds for different aspects of generation
+    // Using different seeds for different generation phases prevents
+    // changes to one phase from affecting others
+    unsigned int derivedSeed = seed + (level * 17);
+    context->regionSeeds[0] = derivedSeed * 104729; // Room generation
+    context->regionSeeds[1] = derivedSeed * 104743; // Corridor generation
+    context->regionSeeds[2] = derivedSeed * 104759; // Feature placement
+    context->regionSeeds[3] = derivedSeed * 104761; // Monster/item placement
+}
+```
+
+### Layered Generation Approach
+
+Break generation into distinct phases that build upon each other:
+
+1. **Terrain Generation**: Create the basic dungeon layout
+2. **Feature Placement**: Add special features (traps, altars, etc.)
+3. **Item Placement**: Distribute items throughout the dungeon
+4. **Monster Placement**: Position monsters based on difficulty and theme
+
+### Modularity
+
+Design generation algorithms to be modular and composable:
+
+```c
+// Generation phases - each function handles one aspect of generation
+void generateBaseTerrain(DungeonGenContext* context, DungeonMap* map);
+void placeRooms(DungeonGenContext* context, DungeonMap* map);
+void createCorridors(DungeonGenContext* context, DungeonMap* map);
+void addWater(DungeonGenContext* context, DungeonMap* map);
+void addVegetation(DungeonGenContext* context, DungeonMap* map);
+void placeItems(DungeonGenContext* context, DungeonMap* map);
+void placeMonsters(DungeonGenContext* context, DungeonMap* map);
+
+// Main generation function
+DungeonMap* generateDungeon(unsigned int seed, int level, GenerationParams params) {
+    DungeonMap* map = createEmptyMap(params.width, params.height);
+    if (!map) return NULL;
+    
+    DungeonGenContext context;
+    initDungeonGenContext(&context, seed, level);
+    
+    // Execute generation phases in sequence
+    generateBaseTerrain(&context, map);
+    placeRooms(&context, map);
+    createCorridors(&context, map);
+    
+    // Environmental features
+    addWater(&context, map);
+    addVegetation(&context, map);
+    
+    // Content
+    placeItems(&context, map);
+    placeMonsters(&context, map);
+    
+    return map;
+}
+```
+
+## Dungeon Structure Generation
+
+### Room Generation
+
+Create varied room types with different shapes and characteristics:
+
+```c
+typedef enum RoomType {
+    ROOM_RECTANGULAR,
+    ROOM_CIRCULAR,
+    ROOM_CROSS,
+    ROOM_CAVE,
+    ROOM_SPECIAL
+} RoomType;
+
+typedef struct Room {
+    RoomType type;
+    int x, y;             // Top-left corner
+    int width, height;    // Dimensions
+    int connections;      // Number of connections to other rooms
+    bool hasSpecialFeature;
+    // Additional properties
+} Room;
+
+Room* generateRoom(DungeonGenContext* context, RoomType type) {
+    Room* room = malloc(sizeof(Room));
+    if (!room) return NULL;
+    
+    room->type = type;
+    
+    // Determine size based on room type
+    switch (type) {
+        case ROOM_RECTANGULAR:
+            room->width = randomInt(5, 12);
+            room->height = randomInt(5, 9);
+            break;
+        case ROOM_CIRCULAR:
+            room->width = room->height = randomInt(5, 10) | 1; // Ensure odd number
+            break;
+        // Handle other room types
+    }
+    
+    // Additional room setup
+    room->connections = 0;
+    room->hasSpecialFeature = randomChance(0.15f);
+    
+    return room;
+}
+```
+
+### Corridor Generation
+
+Connect rooms with corridors, ensuring a navigable dungeon:
+
+```c
+bool connectRooms(DungeonGenContext* context, DungeonMap* map, Room* roomA, Room* roomB) {
+    // Get connection points from each room
+    Point pointA = getConnectionPoint(roomA);
+    Point pointB = getConnectionPoint(roomB);
+    
+    // Create corridor path
+    if (randomChance(0.5f)) {
+        // L-shaped corridor
+        createHorizontalCorridor(map, pointA.x, pointB.x, pointA.y);
+        createVerticalCorridor(map, pointA.y, pointB.y, pointB.x);
+    } else {
+        // Alternative L-shaped corridor
+        createVerticalCorridor(map, pointA.y, pointB.y, pointA.x);
+        createHorizontalCorridor(map, pointA.x, pointB.x, pointB.y);
+    }
+    
+    roomA->connections++;
+    roomB->connections++;
+    
+    return true;
+}
+```
+
+### Map Connectivity
+
+Ensure the dungeon is fully connected and accessible:
+
+```c
+bool ensureConnectivity(DungeonGenContext* context, DungeonMap* map, Room** rooms, int roomCount) {
+    // Create a graph representation of room connections
+    Graph* connectivity = createGraph(roomCount);
+    
+    // Add existing connections to the graph
+    for (int i = 0; i < roomCount; i++) {
+        for (int j = i + 1; j < roomCount; j++) {
+            if (areRoomsConnected(map, rooms[i], rooms[j])) {
+                addEdge(connectivity, i, j);
+            }
+        }
+    }
+    
+    // Find disconnected components
+    int* components = findConnectedComponents(connectivity);
+    int componentCount = countUniqueComponents(components, roomCount);
+    
+    // Connect disconnected components
+    while (componentCount > 1) {
+        // Find two rooms from different components
+        int roomA = -1, roomB = -1;
+        for (int i = 0; i < roomCount; i++) {
+            for (int j = i + 1; j < roomCount; j++) {
+                if (components[i] != components[j]) {
+                    roomA = i;
+                    roomB = j;
+                    break;
+                }
+            }
+            if (roomA != -1) break;
+        }
+        
+        // Connect these rooms
+        connectRooms(context, map, rooms[roomA], rooms[roomB]);
+        
+        // Update connected components
+        free(components);
+        components = findConnectedComponents(connectivity);
+        componentCount = countUniqueComponents(components, roomCount);
+    }
+    
+    free(components);
+    destroyGraph(connectivity);
+    
+    return true;
+}
+```
+
+## Environmental Feature Generation
+
+### Water Features
+
+Generate lakes, rivers, and pools:
+
+```c
+void addWater(DungeonGenContext* context, DungeonMap* map) {
+    // Decide on water feature type based on dungeon level
+    float riverChance = 0.3f - (context->dungeonLevel * 0.02f);  // Less rivers at deeper levels
+    float lakeChance = 0.2f + (context->dungeonLevel * 0.01f);   // More lakes at deeper levels
+    
+    if (randomChance(riverChance)) {
+        generateRiver(context, map);
+    }
+    
+    if (randomChance(lakeChance)) {
+        generateLake(context, map);
+    }
+    
+    // Always add some small water features
+    int poolCount = randomInt(2, 5);
+    for (int i = 0; i < poolCount; i++) {
+        generatePool(context, map);
+    }
+}
+
+void generateRiver(DungeonGenContext* context, DungeonMap* map) {
+    // Start from one edge of the map
+    int startX, startY, endX, endY;
+    
+    // Determine river start and end points
+    if (randomChance(0.5f)) {
+        // Horizontal river (north to south or south to north)
+        startX = randomInt(map->width / 4, map->width * 3 / 4);
+        startY = (randomChance(0.5f)) ? 0 : map->height - 1;
+        endX = randomInt(map->width / 4, map->width * 3 / 4);
+        endY = (startY == 0) ? map->height - 1 : 0;
+    } else {
+        // Vertical river (west to east or east to west)
+        startX = (randomChance(0.5f)) ? 0 : map->width - 1;
+        startY = randomInt(map->height / 4, map->height * 3 / 4);
+        endX = (startX == 0) ? map->width - 1 : 0;
+        endY = randomInt(map->height / 4, map->height * 3 / 4);
+    }
+    
+    // Generate a winding path for the river
+    PathPoint* riverPath = generateWindingPath(context, map, startX, startY, endX, endY);
+    
+    // Create the river with varying width
+    int baseWidth = randomInt(2, 4);
+    int length = riverPath->length;
+    
+    for (int i = 0; i < length; i++) {
+        int x = riverPath->points[i].x;
+        int y = riverPath->points[i].y;
+        
+        // Vary river width along its length
+        int width = baseWidth;
+        if (i < length / 5 || i > length * 4 / 5) {
+            width = baseWidth - 1; // Narrower at ends
+        } else if (i > length * 2 / 5 && i < length * 3 / 5) {
+            width = baseWidth + 1; // Wider in the middle
+        }
+        
+        // Create water tiles in a circular pattern around path point
+        for (int dy = -width; dy <= width; dy++) {
+            for (int dx = -width; dx <= width; dx++) {
+                if (dx*dx + dy*dy <= width*width) {
+                    int nx = x + dx;
+                    int ny = y + dy;
+                    
+                    if (isInBounds(map, nx, ny)) {
+                        // Don't place water in rooms or corridors
+                        if (!isCriticalPath(map, nx, ny)) {
+                            map->tiles[ny][nx].type = TILE_WATER;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // Free the path
+    freePath(riverPath);
+}
+```
+
+### Vegetation and Growth
+
+Add flora and organic elements:
+
+```c
+void addVegetation(DungeonGenContext* context, DungeonMap* map) {
+    // Determine vegetation density based on dungeon level
+    float vegetationDensity = 0.5f - (context->dungeonLevel * 0.03f);
+    if (vegetationDensity < 0.1f) vegetationDensity = 0.1f;
+    
+    // Add vegetation clusters
+    int clusterCount = randomInt(3, 8);
+    for (int i = 0; i < clusterCount; i++) {
+        // Find a suitable location for a vegetation cluster
+        int centerX = randomInt(5, map->width - 5);
+        int centerY = randomInt(5, map->height - 5);
+        
+        // Skip if center is not a floor tile
+        if (map->tiles[centerY][centerX].type != TILE_FLOOR) {
+            continue;
+        }
+        
+        // Create a vegetation cluster
+        int radius = randomInt(3, 6);
+        float density = vegetationDensity * randomFloat() * 0.5f + vegetationDensity * 0.5f;
+        
+        for (int y = centerY - radius; y <= centerY + radius; y++) {
+            for (int x = centerX - radius; x <= centerX + radius; x++) {
+                if (!isInBounds(map, x, y)) continue;
+                
+                // Only place vegetation on floor tiles
+                if (map->tiles[y][x].type != TILE_FLOOR) continue;
+                
+                // Calculate distance from center
+                float distance = sqrtf((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY));
+                if (distance > radius) continue;
+                
+                // Higher chance of vegetation near the center
+                float chance = density * (1.0f - distance / radius);
+                if (randomChance(chance)) {
+                    // Choose vegetation type
+                    if (randomChance(0.7f)) {
+                        map->tiles[y][x].vegetation = VEG_GRASS;
+                    } else if (randomChance(0.6f)) {
+                        map->tiles[y][x].vegetation = VEG_FUNGI;
+                    } else {
+                        map->tiles[y][x].vegetation = VEG_FLOWER;
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+## Entity Placement
+
+### Monster Placement
+
+Position monsters strategically:
+
+```c
+void placeMonsters(DungeonGenContext* context, DungeonMap* map) {
+    // Calculate base monster count based on dungeon level
+    int baseMonsterCount = 5 + context->dungeonLevel;
+    int variance = baseMonsterCount / 4;
+    int monsterCount = baseMonsterCount + randomInt(-variance, variance);
+    
+    // Place monsters
+    for (int i = 0; i < monsterCount; i++) {
+        // Choose a monster type based on dungeon level
+        MonsterType type = chooseMonsterType(context);
+        
+        // Find a suitable position
+        int x, y;
+        if (!findMonsterPlacement(context, map, type, &x, &y)) {
+            continue; // Skip if no suitable position found
+        }
+        
+        // Create and place the monster
+        Monster* monster = createMonster(type);
+        monster->x = x;
+        monster->y = y;
+        
+        // Add to the map's monster list
+        addMonsterToMap(map, monster);
+    }
+    
+    // Place special monsters (bosses, unique entities)
+    if (context->dungeonLevel % 5 == 0) {
+        placeSpecialMonster(context, map);
+    }
+}
+
+bool findMonsterPlacement(DungeonGenContext* context, DungeonMap* map, 
+                          MonsterType type, int* outX, int* outY) {
+    // Different monster types have different placement requirements
+    bool needsWater = (type == MONSTER_FISH || type == MONSTER_FROG);
+    bool needsVegetation = (type == MONSTER_INSECT || type == MONSTER_FUNGUS);
+    bool needsOpen = (type == MONSTER_FLYER || type == MONSTER_LARGE_BEAST);
+    
+    // Try to find a suitable position
+    for (int attempts = 0; attempts < 50; attempts++) {
+        int x = randomInt(1, map->width - 2);
+        int y = randomInt(1, map->height - 2);
+        
+        Tile* tile = &map->tiles[y][x];
+        
+        // Basic requirements - must be a passable tile with no monster already
+        if (!isTilePassable(tile) || tileHasMonster(map, x, y)) {
+            continue;
+        }
+        
+        // Check specific requirements
+        if (needsWater && tile->type != TILE_WATER) {
+            continue;
+        }
+        
+        if (needsVegetation && tile->vegetation == VEG_NONE) {
+            continue;
+        }
+        
+        if (needsOpen && !hasOpenSpace(map, x, y, 3)) {
+            continue;
+        }
+        
+        // Found a suitable position
+        *outX = x;
+        *outY = y;
+        return true;
+    }
+    
+    // Couldn't find a suitable position, relax constraints
+    for (int attempts = 0; attempts < 50; attempts++) {
+        int x = randomInt(1, map->width - 2);
+        int y = randomInt(1, map->height - 2);
+        
+        Tile* tile = &map->tiles[y][x];
+        
+        // Just check basic passability
+        if (isTilePassable(tile) && !tileHasMonster(map, x, y)) {
+            *outX = x;
+            *outY = y;
+            return true;
+        }
+    }
+    
+    return false; // Really couldn't find a place
+}
+```
+
+### Item Placement
+
+Distribute items throughout the dungeon:
+
+```c
+void placeItems(DungeonGenContext* context, DungeonMap* map) {
+    // Calculate base item count based on dungeon level
+    int baseItemCount = 3 + (context->dungeonLevel / 2);
+    int variance = baseItemCount / 3;
+    int itemCount = baseItemCount + randomInt(-variance, variance);
+    
+    // Place regular items
+    for (int i = 0; i < itemCount; i++) {
+        // Choose an item type based on dungeon level
+        ItemType type = chooseItemType(context);
+        
+        // Find a suitable position
+        int x, y;
+        if (!findItemPlacement(context, map, type, &x, &y)) {
+            continue; // Skip if no suitable position found
+        }
+        
+        // Create and place the item
+        Item* item = createItem(type);
+        item->x = x;
+        item->y = y;
+        
+        // Add to the map's item list
+        addItemToMap(map, item);
+    }
+    
+    // Place special items (quest items, artifacts)
+    if (shouldPlaceSpecialItem(context)) {
+        placeSpecialItem(context, map);
+    }
+}
+
+bool findItemPlacement(DungeonGenContext* context, DungeonMap* map, 
+                       ItemType type, int* outX, int* outY) {
+    // Different item types have different placement requirements
+    bool needsContainer = (type == ITEM_GOLD || type == ITEM_GEM);
+    bool needsWall = (type == ITEM_RUNE || type == ITEM_WALL_MOUNT);
+    bool needsWater = (type == ITEM_POTION && randomChance(0.2f));
+    
+    // Try to find a suitable position
+    for (int attempts = 0; attempts < 50; attempts++) {
+        int x = randomInt(1, map->width - 2);
+        int y = randomInt(1, map->height - 2);
+        
+        Tile* tile = &map->tiles[y][x];
+        
+        // Basic requirements - must be a valid tile with no item already
+        if (tileHasItem(map, x, y)) {
+            continue;
+        }
+        
+        // Check specific requirements
+        if (needsContainer && !tileHasContainer(tile)) {
+            continue;
+        }
+        
+        if (needsWall && !adjacentToWall(map, x, y)) {
+            continue;
+        }
+        
+        if (needsWater && tile->type != TILE_WATER) {
+            continue;
+        }
+        
+        // Most items should be on passable terrain
+        if (!needsWall && !isTilePassable(tile)) {
+            continue;
+        }
+        
+        // Found a suitable position
+        *outX = x;
+        *outY = y;
+        return true;
+    }
+    
+    // Couldn't find a suitable position, relax constraints
+    for (int attempts = 0; attempts < 50; attempts++) {
+        int x = randomInt(1, map->width - 2);
+        int y = randomInt(1, map->height - 2);
+        
+        Tile* tile = &map->tiles[y][x];
+        
+        // Just check basic requirements
+        if (isTilePassable(tile) && !tileHasItem(map, x, y)) {
+            *outX = x;
+            *outY = y;
+            return true;
+        }
+    }
+    
+    return false; // Really couldn't find a place
+}
+```
+
+## Special Feature Generation
+
+### Traps and Hazards
+
+Add dangerous elements to the dungeon:
+
+```c
+void placeTrapHazards(DungeonGenContext* context, DungeonMap* map) {
+    // Determine trap count based on dungeon level
+    int trapCount = 2 + (context->dungeonLevel / 3);
+    
+    // Place traps
+    for (int i = 0; i < trapCount; i++) {
+        // Choose a trap type
+        TrapType type = chooseTrapType(context);
+        
+        // Find a suitable position
+        int x, y;
+        if (!findTrapPlacement(context, map, type, &x, &y)) {
+            continue; // Skip if no suitable position found
+        }
+        
+        // Create and place the trap
+        Trap* trap = createTrap(type);
+        trap->x = x;
+        trap->y = y;
+        trap->visible = randomChance(0.2f); // Most traps start hidden
+        
+        // Add to the map's trap list
+        addTrapToMap(map, trap);
+    }
+}
+
+TrapType chooseTrapType(DungeonGenContext* context) {
+    // Trap distribution changes based on dungeon level
+    int level = context->dungeonLevel;
+    
+    // Simple traps are more common at early levels
+    if (level < 5) {
+        if (randomChance(0.7f)) {
+            return TRAP_PIT;
+        } else if (randomChance(0.6f)) {
+            return TRAP_DART;
+        } else {
+            return TRAP_ALARM;
+        }
+    } 
+    // Mid-level traps
+    else if (level < 10) {
+        if (randomChance(0.3f)) {
+            return TRAP_PIT;
+        } else if (randomChance(0.3f)) {
+            return TRAP_DART;
+        } else if (randomChance(0.3f)) {
+            return TRAP_POISON_GAS;
+        } else {
+            return TRAP_TELEPORT;
+        }
+    }
+    // High-level traps
+    else {
+        if (randomChance(0.3f)) {
+            return TRAP_POISON_GAS;
+        } else if (randomChance(0.3f)) {
+            return TRAP_TELEPORT;
+        } else if (randomChance(0.3f)) {
+            return TRAP_PARALYSIS;
+        } else {
+            return TRAP_SUMMONING;
+        }
+    }
+}
+```
+
+### Special Rooms
+
+Create unique and memorable room encounters:
+
+```c
+void addSpecialRooms(DungeonGenContext* context, DungeonMap* map) {
+    // Determine if this level should have a special room
+    if (!shouldHaveSpecialRoom(context)) {
+        return;
+    }
+    
+    // Choose a special room type
+    SpecialRoomType type = chooseSpecialRoomType(context);
+    
+    // Create the special room
+    switch (type) {
+        case SPECIAL_ROOM_VAULT:
+            createVaultRoom(context, map);
+            break;
+        case SPECIAL_ROOM_LIBRARY:
+            createLibraryRoom(context, map);
+            break;
+        case SPECIAL_ROOM_ALTAR:
+            createAltarRoom(context, map);
+            break;
+        case SPECIAL_ROOM_GARDEN:
+            createGardenRoom(context, map);
+            break;
+        case SPECIAL_ROOM_ARENA:
+            createArenaRoom(context, map);
+            break;
+    }
+}
+
+void createVaultRoom(DungeonGenContext* context, DungeonMap* map) {
+    // Find a suitable location for the vault
+    int width = randomInt(8, 12);
+    int height = randomInt(8, 12);
+    int x, y;
+    
+    if (!findRoomPlacement(map, width, height, &x, &y)) {
+        return; // Can't place the vault
+    }
+    
+    // Create a reinforced room
+    for (int dy = 0; dy < height; dy++) {
+        for (int dx = 0; dx < width; dx++) {
+            int nx = x + dx;
+            int ny = y + dy;
+            
+            if (dx == 0 || dx == width - 1 || dy == 0 || dy == height - 1) {
+                // Reinforced walls around the perimeter
+                map->tiles[ny][nx].type = TILE_WALL_REINFORCED;
+            } else {
+                // Floor inside
+                map->tiles[ny][nx].type = TILE_FLOOR;
+            }
+        }
+    }
+    
+    // Add a locked door
+    int doorX = x + randomInt(1, width - 2);
+    int doorY = y + randomInt(1, height - 2);
+    
+    // Place door on a wall
+    if (randomChance(0.5f)) {
+        doorX = (randomChance(0.5f)) ? x : x + width - 1;
+    } else {
+        doorY = (randomChance(0.5f)) ? y : y + height - 1;
+    }
+    
+    map->tiles[doorY][doorX].type = TILE_DOOR_LOCKED;
+    
+    // Place valuable items inside the vault
+    int itemCount = randomInt(3, 6);
+    for (int i = 0; i < itemCount; i++) {
+        int itemX = x + randomInt(1, width - 2);
+        int itemY = y + randomInt(1, height - 2);
+        
+        ItemType type = chooseValuableItemType(context);
+        Item* item = createItem(type);
+        item->x = itemX;
+        item->y = itemY;
+        
+        addItemToMap(map, item);
+    }
+    
+    // Maybe add a trap or guardian
+    if (randomChance(0.7f)) {
+        int guardX = x + randomInt(1, width - 2);
+        int guardY = y + randomInt(1, height - 2);
+        
+        if (randomChance(0.6f)) {
+            // Add a powerful monster as guardian
+            Monster* guardian = createMonster(MONSTER_VAULT_GUARDIAN);
+            guardian->x = guardX;
+            guardian->y = guardY;
+            addMonsterToMap(map, guardian);
+        } else {
+            // Add a dangerous trap
+            Trap* trap = createTrap(TRAP_PARALYSIS);
+            trap->x = guardX;
+            trap->y = guardY;
+            trap->visible = false;
+            addTrapToMap(map, trap);
+        }
+    }
+}
+```
+
+## Testing and Validation
+
+### Map Validation
+
+Ensure the generated map meets design requirements:
+
+```c
+bool validateDungeonMap(DungeonMap* map) {
+    // Check if the map has a valid player start
+    bool hasPlayerStart = false;
+    bool hasExit = false;
+    
+    // Check if the map is fully connected
+    bool isConnected = checkMapConnectivity(map);
+    
+    // Check for basic features
+    for (int y = 0; y < map->height; y++) {
+        for (int x = 0; x < map->width; x++) {
+            Tile* tile = &map->tiles[y][x];
+            
+            if (tile->type == TILE_ENTRANCE) {
+                hasPlayerStart = true;
+            } else if (tile->type == TILE_EXIT) {
+                hasExit = true;
+            }
+        }
+    }
+    
+    // A valid map must have:
+    // 1. A player start point
+    // 2. An exit
+    // 3. Full connectivity between start and exit
+    return hasPlayerStart && hasExit && isConnected;
+}
+
+bool checkMapConnectivity(DungeonMap* map) {
+    // Find player start position
+    int startX = -1, startY = -1;
+    for (int y = 0; y < map->height; y++) {
+        for (int x = 0; x < map->width; x++) {
+            if (map->tiles[y][x].type == TILE_ENTRANCE) {
+                startX = x;
+                startY = y;
+                break;
+            }
+        }
+        if (startX != -1) break;
+    }
+    
+    if (startX == -1) return false; // No start found
+    
+    // Use flood fill to check connectivity
+    bool** visited = allocateBooleanGrid(map->width, map->height);
+    if (!visited) return false;
+    
+    floodFill(map, visited, startX, startY);
+    
+    // Check if exit is reachable
+    bool exitReachable = false;
+    for (int y = 0; y < map->height; y++) {
+        for (int x = 0; x < map->width; x++) {
+            if (map->tiles[y][x].type == TILE_EXIT && visited[y][x]) {
+                exitReachable = true;
+                break;
+            }
+        }
+        if (exitReachable) break;
+    }
+    
+    // Free the visited grid
+    freeBooleanGrid(visited, map->height);
+    
+    return exitReachable;
+}
+```
+
+### Debugging Generation
+
+Techniques for debugging procedural generation:
+
+```c
+void debugDungeonGeneration(DungeonGenContext* context, DungeonMap* map) {
+    // Log generation parameters
+    printf("Generating dungeon with seed: %u, level: %d\n", context->seed, context->dungeonLevel);
+    
+    // Create a visual representation of the map
+    char** visualMap = createVisualMap(map);
+    if (!visualMap) return;
+    
+    // Output the visual map
+    printf("Map representation:\n");
+    for (int y = 0; y < map->height; y++) {
+        printf("%s\n", visualMap[y]);
+    }
+    
+    // Free the visual map
+    for (int y = 0; y < map->height; y++) {
+        free(visualMap[y]);
+    }
+    free(visualMap);
+    
+    // Log statistics about the map
+    printf("Map statistics:\n");
+    printf("- Rooms: %d\n", map->roomCount);
+    printf("- Corridors: %d\n", map->corridorCount);
+    printf("- Water tiles: %d\n", countTileType(map, TILE_WATER));
+    printf("- Monsters: %d\n", map->monsterCount);
+    printf("- Items: %d\n", map->itemCount);
+    printf("- Traps: %d\n", map->trapCount);
+    
+    // Check map integrity
+    bool isValid = validateDungeonMap(map);
+    printf("Map validation: %s\n", isValid ? "PASSED" : "FAILED");
+    
+    if (!isValid) {
+        // Log specific validation issues
+        logMapValidationIssues(map);
+    }
+}
+```
+
+By following these guidelines, you can create rich, varied, and interesting procedural dungeons in BrogueMCP.

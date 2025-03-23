@@ -1,7 +1,7 @@
 ---
-description: # Documentation Standards
+description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 ---
 title: "Documentation Standards"

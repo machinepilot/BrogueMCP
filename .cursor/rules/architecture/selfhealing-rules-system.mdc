@@ -1,5 +1,10 @@
 ---
-description: This directory contains the self-healing component of the Ages of Arda Cursor rules system. This system automatically analyzes code errors and generates rule proposals to improve code quality over time.
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: This directory contains the self-healing component of the BrogueMCP Cursor rules system. This system automatically analyzes code errors and generates rule proposals to improve code quality over time.
 globs: 
 alwaysApply: false
 ---
@@ -13,7 +18,7 @@ related: []
 Original Location: C:\working_directory\ages-project\clean-ages-of-arda\.cursor\rules\self-healing\README.md
 # Self-Healing Rules System
 
-This directory contains the self-healing component of the Ages of Arda Cursor rules system. This system automatically analyzes code errors and generates rule proposals to improve code quality over time.
+This directory contains the self-healing component of the BrogueMCP Cursor rules system. This system automatically analyzes code errors and generates rule proposals to improve roguelike code quality over time.
 
 ## Overview
 
@@ -122,4 +127,4 @@ If you encounter issues:
 3. Ensure the script has sufficient permissions to access log files
 4. Try running the script manually with elevated privileges
 
-For questions and support, contact the Ages of Arda development team.  
+For questions and support, contact the BrogueMCP development team.  

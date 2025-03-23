@@ -1,4 +1,9 @@
 ---
+description: This document outlines the standards for making commits to the BrogueMCP GitHub repository, with special focus on the BrogueMCP module.
+globs: 
+alwaysApply: false
+---
+---
 title: "GitHub Commit Standards"
 glob: "**/*.md,**/*.js,**/*.c,**/*.h,**/*.html,**/*.css"
 priority: 850
@@ -7,7 +12,7 @@ related: ["../code-style/c-style.mdc", "../guides/documentation-standards.mdc"]
 
 # GitHub Commit Standards
 
-This document outlines the standards for making commits to the Ages of Arda GitHub repository, with special focus on the BrogueMCP module.
+This document outlines the standards for making commits to the BrogueMCP GitHub repository, with special focus on the BrogueMCP module.
 
 ## Commit Message Format
 

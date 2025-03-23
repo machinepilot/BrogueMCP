@@ -1,84 +1,11 @@
 ---
 description: 
 globs: 
-alwaysApply: false
----
----
-description: 
-globs: 
 alwaysApply: true
 ---
----
-description: 
-globs: 
-alwaysApply: true
----
----
-title: "File Type Rule Mapping"
-glob: "**/*"
-priority: 500
-related: []
----
-
-# File Type Rule Mapping
-
-This rule automatically applies the appropriate rule files based on file type and location. It serves as a central dispatch mechanism for the rule system.
-
-## Source Code Files
-
-| File Pattern | Applied Rules |
-|--------------|---------------|
-| `**/*.c` | code-style/c-style.mdc, game/memory-bank.mdc |
-| `**/*.h` | code-style/c-style.mdc, game/memory-bank.mdc |
-| `**/*.py` | code-style/python-style.mdc |
-| `**/processing/**/*.py` | code-style/python-style.mdc, game/tolkien-processing.mdc |
-| `**/src/**/*.c` | game/angband-variant.mdc |
-| `**/html/**/*.html` | code-style/html.mdc |
-| `**/ai/**/*.c` | ai/ai-gameplay.mdc, ai/ai-ux.mdc |
-| `**/ai/**/*.py` | ai/ai-gameplay.mdc, ai/ai-ux.mdc, code-style/python-style.mdc |
-| `**/mcp/**/*.c` | mcp/mcp-integration.mdc, mcp/mcp-server.mdc |
-
-## Configuration Files
-
-| File Pattern | Applied Rules |
-|--------------|---------------|
-| `netlify.toml` | infrastructure/netlify.mdc |
-| `.github/**` | infrastructure/github-standards.mdc |
-| `**/mcp/config.json` | mcp/mcp-server.mdc |
-| `**/processing/schemas/**/*.json` | game/tolkien-processing.mdc |
-
-## Game Content Files
-
-| File Pattern | Applied Rules |
-|--------------|---------------|
-| `**/lore/**` | game/lore-management.mdc |
-| `**/npc/**` | ai/ai-gameplay.mdc |
-| `**/gameplay/**` | game/angband-variant.mdc, ai/ai-gameplay.mdc |
-| `**/.memory-bank/**` | game/lore-management.mdc, game/tolkien-processing.mdc |
-
-## Tolkien Processing Files
-
-| File Pattern | Applied Rules |
-|--------------|---------------|
-| `**/processing/epub_processor.py` | game/tolkien-processing.mdc, code-style/python-style.mdc |
-| `**/processing/entity_extractor.py` | game/tolkien-processing.mdc, code-style/python-style.mdc, ai/multi-agent.mdc |
-| `**/processing/entity_consolidator.py` | game/tolkien-processing.mdc, code-style/python-style.mdc |
-| `**/processing/memory_bank_integrator.py` | game/tolkien-processing.mdc, code-style/python-style.mdc, game/lore-management.mdc |
-| `**/processing/validate.py` | game/tolkien-processing.mdc, code-style/python-style.mdc |
-| `**/processing/main.py` | game/tolkien-processing.mdc, code-style/python-style.mdc |
-
-## Usage
-
-This file does not need to be explicitly referenced. It automatically runs at priority 500 to ensure all appropriate rules are applied based on the file types being edited.
-
-Each mapping indicates:
-1. The glob pattern to match file paths
-2. The rule files that should be applied when working with these files
-
-When multiple rules apply, they are loaded in order of priority from highest to lowest.
-
 ---
 title: "BrogueMCP File Type Rule Mapping"
+description: "Maps file types to appropriate rules in the BrogueMCP project"
 glob: "**/*"
 priority: 500
 related: []
@@ -91,20 +18,24 @@ This rule automatically applies the appropriate rule files based on file type an
 ## Source Code Files
 
 | File Pattern | Applied Rules |
-|-----|---|
+|--------------|---------------|
 | `**/*.c` | code-style/c-style.mdc |
 | `**/*.h` | code-style/c-style.mdc |
-| `**/src/**/*.c` | game/roguelike-patterns.mdc |
+| `**/src/**/*.c` | game/roguelike-patterns.mdc, game/procedural-generation.mdc |
 | `**/src/**/*.h` | game/roguelike-patterns.mdc |
+| `**/src/brogue/*.c` | game/entity-management.mdc, memory/procedural-structures.mdc |
+| `**/src/brogue/*.h` | game/entity-management.mdc, memory/procedural-structures.mdc |
 | `**/dm-agent/**/*.c` | mcp/agent-integration.mdc, ai/dm-agent.mdc |
 | `**/dm-agent/**/*.h` | mcp/agent-integration.mdc, ai/dm-agent.mdc |
+| `**/src/mcp/**/*.c` | mcp/mcp-integration.mdc, mcp/agent-integration.mdc |
+| `**/src/mcp/**/*.h` | mcp/mcp-integration.mdc, mcp/agent-integration.mdc |
 | `**/src/mcp.c` | mcp/agent-integration.mdc |
 | `**/src/mcp.h` | mcp/agent-integration.mdc |
 
 ## Build Files
 
 | File Pattern | Applied Rules |
-|-----|---|
+|--------------|---------------|
 | `**/*.bat` | infrastructure/cross-platform-build.mdc |
 | `**/*.sh` | infrastructure/cross-platform-build.mdc |
 | `**/Makefile` | infrastructure/cross-platform-build.mdc |
@@ -114,9 +45,18 @@ This rule automatically applies the appropriate rule files based on file type an
 ## Game Content Files
 
 | File Pattern | Applied Rules |
-|-----|---|
+|--------------|---------------|
 | `**/playtest/**` | mcp/agent-integration.mdc |
 | `**/memory-bank/**` | mcp/agent-integration.mdc |
+| `**/test/**/*.c` | testing/procedural-validation.mdc |
+| `**/test/**/*.h` | testing/procedural-validation.mdc |
+
+## GitHub Files
+
+| File Pattern | Applied Rules |
+|--------------|---------------|
+| `.github/**` | infrastructure/github-commit.mdc |
+| `**/.github/**` | infrastructure/github-commit.mdc |
 
 ## Usage
 
@@ -126,4 +66,8 @@ Each mapping indicates:
 1. The glob pattern to match file paths
 2. The rule files that should be applied when working with these files
 
-When multiple rules apply, they are loaded in order of priority from highest to lowest.  
+When multiple rules apply, they are loaded in order of priority from highest to lowest.
+
+## Self-Healing Integration
+
+The file mappings automatically integrate with the self-healing system to provide context-specific rule proposals based on the file types being edited. This ensures that error patterns in different file types are addressed with appropriate rule suggestions.

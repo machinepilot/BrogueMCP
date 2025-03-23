@@ -1,6 +1,11 @@
 ---
+description: 
+globs: 
+alwaysApply: true
+---
+---
 title: "Cursor Rules CI/CD Integration"
-description: "Guidelines for integrating Ages of Arda Cursor Rules with Continuous Integration and Deployment systems."
+description: "Guidelines for integrating BrogueMCP Cursor Rules with Continuous Integration and Deployment systems."
 glob: "**/*.{yaml,yml,json}"
 priority: 600
 related: ["../integration/rule-verification.mdc", "../memory-bank/secure-key-management.mdc"]
@@ -627,7 +632,7 @@ def post_pr_comment(analysis):
             comment += "\n"
     
     # Add final note
-    comment += "\nPlease ensure all rule changes follow the [Cursor Rules Development Guidelines](./.cursor/rules/documentation/system-overview.mdc)."
+    comment += "\nPlease ensure all rule changes follow the [Cursor Rules Development Guidelines](mdc:.cursor/rules/documentation/system-overview.mdc)."
     
     data = {
         'body': comment

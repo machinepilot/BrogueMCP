@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
+globs: **/dm-agent/**
 alwaysApply: false
 ---
 ---

@@ -1,221 +1,338 @@
 ---
 description: 
-globs: 
+globs: **/*.c,**/*.h
 alwaysApply: false
 ---
 ---
-title: "C Style Guide for Roguelike Development"
+title: "C Style Guidelines for BrogueMCP"
+description: "Comprehensive C coding standards for roguelike development in BrogueMCP."
 glob: "**/*.c,**/*.h"
-priority: 900
-related: []
+priority: 850
+related: ["game/roguelike-patterns.mdc", "memory/procedural-structures.mdc"]
 ---
 
-# C Style Guide for Roguelike Development
+# C Style Guidelines for BrogueMCP
 
-This guide outlines C coding standards optimized for roguelike development in BrogueMCP. It focuses on code readability, cross-platform compatibility, and performance considerations for grid-based games.
+## Overview
 
-## Formatting and Layout
+This document defines the C coding standards for the BrogueMCP project. Following these guidelines ensures consistent, maintainable, and efficient code across the codebase.
+
+## Formatting
 
 ### Indentation and Spacing
 
-- Use 4 spaces for indentation, not tabs
-- Maximum line length is 120 characters
-- Add spaces after commas in parameter lists
+- Use **4 spaces** for indentation, not tabs
+- Maximum line length is **120 characters**
+- Use one space after keywords (`if`, `for`, `while`, etc.)
+- Use one space around operators (`=`, `+`, `*`, etc.)
 - No space between function name and opening parenthesis
-- One space after keywords like `if`, `for`, `while`, etc.
+- One space after commas in argument lists
 
 ```c
-void functionName(int parameter1, int parameter2)
-{
-    if (condition) {
-        // Code here
-    }
+// Good
+if (condition) {
+    doSomething();
+}
+
+// Bad
+if(condition){
+doSomething();
 }
 ```
 
 ### Braces
 
-- Opening braces on the same line for control statements
-- Opening braces on a new line for function definitions
-- Always use braces for control statements, even for single-line blocks
+- Opening braces go on the same line as the statement
+- Closing braces go on their own line
+- Always use braces, even for single-statement blocks
 
 ```c
-// Function definition
-void functionName(int parameter)
-{
-    // Function body
-}
-
-// Control statement
+// Good
 if (condition) {
     doSomething();
+} else {
+    doSomethingElse();
+}
+
+// Bad
+if (condition) doSomething();
+else
+    doSomethingElse();
+```
+
+### Function Declarations
+
+- Return type on the same line as function name
+- Parameters aligned if they span multiple lines
+- Function names use camelCase
+
+```c
+int calculateDungeonLevel(int depth, int difficulty, 
+                         DungeonParams params) {
+    // Implementation
 }
 ```
 
 ## Naming Conventions
 
-- `camelCase` for variable and function names
-- `UPPER_CASE` for constants and macros
-- `PascalCase` for type definitions, structs, and enums
-- Prefix global variables with `g_`
-- Use descriptive, meaningful names that convey purpose
+### General Naming
+
+- Use descriptive, meaningful names
+- Avoid abbreviations unless they're universally understood
+- Choose clarity over brevity
+
+### Specific Conventions
+
+- **Functions**: camelCase (e.g., `generateRoom`, `calculateDamage`)
+- **Variables**: camelCase (e.g., `playerHealth`, `monsterCount`)
+- **Constants**: ALL_CAPS with underscores (e.g., `MAX_DUNGEON_DEPTH`)
+- **Typedefs**: PascalCase (e.g., `RoomType`, `EntityComponent`)
+- **Enums**: enum name in PascalCase, values in ALL_CAPS
+- **Struct members**: camelCase (e.g., `entity.position`, `room.width`)
 
 ```c
-#define MAX_DUNGEON_DEPTH 100
+typedef struct Room {
+    int width;
+    int height;
+    RoomType type;
+    int monsterCount;
+    Monster* monsters;
+} Room;
 
-typedef struct DungeonCell {
-    int terrainType;
-} DungeonCell;
+// Enum example
+typedef enum Direction {
+    DIRECTION_NORTH,
+    DIRECTION_EAST,
+    DIRECTION_SOUTH,
+    DIRECTION_WEST
+} Direction;
 
-int g_currentDepth = 0;
-
-void createRoom(int width, int height);
+#define MAX_ROOM_SIZE 20
+#define MIN_CORRIDOR_LENGTH 3
 ```
 
-## Common Roguelike Patterns
+## Code Organization
 
-### Grid-Based Operations
+### File Structure
 
-- Use 2D arrays for maps/grids, with consistent coordinate systems
-- Document coordinate systems clearly (origin, axes directions)
-- Use `typedef` for grid cell types
+- Header files (.h) should contain declarations only
+- Source files (.c) contain implementations
+- Group related functions together
+- Place helper functions near the functions that use them
+- Order functions from high-level to low-level
+
+### Header File Structure
 
 ```c
-typedef struct Cell {
-    int terrain;
-    int entity;
-    int item;
-    // Other properties
-} Cell;
+#ifndef DUNGEON_GENERATOR_H
+#define DUNGEON_GENERATOR_H
 
-Cell dungeonMap[MAX_HEIGHT][MAX_WIDTH];
+// Includes from standard library
+#include <stdlib.h>
+#include <stdbool.h>
 
-// Access pattern
-Cell* getCell(int x, int y) {
-    if (x >= 0 && x < MAX_WIDTH && y >= 0 && y < MAX_HEIGHT) {
-        return &dungeonMap[y][x];
-    }
-    return NULL;
-}
+// Includes from project
+#include "common.h"
+#include "entity.h"
+
+// Constants
+#define MAX_ROOMS_PER_LEVEL 30
+
+// Type definitions
+typedef struct Room {
+    // Members
+} Room;
+
+// Function declarations
+Room* generateRoom(int width, int height);
+bool connectRooms(Room* room1, Room* room2);
+
+#endif // DUNGEON_GENERATOR_H
 ```
 
-### Memory Management
+### Includes
 
-- Prefer stack allocation for temporary data
-- Use consistent allocation/deallocation patterns
-- Check all memory allocations for success
+- Include only what's necessary
+- Use include guards in all header files
+- Order includes: standard library, other libraries, project headers
+
+## Memory Management
+
+### Allocation Patterns
+
+- Always check return values from `malloc` and other allocators
+- Use consistent error handling for allocation failures
+- Free memory in the reverse order of allocation when possible
+- Consider memory pooling for frequently allocated/deallocated objects
 
 ```c
-// Preferred pattern
-SomeStruct* createObject(int size) {
-    SomeStruct* obj = malloc(sizeof(SomeStruct));
-    if (obj == NULL) {
-        return NULL;  // Handle error
-    }
-    
-    // Initialize
-    obj->data = malloc(size * sizeof(int));
-    if (obj->data == NULL) {
-        free(obj);  // Clean up previous allocation
+Entity* createEntity() {
+    Entity* entity = (Entity*)malloc(sizeof(Entity));
+    if (!entity) {
+        logError("Failed to allocate entity");
         return NULL;
     }
     
-    return obj;
+    // Initialize entity
+    entity->components = NULL;
+    entity->componentCount = 0;
+    
+    return entity;
 }
 
-void destroyObject(SomeStruct* obj) {
-    if (obj != NULL) {
-        free(obj->data);
-        free(obj);
+void destroyEntity(Entity* entity) {
+    if (!entity) {
+        return;
+    }
+    
+    // Free components if they exist
+    if (entity->components) {
+        for (int i = 0; i < entity->componentCount; i++) {
+            freeComponent(entity->components[i]);
+        }
+        free(entity->components);
+    }
+    
+    free(entity);
+}
+```
+
+### Roguelike-Specific Memory Patterns
+
+- Use grid-based data structures for maps efficiently
+- Consider using run-length encoding for large, sparse maps
+- Implement object pooling for frequently created entities (e.g., projectiles)
+- Use dirty rectangle tracking for efficient FOV/map updates
+
+## Comments and Documentation
+
+### Comment Style
+
+- Use `//` for single-line comments
+- Use `/* ... */` for multi-line comments
+- Use Doxygen-style comments for function documentation
+
+### Function Documentation
+
+```c
+/**
+ * Generates a new dungeon level with the given parameters
+ * 
+ * @param depth The depth level in the dungeon
+ * @param difficulty Scaling factor for dungeon challenges
+ * @param params Additional generation parameters
+ * @return Pointer to the new Level structure, or NULL on failure
+ */
+Level* generateDungeonLevel(int depth, int difficulty, DungeonParams params) {
+    // Implementation
+}
+```
+
+### Code Comments
+
+- Comment complex algorithms
+- Explain "why" rather than "what"
+- Document non-obvious behavior
+- Update comments when code changes
+
+## Error Handling
+
+- Use consistent error reporting
+- Return NULL or error codes from functions that can fail
+- Provide context in error messages
+- Consider using a centralized logging system
+
+```c
+bool loadGameMap(const char* filename, GameMap* map) {
+    FILE* file = fopen(filename, "rb");
+    if (!file) {
+        logError("Failed to open map file: %s", filename);
+        return false;
+    }
+    
+    // Read map data
+    size_t read = fread(map->tiles, sizeof(Tile), map->width * map->height, file);
+    if (read != map->width * map->height) {
+        logError("Incomplete read from map file: %s", filename);
+        fclose(file);
+        return false;
+    }
+    
+    fclose(file);
+    return true;
+}
+```
+
+## Roguelike-Specific Patterns
+
+### Grid Coordinates
+
+- Be consistent with coordinate systems (origin, axes, etc.)
+- Document coordinate spaces clearly
+- Consider using structs to represent positions
+
+```c
+typedef struct Position {
+    int x;
+    int y;
+} Position;
+
+// Using the position struct
+void moveEntity(Entity* entity, Direction direction) {
+    Position newPos = entity->position;
+    
+    switch (direction) {
+        case DIRECTION_NORTH: newPos.y--; break;
+        case DIRECTION_EAST:  newPos.x++; break;
+        case DIRECTION_SOUTH: newPos.y++; break;
+        case DIRECTION_WEST:  newPos.x--; break;
+    }
+    
+    if (isPositionWalkable(newPos)) {
+        entity->position = newPos;
     }
 }
 ```
 
 ### Random Number Generation
 
-- Use a consistent RNG system throughout the code
-- Document the RNG behavior and seed management
-- Consider platform differences in RNG implementation
+- Use a consistent RNG approach
+- Seed the RNG deterministically when needed
+- Consider using a separate RNG stream for critical gameplay elements
 
 ```c
-// Preferred pattern
-int randomInt(int min, int max) {
-    // Ensure good distribution
-    return min + (int)(randomFloat() * (max - min + 1));
+// Initialize RNG with seed
+void initRNG(unsigned int seed) {
+    srand(seed);
 }
 
+// Get random integer in range [min, max]
+int randomInt(int min, int max) {
+    return min + rand() % (max - min + 1);
+}
+
+// Get random float in range [0, 1]
 float randomFloat() {
-    // Implementation with good statistical properties
     return (float)rand() / RAND_MAX;
 }
-```
 
-## Comments and Documentation
-
-- Use clear, concise comments to explain "why", not just "what"
-- Document parameters, return values, and side effects for functions
-- Use consistent header documentation format
-
-```c
-/**
- * Creates a new room in the dungeon.
- * 
- * @param x The x-coordinate of the top-left corner
- * @param y The y-coordinate of the top-left corner
- * @param width The width of the room
- * @param height The height of the room
- * @return 1 if room was created successfully, 0 otherwise
- */
-int createRoom(int x, int y, int width, int height);
-```
-
-## Cross-Platform Considerations
-
-- Avoid platform-specific code; use abstractions when necessary
-- Be careful with assumptions about integer sizes
-- Use standard library functions when possible
-- Test on all target platforms
-
-```c
-// Preferred
-#include <stdint.h>
-
-void function(int32_t value) {
-    // This will have consistent behavior across platforms
-}
-
-// Avoid
-void function(long value) {
-    // Size of long varies between 32-bit and 64-bit platforms
+// Get random boolean with specified probability
+bool randomChance(float probability) {
+    return randomFloat() < probability;
 }
 ```
 
-## Error Handling
+## Performance Considerations
 
-- Check return values from functions that can fail
-- Use consistent error reporting patterns
-- Propagate errors up the call stack when appropriate
+- Avoid unnecessary memory allocations in tight loops
+- Use appropriate data structures for the task
+- Consider spatial partitioning for entity/collision detection
+- Profile and optimize critical paths
 
-```c
-int loadDungeon(const char* filename) {
-    FILE* file = fopen(filename, "r");
-    if (file == NULL) {
-        logError("Failed to open file: %s", filename);
-        return 0;  // Error code
-    }
-    
-    // Load data
-    
-    fclose(file);
-    return 1;  // Success
-}
-```
+## Testing
 
-## Optimization
+- Write testable code
+- Consider deterministic approaches for testing random elements
+- Use seed values to reproduce specific procedural generation results
 
-- Focus on readability first, optimize only when necessary
-- Profile before optimizing
-- Document optimization techniques and reasoning
-- Be cautious with pointer arithmetic and unsafe optimizations
-
-Follow these guidelines to maintain a consistent, readable, and robust codebase for BrogueMCP development.
+By following these guidelines, we ensure that BrogueMCP's codebase remains maintainable, efficient, and consistent across contributors.

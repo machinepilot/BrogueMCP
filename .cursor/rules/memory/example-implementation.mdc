@@ -1,271 +1,341 @@
 ---
-title: "Memory Management Example Implementation"
-description: "Practical examples of implementing the memory management protocol in the Ages of Arda project."
-glob: "**/*.{c,h,py}"
-priority: 649
-related: ["memory-management.mdc", "../game/tolkien-processing.mdc"]
+description: 
+globs: **/*.c,**/*.h,**/*.py
+alwaysApply: false
+---
+---
+title: "Memory Management Implementation Examples"
+description: "Practical examples of implementing the memory management protocol in the BrogueMCP project."
+glob: "**/*.c,**/*.h,**/*.py"
+priority: 720
+related: ["memory-management.mdc", "../mcp/tool-usage.mdc"]
 ---
 
-# Memory Management Example Implementation
+# Memory Management Implementation Examples
 
-This rule provides practical examples of implementing the memory management protocol within the Ages of Arda project.
+This rule provides practical examples of implementing the memory management protocol within the BrogueMCP project.
 
-## Knowledge Graph Examples
+## Knowledge Graph Storage Example
 
-### Entity Creation in C
+### Python Implementation
+
+```python
+from knowledge_graph import KnowledgeGraph, Entity, Relationship, Metadata
+
+# Initialize the graph manager
+graph = KnowledgeGraph(storage_path="memory-bank/knowledge")
+
+# Create a new entity with metadata
+def add_monster(name, attributes, sources=None):
+    # Check if entity already exists
+    existing = graph.query(f"MATCH (m:Monster {{name: '{name}'}}) RETURN m")
+    
+    if existing:
+        # Update existing entity
+        monster_id = existing[0]['m'].id
+        for key, value in attributes.items():
+            graph.update_property(monster_id, key, value)
+    else:
+        # Create new entity
+        metadata = Metadata(
+            created=time.time(),
+            source=sources or ["user_creation"],
+            confidence=1.0,
+            version="1.0"
+        )
+        
+        # Create the entity
+        monster = Entity(
+            type="Monster",
+            properties={"name": name, **attributes},
+            metadata=metadata
+        )
+        monster_id = graph.add_entity(monster)
+    
+    return monster_id
+
+# Create relationships between entities
+def relate_entities(source_id, target_id, relationship_type, properties=None):
+    # Create the relationship
+    relationship = Relationship(
+        source_id=source_id,
+        target_id=target_id,
+        type=relationship_type,
+        properties=properties or {},
+        metadata=Metadata(
+            created=time.time(),
+            source=["user_creation"],
+            confidence=1.0
+        )
+    )
+    
+    relationship_id = graph.add_relationship(relationship)
+    return relationship_id
+
+# Example usage
+monster_id = add_monster(
+    name="Ancient Dragon",
+    attributes={
+        "type": "Fire",
+        "species": "Dragon",
+        "difficulty": 8
+    },
+    sources=["level_generator"]
+)
+
+location_id = graph.query("MATCH (l:Location {name: 'Treasure Chamber'}) RETURN l")[0]['l'].id
+
+# Create relationship
+relate_entities(
+    source_id=monster_id,
+    target_id=location_id,
+    relationship_type="GUARDS",
+    properties={"spawn_rate": "0.75"}
+)
+```
+
+### C Implementation
 
 ```c
-/**
- * Creates a character entity in the knowledge graph
- * 
- * @param name The primary name of the character
- * @param race The character's race (elf, human, etc.)
- * @param age The age in which the character primarily exists
- * @param source The source reference for this information
- * @return The unique entity ID or NULL if creation failed
- * 
- * @see AGE-MEM-001
- */
-entity_id_t* memory_create_character(const char* name, const char* race, 
-                                     age_t age, const char* source) {
-    if (name == NULL || race == NULL || source == NULL) {
+#include "knowledge_graph.h"
+#include "memory_manager.h"
+
+// Initialize the graph manager
+KnowledgeGraph* create_graph_manager(const char* storage_path) {
+    KnowledgeGraph* graph = kg_create();
+    
+    if (!graph) {
+        fprintf(stderr, "Failed to create knowledge graph\n");
         return NULL;
     }
     
-    // Allocate entity ID
-    entity_id_t* entity_id = malloc(sizeof(entity_id_t));
-    if (entity_id == NULL) {
+    if (kg_set_storage_path(graph, storage_path) != KG_SUCCESS) {
+        fprintf(stderr, "Failed to set storage path\n");
+        kg_destroy(graph);
         return NULL;
     }
     
-    // Initialize entity in knowledge graph
-    if (!kg_create_entity(ENTITY_CHARACTER, entity_id)) {
-        free(entity_id);
-        return NULL;
+    return graph;
+}
+
+// Add an entity to the graph
+EntityID add_entity(
+    KnowledgeGraph* graph,
+    const char* type,
+    const PropertyMap* properties,
+    const char* source
+) {
+    Metadata metadata;
+    memset(&metadata, 0, sizeof(Metadata));
+    
+    metadata.creation_time = time(NULL);
+    metadata.source = source;
+    metadata.confidence = 1.0;
+    
+    EntityID entity_id = kg_add_entity(graph, type, properties, &metadata);
+    
+    if (entity_id == KG_INVALID_ID) {
+        fprintf(stderr, "Failed to add entity\n");
+        return KG_INVALID_ID;
     }
-    
-    // Set entity attributes
-    kg_set_attribute(entity_id, "name", name);
-    kg_set_attribute(entity_id, "race", race);
-    kg_set_attribute(entity_id, "age", age_to_string(age));
-    kg_set_attribute(entity_id, "source", source);
-    kg_set_attribute(entity_id, "creation_time", get_current_timestamp());
-    
-    // Add to memory bank index
-    memory_bank_index_entity(entity_id, name);
     
     return entity_id;
 }
-```
 
-### Creating Relationships in C
+// Add a relationship between entities
+RelationshipID add_relationship(
+    KnowledgeGraph* graph,
+    EntityID source_id,
+    EntityID target_id,
+    const char* relationship_type,
+    const PropertyMap* properties
+) {
+    Metadata metadata;
+    memset(&metadata, 0, sizeof(Metadata));
+    
+    metadata.creation_time = time(NULL);
+    metadata.source = "system";
+    metadata.confidence = 1.0;
+    
+    RelationshipID rel_id = kg_add_relationship(
+        graph,
+        source_id,
+        target_id,
+        relationship_type,
+        properties,
+        &metadata
+    );
+    
+    if (rel_id == KG_INVALID_ID) {
+        fprintf(stderr, "Failed to add relationship\n");
+        return KG_INVALID_ID;
+    }
+    
+    return rel_id;
+}
 
-```c
-/**
- * Creates a relationship between two entities in the knowledge graph
- * 
- * @param source_id The source entity ID
- * @param target_id The target entity ID
- * @param relationship_type The type of relationship
- * @param metadata Additional relationship metadata
- * @return true if successful, false otherwise
- * 
- * @see AGE-MEM-002
- */
-bool memory_create_relationship(entity_id_t* source_id, entity_id_t* target_id,
-                               relationship_type_t relationship_type,
-                               const char* metadata) {
-    if (source_id == NULL || target_id == NULL) {
-        return false;
+// Example usage
+void example_usage() {
+    KnowledgeGraph* graph = create_graph_manager("memory-bank/knowledge");
+    
+    if (!graph) {
+        return;
     }
     
-    // Create relationship in knowledge graph
-    relationship_id_t rel_id;
-    if (!kg_create_relationship(source_id, target_id, 
-                               relationship_type_to_string(relationship_type),
-                               &rel_id)) {
-        return false;
+    // Create property map
+    PropertyMap* props = kg_create_property_map();
+    kg_property_map_add(props, "name", "Goblin Scout");
+    kg_property_map_add(props, "species", "Goblin");
+    kg_property_map_add(props, "level", "1");
+    
+    // Add entity
+    EntityID monster_id = add_entity(graph, "Monster", props, "dungeon_level_1");
+    kg_destroy_property_map(props);
+    
+    // Create relationship
+    props = kg_create_property_map();
+    kg_property_map_add(props, "spawn_time", "Level 1");
+    
+    // Find the item entity by querying
+    QueryResult* result = kg_query(graph, "MATCH (i:Item {name: 'Rusty Dagger'}) RETURN i");
+    EntityID item_id = KG_INVALID_ID;
+    
+    if (result && result->count > 0) {
+        item_id = result->entities[0].id;
+        add_relationship(graph, monster_id, item_id, "CARRIES", props);
     }
     
-    // Add metadata if provided
-    if (metadata != NULL) {
-        kg_set_relationship_attribute(&rel_id, "metadata", metadata);
-    }
-    
-    // Add creation timestamp
-    kg_set_relationship_attribute(&rel_id, "creation_time", get_current_timestamp());
-    
-    return true;
+    kg_destroy_property_map(props);
+    kg_destroy_query_result(result);
+    kg_destroy(graph);
 }
 ```
 
-### Entity Retrieval in C
+## Integration with Procedural Generation
 
-```c
-/**
- * Retrieves an entity by name
- * 
- * @param name The name of the entity to retrieve
- * @param entity_type The type of entity to retrieve (or ENTITY_ANY)
- * @return Array of matching entity IDs (must be freed by caller)
- * 
- * @see AGE-MEM-003
- */
-entity_result_t* memory_retrieve_entity_by_name(const char* name, entity_type_t entity_type) {
-    if (name == NULL) {
-        return NULL;
-    }
-    
-    // Allocate result structure
-    entity_result_t* result = malloc(sizeof(entity_result_t));
-    if (result == NULL) {
-        return NULL;
-    }
-    
-    // Initialize result
-    result->count = 0;
-    result->entities = NULL;
-    
-    // Query knowledge graph
-    if (!kg_query_by_attribute("name", name, entity_type_to_string(entity_type),
-                              result)) {
-        free(result);
-        return NULL;
-    }
-    
-    return result;
-}
-```
+The memory management system integrates with the procedural generation system through:
 
-## Python Implementation Example
+1. Automatic entity extraction during dungeon generation
+2. Knowledge graph queries during procedural content creation
+3. Persistent storage of successful generation patterns
 
-### Memory Bank Integration
+See `../game/procedural-generation.mdc` for more details on procedural generation integration.
+
+## Query Examples
 
 ```python
-def integrate_entities_to_memory_bank(extracted_entities, source_document):
+def find_related_entities(graph, entity_name, relationship_type=None):
+    """Find entities related to the given entity name."""
+    query = f"""
+    MATCH (e)-[r]->(related)
+    WHERE e.name = '{entity_name}'
     """
-    Integrates extracted entities into the memory bank
     
-    Args:
-        extracted_entities: List of extracted entity dictionaries
-        source_document: Source document information
-        
-    Returns:
-        dict: Statistics about the integration process
+    if relationship_type:
+        query += f"AND type(r) = '{relationship_type}' "
+    
+    query += "RETURN related"
+    
+    results = graph.query(query)
+    return [record['related'] for record in results]
+
+def find_shared_relationships(graph, entity1_name, entity2_name):
+    """Find entities that both given entities are related to."""
+    query = f"""
+    MATCH (e1)-[r1]->(shared)<-[r2]-(e2)
+    WHERE e1.name = '{entity1_name}' AND e2.name = '{entity2_name}'
+    RETURN shared
     """
-    stats = {
-        "created": 0,
-        "updated": 0,
-        "relationships_added": 0,
-        "errors": 0
-    }
     
-    # Connection to knowledge graph
-    kg = KnowledgeGraph()
+    results = graph.query(query)
+    return [record['shared'] for record in results]
+
+def explore_related_entities(graph, entity_id, max_depth=2, relationship_types=None):
+    """Explore the graph around an entity up to a certain depth."""
+    query = f"""
+    MATCH path = (e)-[r*1..{max_depth}]-(related)
+    WHERE id(e) = {entity_id}
+    """
     
-    for entity in extracted_entities:
-        try:
-            # Check if entity already exists
-            existing = kg.query_by_attribute("name", entity["name"], entity["type"])
-            
-            if existing and len(existing) > 0:
-                # Update existing entity
-                entity_id = existing[0]["id"]
-                for key, value in entity["attributes"].items():
-                    kg.set_attribute(entity_id, key, value)
-                
-                # Add source reference
-                kg.add_source_reference(entity_id, source_document)
-                stats["updated"] += 1
-            else:
-                # Create new entity
-                entity_id = kg.create_entity(entity["type"])
-                
-                # Set attributes
-                for key, value in entity["attributes"].items():
-                    kg.set_attribute(entity_id, key, value)
-                
-                # Add metadata
-                kg.set_attribute(entity_id, "source", source_document["id"])
-                kg.set_attribute(entity_id, "creation_time", datetime.now().isoformat())
-                
-                # Add to memory bank index
-                memory_bank_index_entity(entity_id, entity["name"])
-                stats["created"] += 1
-            
-            # Process relationships
-            for rel in entity.get("relationships", []):
-                target = kg.query_by_attribute("name", rel["target_name"], rel["target_type"])
-                if target and len(target) > 0:
-                    kg.create_relationship(entity_id, target[0]["id"], rel["type"])
-                    stats["relationships_added"] += 1
-        except Exception as e:
-            print(f"Error processing entity {entity['name']}: {str(e)}")
-            stats["errors"] += 1
+    if relationship_types:
+        relationship_filter = ' OR '.join([f"type(r) = '{t}'" for t in relationship_types])
+        query += f"AND ({relationship_filter}) "
     
-    return stats
+    query += "RETURN related"
+    
+    results = graph.query(query)
+    return [record['related'] for record in results]
 ```
 
-## Best Practices
+## Memory Bank Integration
 
-### Memory Access Pattern
+```python
+from memory_bank import MemoryBank
 
-1. **Always check for entity existence before creation**
-   - Prevents duplication of entities
-   - Allows for entity merging when appropriate
+# Initialize memory bank with knowledge graph backend
+memory = MemoryBank(backend="knowledge_graph", storage_path="memory-bank/storage")
 
-2. **Add comprehensive metadata**
-   - Include source references
-   - Add confidence levels
-   - Store timestamps
-
-3. **Validate relationships**
-   - Ensure both entities exist
-   - Verify relationship types are valid
-   - Include directional information when needed
-
-4. **Use transactions for multi-entity operations**
-   - Ensures consistency
-   - Prevents partial updates
-   - Allows for rollback on error
-
-### Error Handling
-
-Proper error handling is essential for memory operations:
-
-```c
-// Error handling example
-entity_id_t* entity_id = memory_create_character("Fingolfin", "Elf", AGE_FIRST, "Silmarillion");
-if (entity_id == NULL) {
-    // Log the error
-    log_error("Failed to create character entity for Fingolfin");
+# Store procedural generation parameters
+def store_generation_parameters(name, parameters, success_metrics=None):
+    """Store parameters from successful procedural generation."""
+    # Check if similar parameters already exist
+    existing = memory.query(
+        collection="generation_parameters",
+        filter={"name": name}
+    )
     
-    // Check if entity already exists
-    entity_result_t* existing = memory_retrieve_entity_by_name("Fingolfin", ENTITY_CHARACTER);
-    if (existing != NULL && existing->count > 0) {
-        // Use existing entity
-        entity_id = existing->entities[0];
-        log_info("Using existing entity for Fingolfin");
-        
-        // Free result structure but not the entity ID we're keeping
-        entity_result_free_except_first(existing);
-    } else {
-        // Handle error
-        log_error("Cannot proceed without character entity");
-        if (existing != NULL) {
-            entity_result_free(existing);
+    # Store with metadata
+    memory.store(
+        collection="generation_parameters",
+        data={
+            "name": name,
+            "parameters": parameters,
+            "success_metrics": success_metrics,
+            "timestamp": time.time()
+        },
+        metadata={
+            "version": "1.0",
+            "source": "procgen_module"
         }
-        return ERROR_ENTITY_CREATION_FAILED;
-    }
+    )
+
+# Retrieve generation parameters
+def get_generation_parameters(name, filters=None):
+    """Retrieve stored generation parameters."""
+    query_filter = {"name": name}
+    
+    # Add additional filters if provided
+    if filters:
+        query_filter.update(filters)
+    
+    parameters = memory.query(
+        collection="generation_parameters",
+        filter=query_filter,
+        sort={"timestamp": "desc"},
+        limit=1
+    )
+    
+    return parameters[0] if parameters else None
+
+# Example usage
+dungeon_params = {
+    "room_count": 15,
+    "connection_density": 0.7,
+    "features": ["traps", "hidden_doors", "treasure_rooms"],
+    "difficulty": "medium"
 }
+
+# Store successful parameters
+store_generation_parameters(
+    name="haunted_dungeon",
+    parameters=dungeon_params,
+    success_metrics={
+        "player_satisfaction": 0.85,
+        "completion_time": 45,
+        "death_rate": 0.3
+    }
+)
+
+# Retrieve for later use
+params = get_generation_parameters("haunted_dungeon")
 ```
-
-## Integration with Lore System
-
-The memory management system integrates with the lore system through:
-
-1. Automatic entity extraction during lore processing
-2. Knowledge graph queries during lore rendering
-3. Relationship visualization in documentation
-
-See `../game/lore-management.mdc` for more details on lore integration. 

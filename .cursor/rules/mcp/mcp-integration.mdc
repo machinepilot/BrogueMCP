@@ -1,47 +1,49 @@
 ---
 description: 
-globs: **/src/mcp/**", "**/angband-doc-agent/**
+globs: **/src/mcp/**",**/dm-agent/**
 alwaysApply: false
+---
+---
+title: "Model Context Protocol (MCP) Integration Guidelines"
+description: "Guidelines for integrating Model Context Protocol with BrogueMCP"
+glob: "**/src/mcp/**,**/dm-agent/**"
+priority: 750
+related: ["../game/procedural-generation.mdc", "../game/entity-management.mdc"]
 ---
 
----
-description: Model Context Protocol (MCP) Integration Guidelines
-globs: ["**/src/mcp/**", "**/angband-doc-agent/**"]
-alwaysApply: false
----
 # Model Context Protocol (MCP) Integration Guidelines
 
 ## Overview
-The Ages of Arda project uses Model Context Protocol (MCP) to integrate AI-driven narrative generation and companion features. This document outlines the implementation patterns and best practices.
+The BrogueMCP project uses Model Context Protocol (MCP) to integrate AI-driven narrative generation and dungeon master features. This document outlines the implementation patterns and best practices.
 
 ## Server Architecture
 
 ### Simple MCP Server
-The primary implementation is `simple-mcp-server.js`, which provides:
+The primary implementation is `dm-agent/server.js`, which provides:
 - File system access to the codebase
 - Template-based narrative generation
-- Memory storage for character experiences
+- Memory storage for procedural dungeon experiences
 
 ```javascript
 // Example narrative generation endpoint
 app.post('/mcp/tools/generateNarrative', async (req, res) => {
   try {
-    const { event_type, event_data, character_id, style, tone } = req.body;
+    const { event_type, event_data, entity_id, style, tone } = req.body;
     // Generate narrative based on templates or AI
     let narrative = generateTemplateNarrative(event_type, eventData, style, tone);
     
-    // Store in character memories
-    if (character_id) {
-      storeCharacterMemory(character_id, narrative);
+    // Store in dungeon memories
+    if (entity_id) {
+      storeDungeonMemory(entity_id, narrative);
     }
     
     res.json(narrative);
   } catch (error) {
     // Provide fallback response
     res.json({ 
-      text: "The bard seems at a loss for words...",
-      tone: "confused",
-      is_spoken: true,
+      text: "The dungeon falls silent...",
+      tone: "mysterious",
+      is_spoken: false,
       importance: 30
     });
   }
@@ -50,7 +52,7 @@ app.post('/mcp/tools/generateNarrative', async (req, res) => {
 
 ### Client Integration
 
-The C client (`mcp-client.c`) provides a bridge between the game and the MCP server:
+The C client (`src/mcp/mcp_client.c`) provides a bridge between the game and the MCP server:
 
 ```c
 /**
@@ -58,7 +60,7 @@ The C client (`mcp-client.c`) provides a bridge between the game and the MCP ser
  */
 narrative_text_t *
 mcp_generate_narrative(mcp_client_t *client, const char *event_type,
-                     const char *event_data, const char *character_id,
+                     const char *event_data, const char *entity_id,
                      const char *style, const char *tone)
 {
     // Try to get response from MCP server
@@ -115,23 +117,23 @@ request_narrative_async(const char *event_type, const char *event_data)
 ```
 
 ### Memory Management
-Store important character memories for future reference:
+Store important dungeon and player memories for future reference:
 
 ```javascript
-// Store character memories
-function storeCharacterMemory(characterId, narrative) {
-  if (!characterMemories[characterId]) {
-    characterMemories[characterId] = [];
+// Store dungeon memories
+function storeDungeonMemory(dungeonId, narrative) {
+  if (!dungeonMemories[dungeonId]) {
+    dungeonMemories[dungeonId] = [];
   }
   
-  characterMemories[characterId].push({
+  dungeonMemories[dungeonId].push({
     timestamp: new Date(),
     narrative: narrative.text,
     importance: narrative.importance
   });
   
   // Sort by importance
-  characterMemories[characterId].sort((a, b) => b.importance - a.importance);
+  dungeonMemories[dungeonId].sort((a, b) => b.importance - a.importance);
 }
 ```
 
@@ -142,11 +144,11 @@ Test the MCP server independently:
 
 ```bash
 # Start the server
-cd angband-doc-agent/src
-node simple-mcp-server.js
+cd dm-agent
+node server.js
 
 # Test with curl
-curl -X POST http://localhost:3000/mcp/tools/generateNarrative \
+curl -X POST http://localhost:8100/mcp/tools/generateNarrative \
   -H "Content-Type: application/json" \
   -d '{"event_type":"monster_death","event_data":{"monster_name":"Ancient Dragon"}}'
 ```
@@ -156,68 +158,99 @@ Test the C client with the test program:
 
 ```bash
 # Compile the test client
-gcc -o test-mcp-client test-mcp-client.c mcp-client.c -lcurl -ljansson
+gcc -o test-dm test-dm.c src/mcp/mcp_client.c -lcurl -ljansson
 
 # Run the test
-./test-mcp-client
+./test-dm
 ```
 
-## Companion UI Integration
+## Dungeon Master UI Integration
 
-The companion UI is integrated through the SDL2 interface:
+The dungeon master UI is integrated through a simple interface:
 
 ```c
 /**
- * Initialize companion data for a subwindow
+ * Initialize DM data
  */
 errr
-companion_init(struct subwindow *subwindow)
+dm_init(dm_state_t *state)
 {
-    /* Allocate companion data */
-    subwindow->companion = mem_zalloc(sizeof(struct companion_data));
+    /* Allocate DM data */
+    state->data = mem_zalloc(sizeof(struct dm_data));
     
     /* Initialize MCP client */
-    subwindow->companion->mcp_client = mcp_client_init(MCP_SERVER_URL, NULL);
+    state->data->mcp_client = mcp_client_init(MCP_SERVER_URL, NULL);
     
     return 0;
 }
 
 /**
- * Render companion window
+ * Render DM window
  */
 void
-render_companion_window(struct subwindow *subwindow)
+render_dm_window(dm_state_t *state)
 {
-    /* Render companion portrait */
-    render_companion_portrait(subwindow);
+    /* Render DM interface */
+    render_dm_controls(state);
     
     /* Render dialogue text */
-    render_companion_dialogue(subwindow);
+    render_dm_dialogue(state);
     
     /* Render interaction options */
-    render_companion_options(subwindow);
+    render_dm_options(state);
 }
 ```
 
 ## Deployment
 
 ### Server Startup
-Use the provided batch file to start the server:
+Use the provided scripts to start the server:
 
 ```batch
 @echo off
 echo Starting MCP server...
-cd angband-doc-agent\src
-node simple-mcp-server.js
+cd dm-agent
+node server.js
 ```
 
 ### Game Integration
-Start the game with the companion window enabled:
+Start the game with the DM integration enabled:
 
 ```batch
 @echo off
 echo Starting MCP server in background...
-start "MCP Server" cmd /c "cd angband-doc-agent\src && node simple-mcp-server.js"
+start "MCP Server" cmd /c "cd dm-agent && node server.js"
 echo Starting game...
-angband.exe -n3
-```  
+brogue.exe -dm
+```
+
+## Procedural Content Integration
+
+The MCP system provides valuable capabilities for enhancing procedural generation:
+
+```c
+/**
+ * Get AI-enhanced description for a generated dungeon feature
+ */
+char *
+get_feature_description(const char *feature_type, const char *context, int depth)
+{
+    json_t *params = json_object();
+    json_object_set_new(params, "feature_type", json_string(feature_type));
+    json_object_set_new(params, "context", json_string(context));
+    json_object_set_new(params, "depth", json_integer(depth));
+    
+    char *params_str = json_dumps(params, 0);
+    mcp_response_t *response = mcp_invoke_tool(mcp_client, "featureDescription", params_str);
+    free(params_str);
+    json_decref(params);
+    
+    if (response && response->success) {
+        return strdup(response->result);
+    }
+    
+    return get_default_description(feature_type);
+}
+```
+
+This integration allows for rich, contextual descriptions of procedurally generated dungeon features that enhance the player experience.

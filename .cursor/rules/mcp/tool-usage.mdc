@@ -1,9 +1,14 @@
 ---
-title: "MCP Tool Usage Guidelines"
-description: "Guidelines for using MCP tools effectively within the Ages of Arda project."
-glob: "**/*.{c,h,py,md}"
-priority: 600
-related: ["../game/tolkien-processing.mdc", "../game/lore-management.mdc"]
+description: 
+globs: **/*.c,**/*.h,**/*.py
+alwaysApply: false
+---
+---
+title: "Guidelines for using MCP tools effectively within the BrogueMCP project."
+description: "Guidelines for using MCP tools effectively within the BrogueMCP project."
+glob: "**/*.c,**/*.h,**/*.py"
+priority: 750
+related: ["../game/procedural-generation.mdc", "../game/entity-management.mdc"]
 ---
 
 # MCP Tool Usage Guidelines

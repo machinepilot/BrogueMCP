@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
+globs: **/*.bat,**/*.sh,**/Makefile,**/*.mk
 alwaysApply: false
 ---
 ---

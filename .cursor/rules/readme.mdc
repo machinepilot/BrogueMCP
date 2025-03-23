@@ -1,22 +1,17 @@
 ---
 description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 ---
-description: 
-globs: 
-alwaysApply: false
----
----
-title: "Ages of Arda Development Guidelines"
+title: "BrogueMCP Development Guidelines"
 description: "This is the master rule file that coordinates all other rule files in the project. It is automatically loaded for all files and provides the foundation for our rule system."
 glob: "**"
 priority: 1000
 alwaysApply: true
 ---
 
-# Ages of Arda Development Guidelines
+# BrogueMCP Development Guidelines
 
 This is the master rule file that coordinates all other rule files in the project. It is automatically loaded for all files and provides the foundation for our rule system.
 
@@ -29,45 +24,40 @@ Our rules are organized into logical categories:
 ├── README.mdc                 # This master rule file
 ├── activators/                # Rule activation logic
 │   └── file-types.mdc         # Maps file types to rules
-├── ai/                        # AI-related guidelines
-│   ├── ai-gameplay.mdc        # Gameplay AI integration
-│   ├── ai-ux.mdc              # AI user experience
-│   └── multi-agent.mdc        # Multi-agent systems
 ├── code-style/                # Programming standards
 │   ├── c-style.mdc            # C language style
-│   ├── c-style-enhanced.mdc   # Enhanced C style guide
-│   └── html.mdc               # HTML formatting
+│   └── c-style-enhanced.mdc   # Enhanced C style guide
 ├── game/                      # Game mechanics
-│   ├── angband-variant.mdc    # Angband variant development
-│   ├── lore-management.mdc    # Lore and world-building
-│   └── memory-bank.mdc        # Memory management
+│   ├── procedural-generation.mdc  # Procedural generation algorithms
+│   ├── entity-management.mdc  # Entity management
+│   ├── dungeon-features.mdc   # Dungeon feature implementation
+│   └── roguelike-patterns.mdc # Common roguelike patterns
 ├── infrastructure/            # Development infrastructure
-│   ├── github-standards.mdc   # GitHub workflow
-│   ├── directory_creation.mdc # Cross-platform directory creation
-│   └── netlify.mdc            # Netlify deployment
+│   ├── cross-platform.mdc     # Cross-platform compatibility
+│   └── version-control.mdc    # Version control guidelines
 ├── mcp/                       # Model Context Protocol
+│   ├── agent-integration.mdc  # Agent integration
 │   ├── mcp-integration.mdc    # MCP integration
-│   ├── mcp-server.mdc         # MCP server configuration
 │   └── tool-usage.mdc         # MCP tool usage guidelines
-├── memory/                    # Memory and knowledge management
-│   └── memory-management.mdc  # Memory management protocol
-├── research/                  # Research methodologies
-│   └── research-protocol.mdc  # Research protocol for Tolkien content
+├── memory/                    # Memory management
+│   ├── procedural-structures.mdc  # Memory for procedural generation
+│   ├── entity-memory.mdc      # Entity memory management
+│   └── memory-management.mdc  # General memory management
+├── testing/                   # Testing frameworks
+│   └── procedural-validation.mdc  # Validation for procedural content
 └── self-healing/              # Self-healing rules system
-    ├── README.md              # Self-healing system overview
-    └── improvement-protocol.mdc # Self-healing improvement protocol
+    ├── improvement-protocol.mdc  # Self-healing improvement protocol
+    └── error-analyzer.ps1     # Error analysis script
 ```
 
 ## Rule Categories
 
 - **Code Style**: Language-specific coding standards
-- **Game Mechanics**: Angband variant gameplay and development
-- **AI Systems**: AI-driven gameplay and user experience
+- **Game Mechanics**: Roguelike gameplay and procedural generation
 - **Infrastructure**: Deployment, builds, and repository management
 - **MCP**: Model Context Protocol integration and configuration
-- **Lore**: Story and world-building for the Ages of Arda universe
-- **Memory**: Knowledge graph and memory management
-- **Research**: Structured research methodologies for Tolkien content
+- **Memory**: Efficient memory management for procedural content
+- **Testing**: Validation frameworks for procedural generation
 - **Self-Healing**: Automated error detection and rule generation
 
 ## Automated Rule Selection Logic
@@ -85,9 +75,9 @@ This rule system uses glob patterns and priorities to automatically load the app
 
 ### Glob Pattern Examples
 - C source files (`**/*.c`) → Load C style guidelines
-- AI components (`**/ai/**`) → Load AI gameplay rules
+- Procedural generation components (`**/procedural/**`) → Load procedural generation rules
 - MCP integration (`**/mcp/**`) → Load MCP integration guidelines
-- Research files (`**/processing/**`) → Load research protocol
+- Test files (`**/test/**`) → Load testing protocol
 
 ## How to Use These Rules
 
@@ -100,25 +90,14 @@ When working in this codebase, the appropriate rules will be automatically loade
 ## Tool Integration
 
 ### MCP Tools Integration
-The project now includes comprehensive integration with MCP tools:
+The project includes comprehensive integration with MCP tools:
 
 1. **Sequential Thinking**: Used for complex problem solving and debugging
-2. **Brave Search**: Used for general research and documentation lookup
-3. **Tavily Search**: Used for deep technical research and verification
-4. **Fetch**: Used for retrieving documentation from known sources
-5. **Puppeteer**: Used for interactive web exploration with user approval
-6. **Knowledge Graph**: Used for persistent storage of project knowledge
+2. **Knowledge Graph**: Used for persistent storage of procedural patterns
+3. **Visualization Tools**: Used for visualizing procedural generation results
+4. **Code Analysis**: Used for analyzing performance of procedural algorithms
 
 Configuration for these tools is maintained in `.cursor/mcp.json`.
-
-## Research Methodology
-
-The project now includes a structured research protocol for Tolkien content:
-
-1. **Initial Engagement**: Define objectives and source materials
-2. **Research Planning**: Identify themes and outline research approach
-3. **Research Cycles**: Systematic analysis and deep investigation
-4. **Final Documentation**: Standard documentation format with knowledge development
 
 ## Adding New Rules
 
@@ -134,43 +113,23 @@ related: ["related-rule-1.mdc", "related-rule-2.mdc"]
 
 Place the new rule in the appropriate category directory and update any related rules to reference it.
 
-# Cursor Rules for Ages of Arda
+# Cursor Rules for BrogueMCP
 
-This directory contains rules and automation scripts for the Ages of Arda project when working within the Cursor IDE.
-
-## Directory Structure
-
-```
-.cursor/rules/
-├── activators/        # Scripts that activate on specific events
-├── ai/                # AI-specific rules and configuration
-├── code-style/        # Code style and formatting rules
-├── game/              # Game-specific rules
-├── guides/            # Developer guidance documents
-├── infrastructure/    # Infrastructure and system rules
-│   ├── directory_creation.mdc  # Cross-platform directory creation rules
-│   ├── verify_directories.ps1  # PowerShell directory verification script
-│   ├── verify_directories.sh   # Bash directory verification script
-│   └── init.ps1                # Initialization script that runs at startup
-├── mcp/               # Model Context Protocol rules
-├── memory/            # Memory and knowledge management
-├── research/          # Research methodologies
-└── self-healing/      # Rules for self-correcting systems
-```
+This directory contains rules and automation scripts for the BrogueMCP project when working within the Cursor IDE.
 
 ## High Priority Rules
 
 The following rules must be followed by all developers:
 
-1. **Cross-Platform Directory Creation**: Follow the guidelines in `infrastructure/directory_creation.mdc` to ensure directory operations work across all platforms. Directory verification scripts automatically run at startup to ensure the required directory structure exists.
+1. **Cross-Platform Directory Creation**: Follow the guidelines in `infrastructure/cross-platform.mdc` to ensure directory operations work across all platforms.
 
 2. **Code Style Guidelines**: Follow project-specific code style rules defined in the `code-style/` directory.
 
-3. **MCP Integration**: Follow the Model Context Protocol rules defined in the `mcp/` directory for AI integration.
+3. **Memory Management**: Follow memory management protocols in the `memory/` directory, with special attention to procedural data structures.
 
-4. **Research Protocol**: Follow the structured research methodology for Tolkien content in the `research/` directory.
+4. **Testing Procedural Content**: Follow testing guidelines for procedural content in the `testing/` directory.
 
-5. **Memory Management**: Follow memory and knowledge graph management protocols in the `memory/` directory.
+5. **MCP Integration**: Follow the Model Context Protocol rules defined in the `mcp/` directory for AI integration.
 
 ## Automated Checking
 
@@ -191,21 +150,15 @@ You can manually run rule scripts to verify compliance:
 
 ```powershell
 # PowerShell
-& .cursor/rules/infrastructure/verify_directories.ps1
+& .cursor/rules/self-healing/error-analyzer.ps1
 ```
 
 ```bash
 # Bash
-bash .cursor/rules/infrastructure/verify_directories.sh
+bash .cursor/rules/self-healing/error-analyzer.sh
 ```
 
-## Adding New Required Directories
+## History
 
-When adding new required directories to the project, update the following files:
-
-1. `infrastructure/directory_creation.mdc` with examples
-2. `infrastructure/verify_directories.ps1` with the new directory
-3. `infrastructure/verify_directories.sh` with the new directory
-4. Any relevant Python setup code (e.g., `setup_directories()` functions)
-
+This rule system was created as part of the BrogueMCP project to provide guidance for roguelike development in the Brogue Cooperative Project. It focuses on procedural dungeon generation, efficient memory management, and consistent code style for C-based roguelike development.
 ---

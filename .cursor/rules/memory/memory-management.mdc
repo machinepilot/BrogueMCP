@@ -1,77 +1,82 @@
 ---
+description: 
+globs: 
+alwaysApply: true
+---
+---
 title: "Memory Management Protocol"
-description: "Protocol for managing knowledge storage, retrieval, and maintenance across the Ages of Arda project."
-glob: "**/*.{c,h,py,md}"
-priority: 650
-related: ["../mcp/tool-usage.mdc", "../game/lore-management.mdc"]
+description: "Protocol for managing knowledge storage, retrieval, and maintenance across the BrogueMCP project."
+glob: "**/*.c,**/*.h,**/*.py"
+priority: 800
+related: ["../mcp/tool-usage.mdc", "../game/procedural-generation.mdc"]
 ---
 
 # Memory Management Protocol
 
-This protocol defines how knowledge is stored, retrieved, and maintained across sessions in the Ages of Arda project.
+This protocol defines how knowledge is stored, retrieved, and maintained across sessions in the BrogueMCP project.
 
 ## Knowledge Graph Integration
 
-### Entity Types
-- **Characters**: NPCs, historical figures, and entities from Tolkien's works
-- **Locations**: Geographic features, settlements, and regions
-- **Artifacts**: Significant items, weapons, and objects
-- **Events**: Historical occurrences, battles, and significant moments
-- **Concepts**: Abstract ideas, magic systems, and cultural elements
-
-### Relationship Types
-- **Interacts_With**: Character-to-character relationships
-- **Located_In**: Entity's physical location
-- **Created_By**: Attribution of creation
-- **Part_Of**: Hierarchical belonging
-- **Occurred_At**: Event's location
-- **Occurred_During**: Event's timeframe
-- **Possesses**: Ownership or possession
-- **Related_To**: General relationship
-
-## Memory Operations
-
-### Memory Retrieval
-- At the beginning of each session, retrieve all relevant information from the knowledge graph
-- When working on a specific component, first load its related entities and relationships
-- Use context-aware retrieval to maintain relevance
+The Memory Management Protocol integrates with the knowledge graph to provide consistent access to information across the project.
 
 ### Memory Storage
-When new lore information is discovered or created:
+When new procedural information is discovered or created:
 
-1. Create new entities for:
-   - Characters with defined attributes
-   - Locations with geographical context
-   - Artifacts with properties
-   - Events with temporal data
-   - Concepts with definitions
+1. **Structural Consistency**
+   - Use consistent entity types and relationship types
+   - Follow entity naming conventions
+   - Add appropriate metadata to all entities
 
-2. Establish relationships:
-   - Connect new entities to existing knowledge
-   - Preserve lore-accurate connections
-   - Maintain historical accuracy
-   - Document source material references
+2. **Data Management**
+   - When new procedural information is discovered or created:
+     - Check for existing entities first
+     - Merge information when appropriate
+     - Create new entities only when needed
 
-3. Store metadata:
-   - Creation timestamp
-   - Source reference
-   - Confidence level
-   - Canon status (primary/secondary)
+3. **Cross-References**
+   - Link related entities with appropriate relationships
+   - Create bi-directional relationships where logical
+   - Preserve game-accurate connections
+   - Document relationship types
 
 ### Memory Access Pattern
 - Access appropriate entities before modifying related code
 - Traverse relationships to understand dependencies
-- Query for conflicting information before adding new lore
+- Query for conflicting information before adding new data
 - Validate against canonical sources
 
-## Memory Bank Integration
-- All memory operations should interact with the `.memory-bank` directory
-- Follow the established schema for memory bank entries
-- Ensure compatibility with the memory graph structure
-- Maintain consistent format for retrieval efficiency
+## Memory Persistence
+
+Information stored using this protocol must be:
+
+1. **Durable**
+   - Persistent across sessions
+   - Backed up regularly
+   - Version-controlled when appropriate
+
+2. **Accessible**
+   - Available to all relevant components
+   - Efficiently retrievable through consistent APIs
+   - Maintainable and extensible
 
 ## Implementation Guidelines
-- Use knowledge graph queries before making lore-related changes
+- Use knowledge graph queries before making game-related changes
 - Document sources of information in memory updates
 - Preserve relationships between entities in all operations
-- Maintain data schema compatibility across memory systems 
+- Maintain data schema compatibility across memory systems
+
+## Knowledge Retrieval
+
+When accessing the knowledge graph:
+
+1. **Query Best Practices**
+   - Start with specific queries before general ones
+   - Use entity IDs for precise retrieval
+   - Limit results to relevant information
+   - Query for conflicting information before adding new data
+
+2. **Memory Access Patterns**
+   - Cache frequently accessed information
+   - Batch related queries
+   - Use knowledge graph queries before making game-related changes
+   - Handle missing information gracefully

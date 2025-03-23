@@ -1,6 +1,11 @@
 ---
+description: 
+globs: **/*.{py,c,h,md}
+alwaysApply: false
+---
+---
 title: "Knowledge Graph Integration"
-description: "Guidelines for integrating the Knowledge Graph MCP server with the Ages of Arda Cursor Rules System."
+description: "Guidelines for integrating the Knowledge Graph MCP server with the BrogueMCP Cursor Rules System."
 glob: "**/*.{py,c,h,md}"
 priority: 645
 related: ["memory-management.mdc", "example-implementation.mdc", "../memory-bank/secure-key-management.mdc"]
@@ -8,7 +13,7 @@ related: ["memory-management.mdc", "example-implementation.mdc", "../memory-bank
 
 # Knowledge Graph Integration
 
-This rule provides guidelines for integrating the Knowledge Graph MCP server with the Ages of Arda project, ensuring consistent knowledge management across the system.
+This rule provides guidelines for integrating the Knowledge Graph MCP server with the BrogueMCP project, ensuring consistent knowledge management across the system.
 
 ## Core Concepts
 
@@ -39,7 +44,7 @@ Initialize knowledge graph connection at the beginning of each session:
 ```python
 from mcpserver import MemoryGraphAPI
 
-def initialize_knowledge_graph(project_id="ages-of-arda"):
+def initialize_knowledge_graph(project_id="brogue-mcp"):
     """Initialize connection to the knowledge graph"""
     graph = MemoryGraphAPI(
         storage_path=".memory-bank/knowledge-graph",
@@ -53,13 +58,13 @@ def initialize_knowledge_graph(project_id="ages-of-arda"):
 #### Creating Entities
 
 ```python
-def create_tolkien_entity(graph, entity_type, name, properties=None):
+def create_game_entity(graph, entity_type, name, properties=None):
     """
-    Create a Tolkien entity in the knowledge graph
+    Create a game entity in the knowledge graph
     
     Args:
         graph: MemoryGraphAPI instance
-        entity_type: Type of entity (CHARACTER, LOCATION, etc.)
+        entity_type: Type of entity (MONSTER, ITEM, LEVEL, etc.)
         name: Primary name of the entity
         properties: Dictionary of additional properties
         
@@ -93,7 +98,7 @@ def create_tolkien_entity(graph, entity_type, name, properties=None):
 #### Retrieving Entities
 
 ```python
-def find_tolkien_entities(graph, query, entity_type=None, limit=10):
+def find_game_entities(graph, query, entity_type=None, limit=10):
     """
     Find entities in the knowledge graph
     
@@ -265,27 +270,27 @@ Configure the Memory Graph MCP server in `.cursor/mcp.json`:
 }
 ```
 
-## Integration with Tolkien Processing
+## Integration with Procedural Generation
 
-The Knowledge Graph is particularly valuable for Tolkien processing:
+The Knowledge Graph is particularly valuable for roguelike procedural generation:
 
-1. **Entity Extraction**: Store extracted entities in the knowledge graph
-2. **Relationship Discovery**: Capture connections between entities
-3. **Knowledge Validation**: Cross-reference information across sources
-4. **Lore Consistency**: Ensure coherent world-building
+1. **Entity Extraction**: Store generated entities in the knowledge graph
+2. **Relationship Discovery**: Capture connections between game elements
+3. **Pattern Recognition**: Identify successful generation patterns
+4. **Game Consistency**: Ensure coherent world-building
 
 Example workflow:
 
 ```python
-def process_tolkien_text(text, graph):
-    """Process Tolkien text and store entities in knowledge graph"""
+def process_dungeon_level(level_data, graph):
+    """Process dungeon level data and store entities in knowledge graph"""
     # Extract entities
-    entities = extract_tolkien_entities(text)
+    entities = extract_level_entities(level_data)
     
     # Store in knowledge graph
     entity_ids = []
     for entity in entities:
-        entity_id = create_tolkien_entity(
+        entity_id = create_game_entity(
             graph,
             entity_type=entity["type"],
             name=entity["name"],
@@ -312,16 +317,16 @@ def process_tolkien_text(text, graph):
 
 ## Usage in Development Workflows
 
-### Research Workflow
+### Game Design Workflow
 
-1. Begin research by checking the knowledge graph for existing information
-2. Update knowledge graph with new findings during research
-3. Link research sources to entities for traceability
-4. Create relationships between new and existing knowledge
+1. Begin design by checking the knowledge graph for existing game elements
+2. Update knowledge graph with new entities during design
+3. Link design sources to entities for traceability
+4. Create relationships between game elements
 
 ### Code Implementation Workflow
 
-1. Query knowledge graph for domain entities before implementation
+1. Query knowledge graph for game entities before implementation
 2. Reference knowledge graph entity IDs in code comments
 3. Update knowledge graph with implementation details
 4. Link code artifacts to knowledge entities
@@ -379,4 +384,4 @@ def maintain_knowledge_graph(graph):
 
 ## Conclusion
 
-The Knowledge Graph integration provides a powerful foundation for managing the complex lore and interconnected knowledge of the Ages of Arda project. By following these guidelines, you can ensure consistent, traceable, and accessible knowledge throughout the development process. 
+The Knowledge Graph integration provides a powerful foundation for managing the complex game elements and interconnected knowledge of the BrogueMCP project. By following these guidelines, you can ensure consistent, traceable, and accessible knowledge throughout the development process.

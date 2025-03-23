@@ -29,7 +29,7 @@ You need to have MSYS2 with MinGW64 installed as described in BUILD.md.
 1. Open the MSYS2 MinGW64 shell (not the regular MSYS2 shell)
 2. Navigate to your BrogueMCP directory:
    ```bash
-   cd /c/working_directory/ages-project/clean-ages-of-arda/BrogueMCP
+   cd /c/working_directory/brogue-project/BrogueMCP
    ```
 3. Apply the compatibility patches:
    ```bash

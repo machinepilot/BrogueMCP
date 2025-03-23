@@ -208,7 +208,7 @@ The narrator personality system allows players to customize the storytelling voi
 - **Adjustable Personality Traits**: Fine-tune attributes like voice tone, wisdom level, verbosity, and more
 - **Thematic Tendencies**: Control nature references, metaphor complexity, cosmic awareness, etc.
 - **Speech Pattern Control**: Adjust question frequency, syntax complexity, archaic language use, and more 
-- **Preset Personalities**: Choose from built-in presets inspired by Tolkien's characters
+- **Preset Personalities**: Choose from built-in presets inspired by classic roguelike narration styles
 - **Custom Presets**: Create and save your own narrator personalities
 - **In-Game Access**: Press 'N' during gameplay to open the settings UI in your browser
 

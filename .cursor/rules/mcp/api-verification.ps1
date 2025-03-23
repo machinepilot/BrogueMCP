@@ -341,14 +341,33 @@ function Generate-Report {
     $reportPath = "./cursor-rules-test-report.md"
     
     $reportContent = @"
-# Cursor Rules Testing Report
-
-Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+# MCP Integration Verification Report
 
 ## Summary
 
-This report evaluates the effectiveness of the Ages of Arda cursor rules system and MCP integration.
+This report evaluates the effectiveness of the BrogueMCP cursor rules system and MCP integration.
 
+$SummaryContent
+
+## API Compatibility
+
+$ApiCompatibilityContent
+
+## Knowledge Graph Integration
+
+$KnowledgeGraphContent
+
+## Tool Usage
+
+$ToolUsageContent
+
+## Recommendations
+
+$RecommendationsContent
+
+## Conclusion
+
+The BrogueMCP cursor rules system provides a solid foundation for maintaining code quality and consistency across the project. The integration with MCP tools enhances research capabilities and knowledge management for roguelike development.
 "@
     
     if ($IncludeApiResults) {
@@ -440,7 +459,7 @@ To test the workflow integration:
 
 ## Conclusion
 
-The Ages of Arda cursor rules system provides a solid foundation for maintaining code quality and consistency across the project. The integration with MCP tools enhances research capabilities and knowledge management.
+The BrogueMCP cursor rules system provides a solid foundation for maintaining code quality and consistency across the project. The integration with MCP tools enhances research capabilities and knowledge management for roguelike development.
 
 "@
     
@@ -451,7 +470,7 @@ The Ages of Arda cursor rules system provides a solid foundation for maintaining
 
 # Main execution
 Clear-Host
-Write-Host "===== Ages of Arda Cursor Rules Testing =====" -ForegroundColor Cyan
+Write-Host "===== BrogueMCP Cursor Rules Testing =====" -ForegroundColor Cyan
 
 # Test API keys
 $apiKeysWorking = Test-ApiKeys

@@ -1,0 +1,1052 @@
+---
+description: 
+globs: **/*.c,**/*.h
+alwaysApply: false
+---
+ ---
+title: "Entity Management Guidelines"
+description: "Guidelines for implementing efficient entity management in BrogueMCP"
+glob: "**/*.c,**/*.h"
+priority: 800
+related: ["game/roguelike-patterns.mdc", "memory/procedural-structures.mdc"]
+---
+
+# Entity Management Guidelines
+
+## Overview
+
+This document provides guidelines for implementing an efficient entity management system in BrogueMCP, focusing on the representation, storage, and manipulation of game objects such as monsters, items, and environmental features.
+
+## Entity Design Principles
+
+### Entity Types
+
+Define clear entity categories to organize your codebase:
+
+```c
+// Entity type enumeration
+typedef enum EntityType {
+    ENTITY_PLAYER,    // The player character
+    ENTITY_MONSTER,   // NPC creatures
+    ENTITY_ITEM,      // Collectible objects
+    ENTITY_FEATURE,   // Environmental features (doors, traps, etc.)
+    ENTITY_PROJECTILE, // Moving objects like arrows, fireballs
+    ENTITY_EFFECT     // Visual effects, temporary entities
+} EntityType;
+
+// Base entity structure
+typedef struct Entity {
+    EntityType type;        // Type of this entity
+    int id;                 // Unique identifier
+    bool active;            // Whether this entity is active
+    Position position;      // Position in the dungeon
+    // Common properties for all entities
+} Entity;
+```
+
+### Component-Based Approach
+
+Use a component-based design to enable flexible entity composition:
+
+```c
+typedef enum ComponentType {
+    COMPONENT_PHYSICAL,    // Physical properties (size, weight, etc.)
+    COMPONENT_RENDERABLE,  // Visual representation
+    COMPONENT_MOBILITY,    // Movement capabilities
+    COMPONENT_COMBAT,      // Combat capabilities
+    COMPONENT_AI,          // Artificial intelligence
+    COMPONENT_INVENTORY,   // Item storage
+    COMPONENT_INTERACTIVE, // Can be interacted with
+    COMPONENT_EFFECT       // Applies effects when used/touched
+} ComponentType;
+
+// Base component structure
+typedef struct Component {
+    ComponentType type;    // Type of this component
+    void (*update)(struct Component* self, Entity* entity, float deltaTime);
+    void (*destroy)(struct Component* self);
+    // Component-specific data follows in derived structures
+} Component;
+
+// Example: Physical component
+typedef struct PhysicalComponent {
+    Component base;        // Base component must be first
+    int size;              // Size/collision radius
+    int weight;            // Weight affects movement, carrying
+    bool blocksMovement;   // Whether this entity blocks movement
+    bool blocksVision;     // Whether this entity blocks line of sight
+} PhysicalComponent;
+
+// Entity with components
+typedef struct EntityWithComponents {
+    Entity base;                       // Base entity structure
+    Component* components[MAX_COMPONENTS]; // Array of component pointers
+    int componentCount;                // Number of components
+} EntityWithComponents;
+```
+
+## Entity Storage and Management
+
+### Entity Manager
+
+Implement a central entity manager to maintain all entities:
+
+```c
+typedef struct EntityManager {
+    Entity** entities;     // Array of entity pointers
+    int count;             // Number of active entities
+    int capacity;          // Total capacity
+    int nextId;            // Next entity ID to assign
+} EntityManager;
+
+// Initialize the entity manager
+EntityManager* createEntityManager(int initialCapacity) {
+    EntityManager* manager = (EntityManager*)malloc(sizeof(EntityManager));
+    if (!manager) return NULL;
+    
+    manager->entities = (Entity**)malloc(initialCapacity * sizeof(Entity*));
+    if (!manager->entities) {
+        free(manager);
+        return NULL;
+    }
+    
+    manager->count = 0;
+    manager->capacity = initialCapacity;
+    manager->nextId = 1;
+    
+    return manager;
+}
+
+// Add an entity to the manager
+bool addEntity(EntityManager* manager, Entity* entity) {
+    if (manager->count >= manager->capacity) {
+        // Grow the array when needed
+        int newCapacity = manager->capacity * 2;
+        Entity** newEntities = (Entity**)realloc(manager->entities, 
+                                              newCapacity * sizeof(Entity*));
+        if (!newEntities) return false;
+        
+        manager->entities = newEntities;
+        manager->capacity = newCapacity;
+    }
+    
+    // Assign ID and add to array
+    entity->id = manager->nextId++;
+    manager->entities[manager->count++] = entity;
+    return true;
+}
+
+// Remove an entity from the manager
+bool removeEntity(EntityManager* manager, int entityId) {
+    for (int i = 0; i < manager->count; i++) {
+        if (manager->entities[i]->id == entityId) {
+            // Replace with the last entity and decrement count
+            manager->entities[i] = manager->entities[manager->count - 1];
+            manager->count--;
+            return true;
+        }
+    }
+    return false;
+}
+
+// Find an entity by ID
+Entity* findEntity(EntityManager* manager, int entityId) {
+    for (int i = 0; i < manager->count; i++) {
+        if (manager->entities[i]->id == entityId) {
+            return manager->entities[i];
+        }
+    }
+    return NULL;
+}
+```
+
+### Entity Pools
+
+Use object pooling for frequently created/destroyed entities:
+
+```c
+typedef struct EntityPool {
+    Entity** entities;         // Array of pre-allocated entities
+    bool* active;              // Array tracking which entities are active
+    int size;                  // Size of the pool
+    int activeCount;           // Number of currently active entities
+    EntityType entityType;     // Type of entities in this pool
+} EntityPool;
+
+// Initialize an entity pool
+EntityPool* createEntityPool(EntityType type, int size) {
+    EntityPool* pool = (EntityPool*)malloc(sizeof(EntityPool));
+    if (!pool) return NULL;
+    
+    pool->entities = (Entity**)malloc(size * sizeof(Entity*));
+    pool->active = (bool*)malloc(size * sizeof(bool));
+    
+    if (!pool->entities || !pool->active) {
+        free(pool->entities);
+        free(pool->active);
+        free(pool);
+        return NULL;
+    }
+    
+    // Pre-allocate entities based on type
+    for (int i = 0; i < size; i++) {
+        pool->entities[i] = createEntityOfType(type);
+        pool->active[i] = false;
+        
+        if (!pool->entities[i]) {
+            // Clean up on allocation failure
+            for (int j = 0; j < i; j++) {
+                destroyEntity(pool->entities[j]);
+            }
+            free(pool->entities);
+            free(pool->active);
+            free(pool);
+            return NULL;
+        }
+    }
+    
+    pool->size = size;
+    pool->activeCount = 0;
+    pool->entityType = type;
+    
+    return pool;
+}
+
+// Get an entity from the pool
+Entity* getEntityFromPool(EntityPool* pool) {
+    // Find an inactive entity
+    for (int i = 0; i < pool->size; i++) {
+        if (!pool->active[i]) {
+            pool->active[i] = true;
+            pool->activeCount++;
+            return pool->entities[i];
+        }
+    }
+    return NULL; // Pool is full
+}
+
+// Return an entity to the pool
+void returnEntityToPool(EntityPool* pool, Entity* entity) {
+    // Find the entity in the pool
+    for (int i = 0; i < pool->size; i++) {
+        if (pool->entities[i] == entity) {
+            // Reset entity to default state
+            resetEntity(entity);
+            pool->active[i] = false;
+            pool->activeCount--;
+            return;
+        }
+    }
+}
+```
+
+## Entity Types and Behaviors
+
+### Monster Entities
+
+Implement monsters with appropriate AI behaviors:
+
+```c
+typedef enum MonsterBehavior {
+    BEHAVIOR_PASSIVE,     // Doesn't attack unless provoked
+    BEHAVIOR_AGGRESSIVE,  // Attacks player on sight
+    BEHAVIOR_TERRITORIAL, // Attacks when player enters territory
+    BEHAVIOR_FLEEING,     // Runs away from player
+    BEHAVIOR_WANDERING    // Moves randomly
+} MonsterBehavior;
+
+typedef struct Monster {
+    Entity base;              // Base entity structure
+    MonsterType type;         // Type of monster
+    int health;               // Current health
+    int maxHealth;            // Maximum health
+    int attack;               // Attack power
+    int defense;              // Defense power
+    MonsterBehavior behavior; // Current behavior
+    int awarenessRadius;      // How far it can detect the player
+    // Other monster-specific properties
+} Monster;
+
+// Create a monster
+Monster* createMonster(MonsterType type) {
+    Monster* monster = (Monster*)malloc(sizeof(Monster));
+    if (!monster) return NULL;
+    
+    // Initialize base entity
+    monster->base.type = ENTITY_MONSTER;
+    monster->base.active = true;
+    
+    // Set monster-specific properties based on type
+    monster->type = type;
+    
+    switch (type) {
+        case MONSTER_RAT:
+            monster->health = monster->maxHealth = 5;
+            monster->attack = 2;
+            monster->defense = 0;
+            monster->behavior = BEHAVIOR_FLEEING;
+            monster->awarenessRadius = 6;
+            break;
+        case MONSTER_ORC:
+            monster->health = monster->maxHealth = 15;
+            monster->attack = 5;
+            monster->defense = 2;
+            monster->behavior = BEHAVIOR_AGGRESSIVE;
+            monster->awarenessRadius = 8;
+            break;
+        // Other monster types
+    }
+    
+    return monster;
+}
+
+// Update monster based on behavior
+void updateMonster(Monster* monster, GameState* state) {
+    // Skip if monster is inactive
+    if (!monster->base.active) return;
+    
+    // Calculate distance to player
+    int distanceToPlayer = calculateDistance(monster->base.position, 
+                                            state->player->position);
+    
+    // Update behavior based on state
+    if (monster->health < monster->maxHealth / 3) {
+        // Wounded monsters may flee
+        if (randomChance(0.7)) {
+            monster->behavior = BEHAVIOR_FLEEING;
+        }
+    }
+    
+    // Act according to behavior
+    switch (monster->behavior) {
+        case BEHAVIOR_PASSIVE:
+            // Do nothing unless provoked
+            break;
+            
+        case BEHAVIOR_AGGRESSIVE:
+            if (distanceToPlayer <= monster->awarenessRadius && 
+                hasLineOfSight(state, monster->base.position, state->player->position)) {
+                moveTowardsPlayer(monster, state);
+                if (isAdjacentToPlayer(monster, state)) {
+                    attackPlayer(monster, state);
+                }
+            } else {
+                moveRandomly(monster, state);
+            }
+            break;
+            
+        case BEHAVIOR_FLEEING:
+            if (distanceToPlayer <= monster->awarenessRadius * 1.5) {
+                moveAwayFromPlayer(monster, state);
+            } else {
+                moveRandomly(monster, state);
+            }
+            break;
+            
+        // Other behaviors
+    }
+}
+```
+
+### Item Entities
+
+Implement items with appropriate properties and interactions:
+
+```c
+typedef enum ItemType {
+    ITEM_WEAPON,
+    ITEM_ARMOR,
+    ITEM_POTION,
+    ITEM_SCROLL,
+    ITEM_FOOD,
+    ITEM_GOLD,
+    ITEM_KEY,
+    ITEM_SPECIAL
+} ItemType;
+
+typedef struct Item {
+    Entity base;           // Base entity structure
+    ItemType type;         // Type of item
+    char name[64];         // Item name
+    char description[256]; // Item description
+    bool stackable;        // Whether the item can stack
+    int count;             // Number of items in stack
+    int value;             // Gold value
+    int weight;            // Weight for inventory management
+    // Type-specific properties follow
+    union {
+        struct {
+            int attackBonus;
+            int damage;
+        } weapon;
+        
+        struct {
+            int defenseBonus;
+        } armor;
+        
+        struct {
+            PotionEffect effect;
+            int potency;
+        } potion;
+        
+        // Other item type properties
+    };
+} Item;
+
+// Create an item
+Item* createItem(ItemType type) {
+    Item* item = (Item*)malloc(sizeof(Item));
+    if (!item) return NULL;
+    
+    // Initialize base entity
+    item->base.type = ENTITY_ITEM;
+    item->base.active = true;
+    
+    // Set item-specific properties based on type
+    item->type = type;
+    item->count = 1;
+    
+    switch (type) {
+        case ITEM_WEAPON:
+            strcpy(item->name, "Sword");
+            strcpy(item->description, "A well-crafted steel sword.");
+            item->stackable = false;
+            item->value = 20;
+            item->weight = 3;
+            item->weapon.attackBonus = 2;
+            item->weapon.damage = 5;
+            break;
+            
+        case ITEM_POTION:
+            strcpy(item->name, "Healing Potion");
+            strcpy(item->description, "A red liquid that restores health.");
+            item->stackable = true;
+            item->value = 10;
+            item->weight = 1;
+            item->potion.effect = POTION_HEALING;
+            item->potion.potency = 10;
+            break;
+            
+        // Other item types
+    }
+    
+    return item;
+}
+
+// Use an item
+bool useItem(Item* item, GameState* state, Entity* user) {
+    if (!item->base.active) return false;
+    
+    switch (item->type) {
+        case ITEM_POTION:
+            // Apply potion effect
+            if (item->potion.effect == POTION_HEALING) {
+                // Assuming user is a monster or player with health
+                if (user->type == ENTITY_PLAYER) {
+                    Player* player = (Player*)user;
+                    player->health += item->potion.potency;
+                    if (player->health > player->maxHealth) {
+                        player->health = player->maxHealth;
+                    }
+                } else if (user->type == ENTITY_MONSTER) {
+                    Monster* monster = (Monster*)user;
+                    monster->health += item->potion.potency;
+                    if (monster->health > monster->maxHealth) {
+                        monster->health = monster->maxHealth;
+                    }
+                }
+            }
+            // Potions are consumed on use
+            if (item->count > 1) {
+                item->count--;
+            } else {
+                item->base.active = false;
+            }
+            return true;
+            
+        // Other item types
+    }
+    
+    return false;
+}
+```
+
+### Feature Entities
+
+Implement dungeon features as entities:
+
+```c
+typedef enum FeatureType {
+    FEATURE_DOOR,
+    FEATURE_TRAP,
+    FEATURE_ALTAR,
+    FEATURE_FOUNTAIN,
+    FEATURE_STATUE,
+    FEATURE_CHEST
+} FeatureType;
+
+typedef struct Feature {
+    Entity base;           // Base entity structure
+    FeatureType type;      // Type of feature
+    bool discovered;       // Whether this feature has been seen
+    bool activated;        // Whether this feature has been activated
+    // Type-specific properties follow
+    union {
+        struct {
+            bool locked;
+            bool open;
+        } door;
+        
+        struct {
+            TrapType trapType;
+            bool visible;
+            bool triggered;
+        } trap;
+        
+        struct {
+            bool locked;
+            bool opened;
+            int itemCount;
+            int itemCapacity;
+            Item** items;
+        } chest;
+        
+        // Other feature type properties
+    };
+} Feature;
+
+// Create a feature
+Feature* createFeature(FeatureType type) {
+    Feature* feature = (Feature*)malloc(sizeof(Feature));
+    if (!feature) return NULL;
+    
+    // Initialize base entity
+    feature->base.type = ENTITY_FEATURE;
+    feature->base.active = true;
+    
+    // Set feature-specific properties
+    feature->type = type;
+    feature->discovered = false;
+    feature->activated = false;
+    
+    switch (type) {
+        case FEATURE_DOOR:
+            feature->door.locked = randomChance(0.3);
+            feature->door.open = false;
+            break;
+            
+        case FEATURE_TRAP:
+            feature->trap.trapType = chooseTrapType();
+            feature->trap.visible = randomChance(0.2);
+            feature->trap.triggered = false;
+            break;
+            
+        case FEATURE_CHEST:
+            feature->chest.locked = randomChance(0.5);
+            feature->chest.opened = false;
+            feature->chest.itemCapacity = randomInt(1, 5);
+            feature->chest.itemCount = 0;
+            feature->chest.items = malloc(feature->chest.itemCapacity * sizeof(Item*));
+            if (!feature->chest.items) {
+                free(feature);
+                return NULL;
+            }
+            break;
+            
+        // Other feature types
+    }
+    
+    return feature;
+}
+
+// Interact with a feature
+bool interactWithFeature(Feature* feature, GameState* state, Entity* actor) {
+    if (!feature->base.active) return false;
+    
+    // Mark as discovered
+    feature->discovered = true;
+    
+    switch (feature->type) {
+        case FEATURE_DOOR:
+            if (feature->door.open) {
+                // Already open
+                return true;
+            }
+            
+            if (feature->door.locked) {
+                // Check if actor has key
+                if (actorHasKey(state, actor)) {
+                    feature->door.locked = false;
+                    addGameMessage(state, "You unlock the door.");
+                } else {
+                    addGameMessage(state, "The door is locked.");
+                    return false;
+                }
+            }
+            
+            // Open the door
+            feature->door.open = true;
+            feature->activated = true;
+            addGameMessage(state, "You open the door.");
+            return true;
+            
+        case FEATURE_TRAP:
+            if (!feature->trap.triggered) {
+                // Trap gets triggered
+                triggerTrap(feature, state, actor);
+                feature->trap.triggered = true;
+                feature->activated = true;
+                return true;
+            }
+            return false;
+            
+        // Other feature types
+    }
+    
+    return false;
+}
+```
+
+## Entity Queries and Spatial Management
+
+### Spatial Partitioning
+
+Implement a spatial partitioning system to efficiently find entities in a given area:
+
+```c
+typedef struct SpatialGrid {
+    int width;              // Width of the grid in cells
+    int height;             // Height of the grid in cells
+    int cellWidth;          // Width of each cell in game units
+    int cellHeight;         // Height of each cell in game units
+    int mapWidth;           // Width of the game map
+    int mapHeight;          // Height of the game map
+    Entity*** cells;        // 2D array of entity pointer arrays
+    int* cellCapacity;      // Array of cell capacities
+    int* cellCount;         // Array of entity counts per cell
+} SpatialGrid;
+
+// Initialize a spatial grid
+SpatialGrid* createSpatialGrid(int mapWidth, int mapHeight, int cellSize) {
+    SpatialGrid* grid = (SpatialGrid*)malloc(sizeof(SpatialGrid));
+    if (!grid) return NULL;
+    
+    // Calculate grid dimensions
+    grid->cellWidth = grid->cellHeight = cellSize;
+    grid->mapWidth = mapWidth;
+    grid->mapHeight = mapHeight;
+    grid->width = (mapWidth + cellSize - 1) / cellSize; // Ceiling division
+    grid->height = (mapHeight + cellSize - 1) / cellSize;
+    
+    // Allocate cells array
+    grid->cells = (Entity***)malloc(grid->height * sizeof(Entity**));
+    grid->cellCapacity = (int*)malloc(grid->height * grid->width * sizeof(int));
+    grid->cellCount = (int*)malloc(grid->height * grid->width * sizeof(int));
+    
+    if (!grid->cells || !grid->cellCapacity || !grid->cellCount) {
+        free(grid->cells);
+        free(grid->cellCapacity);
+        free(grid->cellCount);
+        free(grid);
+        return NULL;
+    }
+    
+    // Initialize cells
+    int initialCapacity = 10; // Initial capacity per cell
+    
+    for (int y = 0; y < grid->height; y++) {
+        grid->cells[y] = (Entity**)malloc(grid->width * sizeof(Entity*));
+        if (!grid->cells[y]) {
+            // Clean up on failure
+            for (int j = 0; j < y; j++) {
+                for (int x = 0; x < grid->width; x++) {
+                    free(grid->cells[j][x]);
+                }
+                free(grid->cells[j]);
+            }
+            free(grid->cells);
+            free(grid->cellCapacity);
+            free(grid->cellCount);
+            free(grid);
+            return NULL;
+        }
+        
+        for (int x = 0; x < grid->width; x++) {
+            int idx = y * grid->width + x;
+            grid->cells[y][x] = (Entity**)malloc(initialCapacity * sizeof(Entity*));
+            if (!grid->cells[y][x]) {
+                // Clean up on failure
+                for (int j = 0; j < y; j++) {
+                    for (int i = 0; i < grid->width; i++) {
+                        free(grid->cells[j][i]);
+                    }
+                    free(grid->cells[j]);
+                }
+                for (int i = 0; i < x; i++) {
+                    free(grid->cells[y][i]);
+                }
+                free(grid->cells);
+                free(grid->cellCapacity);
+                free(grid->cellCount);
+                free(grid);
+                return NULL;
+            }
+            
+            grid->cellCapacity[idx] = initialCapacity;
+            grid->cellCount[idx] = 0;
+        }
+    }
+    
+    return grid;
+}
+
+// Add an entity to the spatial grid
+void addEntityToGrid(SpatialGrid* grid, Entity* entity) {
+    // Calculate cell coordinates
+    int cellX = entity->position.x / grid->cellWidth;
+    int cellY = entity->position.y / grid->cellHeight;
+    
+    // Ensure coordinates are within bounds
+    if (cellX < 0 || cellX >= grid->width || cellY < 0 || cellY >= grid->height) {
+        return;
+    }
+    
+    // Get cell index
+    int idx = cellY * grid->width + cellX;
+    
+    // Check if we need to expand the cell
+    if (grid->cellCount[idx] >= grid->cellCapacity[idx]) {
+        int newCapacity = grid->cellCapacity[idx] * 2;
+        Entity** newCell = (Entity**)realloc(grid->cells[cellY][cellX], 
+                                          newCapacity * sizeof(Entity*));
+        
+        if (!newCell) return;
+        
+        grid->cells[cellY][cellX] = newCell;
+        grid->cellCapacity[idx] = newCapacity;
+    }
+    
+    // Add entity to cell
+    grid->cells[cellY][cellX][grid->cellCount[idx]++] = entity;
+}
+
+// Query entities in an area
+Entity** queryEntitiesInArea(SpatialGrid* grid, int x, int y, int width, int height,
+                           int* outCount) {
+    // Calculate cell range
+    int startCellX = max(0, x / grid->cellWidth);
+    int startCellY = max(0, y / grid->cellHeight);
+    int endCellX = min(grid->width - 1, (x + width) / grid->cellWidth);
+    int endCellY = min(grid->height - 1, (y + height) / grid->cellHeight);
+    
+    // Count entities in the area
+    int totalEntities = 0;
+    for (int cy = startCellY; cy <= endCellY; cy++) {
+        for (int cx = startCellX; cx <= endCellX; cx++) {
+            int idx = cy * grid->width + cx;
+            totalEntities += grid->cellCount[idx];
+        }
+    }
+    
+    // Allocate result array
+    Entity** result = (Entity**)malloc(totalEntities * sizeof(Entity*));
+    if (!result) {
+        *outCount = 0;
+        return NULL;
+    }
+    
+    // Collect entities
+    int resultIdx = 0;
+    for (int cy = startCellY; cy <= endCellY; cy++) {
+        for (int cx = startCellX; cx <= endCellX; cx++) {
+            int idx = cy * grid->width + cx;
+            for (int i = 0; i < grid->cellCount[idx]; i++) {
+                Entity* entity = grid->cells[cy][cx][i];
+                
+                // Check if entity is actually in the query rectangle
+                if (entity->position.x >= x && entity->position.x < x + width &&
+                    entity->position.y >= y && entity->position.y < y + height) {
+                    result[resultIdx++] = entity;
+                }
+            }
+        }
+    }
+    
+    *outCount = resultIdx;
+    return result;
+}
+```
+
+### Entity Queries
+
+Implement efficient queries for finding entities:
+
+```c
+// Find entities of a specific type within a radius
+Entity** findEntitiesOfTypeInRadius(GameState* state, Position center, 
+                                   int radius, EntityType type, int* outCount) {
+    // Query the area first
+    int querySize = radius * 2 + 1;
+    int queryX = center.x - radius;
+    int queryY = center.y - radius;
+    
+    int queryResultCount;
+    Entity** queryResult = queryEntitiesInArea(state->spatialGrid, queryX, queryY,
+                                             querySize, querySize, &queryResultCount);
+    
+    if (!queryResult) {
+        *outCount = 0;
+        return NULL;
+    }
+    
+    // Count entities of the requested type within the radius
+    int matchCount = 0;
+    for (int i = 0; i < queryResultCount; i++) {
+        Entity* entity = queryResult[i];
+        
+        // Check entity type
+        if (entity->type != type) continue;
+        
+        // Check distance
+        int dx = entity->position.x - center.x;
+        int dy = entity->position.y - center.y;
+        int distanceSquared = dx*dx + dy*dy;
+        
+        if (distanceSquared <= radius*radius) {
+            matchCount++;
+        }
+    }
+    
+    // Allocate result array
+    Entity** result = (Entity**)malloc(matchCount * sizeof(Entity*));
+    if (!result) {
+        free(queryResult);
+        *outCount = 0;
+        return NULL;
+    }
+    
+    // Fill result array
+    int resultIdx = 0;
+    for (int i = 0; i < queryResultCount; i++) {
+        Entity* entity = queryResult[i];
+        
+        // Check entity type
+        if (entity->type != type) continue;
+        
+        // Check distance
+        int dx = entity->position.x - center.x;
+        int dy = entity->position.y - center.y;
+        int distanceSquared = dx*dx + dy*dy;
+        
+        if (distanceSquared <= radius*radius) {
+            result[resultIdx++] = entity;
+        }
+    }
+    
+    free(queryResult);
+    *outCount = resultIdx;
+    return result;
+}
+
+// Find the nearest entity of a specific type
+Entity* findNearestEntityOfType(GameState* state, Position center, 
+                              EntityType type, int maxDistance) {
+    // Start with a small radius and expand outward
+    for (int radius = 1; radius <= maxDistance; radius++) {
+        int count;
+        Entity** entities = findEntitiesOfTypeInRadius(state, center, radius, type, &count);
+        
+        if (count > 0) {
+            // Find the closest entity
+            Entity* closest = entities[0];
+            int closestDistSquared = INT_MAX;
+            
+            for (int i = 0; i < count; i++) {
+                Entity* entity = entities[i];
+                
+                int dx = entity->position.x - center.x;
+                int dy = entity->position.y - center.y;
+                int distanceSquared = dx*dx + dy*dy;
+                
+                if (distanceSquared < closestDistSquared) {
+                    closest = entity;
+                    closestDistSquared = distanceSquared;
+                }
+            }
+            
+            // Free the array but return the closest entity
+            free(entities);
+            return closest;
+        }
+        
+        if (entities) {
+            free(entities);
+        }
+    }
+    
+    return NULL; // No entity found within max distance
+}
+```
+
+## Entity Serialization
+
+Implement serialization for save/load functionality:
+
+```c
+// Serialize an entity to a file
+bool serializeEntity(Entity* entity, FILE* file) {
+    // Write entity type
+    if (fwrite(&entity->type, sizeof(EntityType), 1, file) != 1) {
+        return false;
+    }
+    
+    // Write common entity data
+    if (fwrite(&entity->id, sizeof(int), 1, file) != 1 ||
+        fwrite(&entity->active, sizeof(bool), 1, file) != 1 ||
+        fwrite(&entity->position, sizeof(Position), 1, file) != 1) {
+        return false;
+    }
+    
+    // Write type-specific data
+    switch (entity->type) {
+        case ENTITY_MONSTER: {
+            Monster* monster = (Monster*)entity;
+            
+            if (fwrite(&monster->type, sizeof(MonsterType), 1, file) != 1 ||
+                fwrite(&monster->health, sizeof(int), 1, file) != 1 ||
+                fwrite(&monster->maxHealth, sizeof(int), 1, file) != 1 ||
+                fwrite(&monster->attack, sizeof(int), 1, file) != 1 ||
+                fwrite(&monster->defense, sizeof(int), 1, file) != 1 ||
+                fwrite(&monster->behavior, sizeof(MonsterBehavior), 1, file) != 1 ||
+                fwrite(&monster->awarenessRadius, sizeof(int), 1, file) != 1) {
+                return false;
+            }
+            break;
+        }
+        
+        case ENTITY_ITEM: {
+            Item* item = (Item*)entity;
+            
+            if (fwrite(&item->type, sizeof(ItemType), 1, file) != 1 ||
+                fwrite(item->name, sizeof(char), 64, file) != 64 ||
+                fwrite(item->description, sizeof(char), 256, file) != 256 ||
+                fwrite(&item->stackable, sizeof(bool), 1, file) != 1 ||
+                fwrite(&item->count, sizeof(int), 1, file) != 1 ||
+                fwrite(&item->value, sizeof(int), 1, file) != 1 ||
+                fwrite(&item->weight, sizeof(int), 1, file) != 1) {
+                return false;
+            }
+            
+            // Write type-specific item data
+            switch (item->type) {
+                case ITEM_WEAPON:
+                    if (fwrite(&item->weapon, sizeof(item->weapon), 1, file) != 1) {
+                        return false;
+                    }
+                    break;
+                    
+                case ITEM_POTION:
+                    if (fwrite(&item->potion, sizeof(item->potion), 1, file) != 1) {
+                        return false;
+                    }
+                    break;
+                    
+                // Other item types
+            }
+            break;
+        }
+        
+        // Other entity types
+    }
+    
+    return true;
+}
+
+// Deserialize an entity from a file
+Entity* deserializeEntity(FILE* file) {
+    // Read entity type
+    EntityType type;
+    if (fread(&type, sizeof(EntityType), 1, file) != 1) {
+        return NULL;
+    }
+    
+    // Create appropriate entity based on type
+    Entity* entity = NULL;
+    
+    switch (type) {
+        case ENTITY_MONSTER: {
+            // Read monster type first to create the right monster
+            MonsterType monsterType;
+            long pos = ftell(file); // Save position
+            
+            if (fseek(file, sizeof(int) + sizeof(bool) + sizeof(Position), SEEK_CUR) != 0 ||
+                fread(&monsterType, sizeof(MonsterType), 1, file) != 1 ||
+                fseek(file, pos, SEEK_SET) != 0) { // Restore position
+                return NULL;
+            }
+            
+            Monster* monster = createMonster(monsterType);
+            if (!monster) return NULL;
+            
+            entity = (Entity*)monster;
+            break;
+        }
+        
+        case ENTITY_ITEM: {
+            // Read item type first to create the right item
+            ItemType itemType;
+            long pos = ftell(file); // Save position
+            
+            if (fseek(file, sizeof(int) + sizeof(bool) + sizeof(Position), SEEK_CUR) != 0 ||
+                fread(&itemType, sizeof(ItemType), 1, file) != 1 ||
+                fseek(file, pos, SEEK_SET) != 0) { // Restore position
+                return NULL;
+            }
+            
+            Item* item = createItem(itemType);
+            if (!item) return NULL;
+            
+            entity = (Entity*)item;
+            break;
+        }
+        
+        // Other entity types
+    }
+    
+    if (!entity) return NULL;
+    
+    // Read common entity data
+    if (fread(&entity->id, sizeof(int), 1, file) != 1 ||
+        fread(&entity->active, sizeof(bool), 1, file) != 1 ||
+        fread(&entity->position, sizeof(Position), 1, file) != 1) {
+        destroyEntity(entity);
+        return NULL;
+    }
+    
+    // Read type-specific data
+    switch (entity->type) {
+        case ENTITY_MONSTER: {
+            Monster* monster = (Monster*)entity;
+            
+            // Skip monster type as we already read it
+            if (fseek(file, sizeof(MonsterType), SEEK_CUR) != 0 ||
+                fread(&monster->health, sizeof(int), 1, file) != 1 ||
+                fread(&monster->maxHealth, sizeof(int), 1, file) != 1 ||
+                fread(&monster->attack, sizeof(int), 1, file) != 1 ||
+                fread(&monster->defense, sizeof(int), 1, file) != 1 ||
+                fread(&monster->behavior, sizeof(MonsterBehavior), 1, file) != 1 ||
+                fread(&monster->awarenessRadius, sizeof(int), 1, file) != 1) {
+                destroyEntity(entity);
+                return NULL;
+            }
+            break;
+        }
+        
+        // Other entity types
+    }
+    
+    return entity;
+}
+```
+
+By following these guidelines, you can implement an efficient and flexible entity management system for BrogueMCP that will handle the various game objects in a clear and maintainable way.

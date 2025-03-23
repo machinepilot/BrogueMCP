@@ -1,0 +1,46 @@
+---
+title: "Procedural Validation Testing"
+description: "Guidelines for testing and validating procedural generation in BrogueMCP"
+glob: "**/*.c,**/*.h,**/test*.c"
+priority: 700
+related: ["../game/procedural-generation.mdc", "../game/entity-management.mdc"]
+---
+
+# Procedural Validation Testing
+
+## Overview
+
+This document provides guidelines for testing procedural generation systems in BrogueMCP to ensure quality, balance, and consistency.
+
+## Core Testing Principles
+
+1. **Seed-Based Testing**: Use fixed seeds for reproducible test results
+2. **Statistical Validation**: Test multiple seeds to validate distribution patterns
+3. **Edge Case Testing**: Test boundary conditions and extreme parameter values
+4. **Playability Testing**: Validate generated content for gameplay quality
+
+## Test Categories
+
+### 1. Dungeon Structure Testing
+
+- Room connectivity validation
+- Path accessibility testing
+- Dead-end detection
+- Dungeon metrics (room count, corridor length, etc.)
+
+### 2. Entity Placement Testing
+
+- Monster distribution by difficulty
+- Item distribution by rarity
+- Feature placement appropriateness
+- Entity density metrics
+
+### 3. Performance Testing
+
+- Generation time benchmarking
+- Memory usage profiling
+- Scaling tests with different map sizes
+
+## Implementation Guidelines
+
+This section will be expanded with specific implementation details and code examples in future updates. 

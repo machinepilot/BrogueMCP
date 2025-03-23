@@ -1,4 +1,9 @@
 ---
+description: 
+globs: 
+alwaysApply: true
+---
+---
 title: "Rule Integration Verification"
 description: "System for detecting and resolving conflicts between cursor rules."
 glob: "**/*"
