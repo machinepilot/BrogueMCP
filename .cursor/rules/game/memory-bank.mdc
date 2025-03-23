@@ -1,0 +1,129 @@
+---
+description: 
+globs: **/*.c,**/*.h
+alwaysApply: false
+---
+---
+title: Memory Management Guidelines
+glob: "**/*.c,**/*.h"
+priority: 780
+related: ["../code-style/c-style.mdc", "angband-variant.mdc"]
+---
+# Memory Management Guidelines
+
+This document outlines the memory management principles and practices for the Ages of Arda codebase.
+
+## Core Memory Principles
+
+1. **Explicit Ownership**
+   - Every allocated resource must have a clear owner
+   - Ownership transfer must be explicitly documented
+   - Resource lifetimes should be predictable
+
+2. **Defensive Programming**
+   - Always check allocation success
+   - Initialize memory to known values
+   - Validate inputs before allocation
+   - Check for overflows and underflows
+
+3. **Resource Management**
+   - Free resources in reverse order of allocation
+   - Use appropriate data structures based on access patterns
+   - Consider memory fragmentation in long-running processes
+
+## Implementation Patterns
+
+### Memory Allocation
+
+```c
+/**
+ * Allocate memory for a game entity
+ */
+entity_t *
+entity_alloc(void)
+{
+    entity_t *entity = NULL;
+    
+    /* Allocate entity structure */
+    entity = calloc(1, sizeof(entity_t));
+    if (entity == NULL) {
+        log_critical("Failed to allocate entity");
+        return NULL;
+    }
+    
+    /* Initialize to default values */
+    entity->id = next_entity_id();
+    entity->type = ENTITY_TYPE_NONE;
+    entity->flags = 0;
+    entity->name = NULL;
+    
+    /* Track allocation */
+    mem_track_alloc(MEMTRACK_ENTITY, sizeof(entity_t));
+    
+    return entity;
+}
+```
+
+### Memory Deallocation
+
+```c
+/**
+ * Free all resources associated with an entity
+ */
+void
+entity_free(entity_t *entity)
+{
+    if (entity == NULL) {
+        return;
+    }
+    
+    /* Free owned resources */
+    if (entity->name != NULL) {
+        string_free(entity->name);
+    }
+    
+    if (entity->inventory != NULL) {
+        inventory_free(entity->inventory);
+    }
+    
+    /* Track deallocation */
+    mem_track_free(MEMTRACK_ENTITY, sizeof(entity_t));
+    
+    /* Free the entity itself */
+    free(entity);
+}
+```
+
+## Memory Tracking
+
+1. **Categories to Track**
+   - Objects/items
+   - Entities (monsters, NPCs)
+   - Map/terrain
+   - UI elements
+   - Temporary buffers
+
+2. **Tracking Metrics**
+   - Total allocations by category
+   - Current memory usage
+   - Peak memory usage
+   - Allocation patterns over time
+
+3. **Leak Detection**
+   - Track source location of allocations
+   - Periodically check for unreleased resources
+   - Generate memory reports for debugging
+
+## Optimization Strategies
+
+- Pool allocators for frequently created/destroyed objects
+- Custom allocators for specific data structures
+- Memory-mapped files for large persistent data
+- Lazy loading for infrequently accessed resources
+
+## Error Handling
+
+- Return meaningful error codes on allocation failures
+- Log detailed information about memory errors
+- Implement recovery strategies for low-memory conditions
+- Avoid silent failures  

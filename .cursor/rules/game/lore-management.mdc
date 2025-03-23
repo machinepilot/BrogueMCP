@@ -1,0 +1,118 @@
+---
+description: 
+globs: **/lore/**,**/world/**,**/data/lore/**
+alwaysApply: false
+---
+---
+title: Lore Management Guidelines
+glob: "**/lore/**,**/world/**,**/data/lore/**"
+priority: 600
+related: ["angband-variant.mdc", "../ai/ai-gameplay.mdc"]
+---
+# Lore Management Guidelines
+
+This document outlines the principles and practices for managing lore and world-building in the Ages of Arda.
+
+## Core Principles
+
+1. **Canon Accuracy**
+   - All lore should be consistent with Tolkien's works
+   - Primary sources take precedence over secondary sources
+   - When conflicts exist, The Silmarillion is authoritative
+   - Fill gaps with consistent extrapolation, not invention
+
+2. **Depth and Layering**
+   - Surface level: Immediately accessible lore
+   - Mid-level: Discoverable through exploration
+   - Deep level: Rare and significant discoveries
+   - Hidden level: Easter eggs and scholarly connections
+
+3. **Discovery Mechanisms**
+   - Books and scrolls found in-game
+   - NPC dialogue and storytelling
+   - Environmental storytelling
+   - Dreams and visions
+   - Archaeological discoveries
+
+## Implementation Structure
+
+```c
+/**
+ * Lore fragment structure
+ */
+typedef struct lore_fragment_s {
+    uint32_t id;                /* Unique identifier */
+    char *title;                /* Title of the fragment */
+    char *content;              /* Content text */
+    lore_category_t category;   /* Category (history, person, place, etc.) */
+    lore_era_t era;             /* Time period */
+    uint32_t depth;             /* Discovery depth (1-4) */
+    char *source;               /* Tolkien source reference */
+    bool is_canon;              /* Whether directly from canon */
+    char **keywords;            /* Search keywords */
+    uint32_t keyword_count;     /* Number of keywords */
+} lore_fragment_t;
+```
+
+## Naming Conventions
+
+- **Persons**: Follow Tolkien's spelling and naming conventions
+- **Places**: Use canonical names with consistent formatting
+- **Artifacts**: Include original name and common name
+- **Events**: Include year and age references where appropriate
+
+## AI Integration
+
+```c
+/**
+ * Generate contextual lore based on player's situation
+ */
+char *
+generate_contextual_lore(game_state_t *state, const char *location_name)
+{
+    lore_context_t context;
+    char *lore_text = NULL;
+    
+    /* Build lore context */
+    context.location = location_name;
+    context.player_race = state->player->race;
+    context.player_knowledge = get_player_knowledge(state);
+    context.current_age = state->world->current_age;
+    
+    /* First try to find canonical lore */
+    lore_text = find_canonical_lore(&context);
+    
+    /* If no canonical lore, generate with AI */
+    if (lore_text == NULL) {
+        lore_text = ai_generate_lore(&context);
+        tag_as_generated(lore_text);
+    }
+    
+    return lore_text;
+}
+```
+
+## Quality Control
+
+- All AI-generated lore must be reviewed for accuracy
+- Maintain clear separation between canon and interpolation
+- Document sources for all canonical lore
+- Implement version control for lore entries
+
+## First Age Timeline
+
+Maintain a precise timeline of events with:
+- Year in Valian Years and Years of the Sun
+- Major characters involved
+- Locations
+- Consequences and significance
+- Canonical source
+
+## Cultural Development
+
+Track the development of cultures through:
+- Language evolution
+- Art and craftsmanship changes
+- Political structures
+- Technological innovations
+- Migrations and settlements  

@@ -1,0 +1,271 @@
+---
+title: "Memory Management Example Implementation"
+description: "Practical examples of implementing the memory management protocol in the Ages of Arda project."
+glob: "**/*.{c,h,py}"
+priority: 649
+related: ["memory-management.mdc", "../game/tolkien-processing.mdc"]
+---
+
+# Memory Management Example Implementation
+
+This rule provides practical examples of implementing the memory management protocol within the Ages of Arda project.
+
+## Knowledge Graph Examples
+
+### Entity Creation in C
+
+```c
+/**
+ * Creates a character entity in the knowledge graph
+ * 
+ * @param name The primary name of the character
+ * @param race The character's race (elf, human, etc.)
+ * @param age The age in which the character primarily exists
+ * @param source The source reference for this information
+ * @return The unique entity ID or NULL if creation failed
+ * 
+ * @see AGE-MEM-001
+ */
+entity_id_t* memory_create_character(const char* name, const char* race, 
+                                     age_t age, const char* source) {
+    if (name == NULL || race == NULL || source == NULL) {
+        return NULL;
+    }
+    
+    // Allocate entity ID
+    entity_id_t* entity_id = malloc(sizeof(entity_id_t));
+    if (entity_id == NULL) {
+        return NULL;
+    }
+    
+    // Initialize entity in knowledge graph
+    if (!kg_create_entity(ENTITY_CHARACTER, entity_id)) {
+        free(entity_id);
+        return NULL;
+    }
+    
+    // Set entity attributes
+    kg_set_attribute(entity_id, "name", name);
+    kg_set_attribute(entity_id, "race", race);
+    kg_set_attribute(entity_id, "age", age_to_string(age));
+    kg_set_attribute(entity_id, "source", source);
+    kg_set_attribute(entity_id, "creation_time", get_current_timestamp());
+    
+    // Add to memory bank index
+    memory_bank_index_entity(entity_id, name);
+    
+    return entity_id;
+}
+```
+
+### Creating Relationships in C
+
+```c
+/**
+ * Creates a relationship between two entities in the knowledge graph
+ * 
+ * @param source_id The source entity ID
+ * @param target_id The target entity ID
+ * @param relationship_type The type of relationship
+ * @param metadata Additional relationship metadata
+ * @return true if successful, false otherwise
+ * 
+ * @see AGE-MEM-002
+ */
+bool memory_create_relationship(entity_id_t* source_id, entity_id_t* target_id,
+                               relationship_type_t relationship_type,
+                               const char* metadata) {
+    if (source_id == NULL || target_id == NULL) {
+        return false;
+    }
+    
+    // Create relationship in knowledge graph
+    relationship_id_t rel_id;
+    if (!kg_create_relationship(source_id, target_id, 
+                               relationship_type_to_string(relationship_type),
+                               &rel_id)) {
+        return false;
+    }
+    
+    // Add metadata if provided
+    if (metadata != NULL) {
+        kg_set_relationship_attribute(&rel_id, "metadata", metadata);
+    }
+    
+    // Add creation timestamp
+    kg_set_relationship_attribute(&rel_id, "creation_time", get_current_timestamp());
+    
+    return true;
+}
+```
+
+### Entity Retrieval in C
+
+```c
+/**
+ * Retrieves an entity by name
+ * 
+ * @param name The name of the entity to retrieve
+ * @param entity_type The type of entity to retrieve (or ENTITY_ANY)
+ * @return Array of matching entity IDs (must be freed by caller)
+ * 
+ * @see AGE-MEM-003
+ */
+entity_result_t* memory_retrieve_entity_by_name(const char* name, entity_type_t entity_type) {
+    if (name == NULL) {
+        return NULL;
+    }
+    
+    // Allocate result structure
+    entity_result_t* result = malloc(sizeof(entity_result_t));
+    if (result == NULL) {
+        return NULL;
+    }
+    
+    // Initialize result
+    result->count = 0;
+    result->entities = NULL;
+    
+    // Query knowledge graph
+    if (!kg_query_by_attribute("name", name, entity_type_to_string(entity_type),
+                              result)) {
+        free(result);
+        return NULL;
+    }
+    
+    return result;
+}
+```
+
+## Python Implementation Example
+
+### Memory Bank Integration
+
+```python
+def integrate_entities_to_memory_bank(extracted_entities, source_document):
+    """
+    Integrates extracted entities into the memory bank
+    
+    Args:
+        extracted_entities: List of extracted entity dictionaries
+        source_document: Source document information
+        
+    Returns:
+        dict: Statistics about the integration process
+    """
+    stats = {
+        "created": 0,
+        "updated": 0,
+        "relationships_added": 0,
+        "errors": 0
+    }
+    
+    # Connection to knowledge graph
+    kg = KnowledgeGraph()
+    
+    for entity in extracted_entities:
+        try:
+            # Check if entity already exists
+            existing = kg.query_by_attribute("name", entity["name"], entity["type"])
+            
+            if existing and len(existing) > 0:
+                # Update existing entity
+                entity_id = existing[0]["id"]
+                for key, value in entity["attributes"].items():
+                    kg.set_attribute(entity_id, key, value)
+                
+                # Add source reference
+                kg.add_source_reference(entity_id, source_document)
+                stats["updated"] += 1
+            else:
+                # Create new entity
+                entity_id = kg.create_entity(entity["type"])
+                
+                # Set attributes
+                for key, value in entity["attributes"].items():
+                    kg.set_attribute(entity_id, key, value)
+                
+                # Add metadata
+                kg.set_attribute(entity_id, "source", source_document["id"])
+                kg.set_attribute(entity_id, "creation_time", datetime.now().isoformat())
+                
+                # Add to memory bank index
+                memory_bank_index_entity(entity_id, entity["name"])
+                stats["created"] += 1
+            
+            # Process relationships
+            for rel in entity.get("relationships", []):
+                target = kg.query_by_attribute("name", rel["target_name"], rel["target_type"])
+                if target and len(target) > 0:
+                    kg.create_relationship(entity_id, target[0]["id"], rel["type"])
+                    stats["relationships_added"] += 1
+        except Exception as e:
+            print(f"Error processing entity {entity['name']}: {str(e)}")
+            stats["errors"] += 1
+    
+    return stats
+```
+
+## Best Practices
+
+### Memory Access Pattern
+
+1. **Always check for entity existence before creation**
+   - Prevents duplication of entities
+   - Allows for entity merging when appropriate
+
+2. **Add comprehensive metadata**
+   - Include source references
+   - Add confidence levels
+   - Store timestamps
+
+3. **Validate relationships**
+   - Ensure both entities exist
+   - Verify relationship types are valid
+   - Include directional information when needed
+
+4. **Use transactions for multi-entity operations**
+   - Ensures consistency
+   - Prevents partial updates
+   - Allows for rollback on error
+
+### Error Handling
+
+Proper error handling is essential for memory operations:
+
+```c
+// Error handling example
+entity_id_t* entity_id = memory_create_character("Fingolfin", "Elf", AGE_FIRST, "Silmarillion");
+if (entity_id == NULL) {
+    // Log the error
+    log_error("Failed to create character entity for Fingolfin");
+    
+    // Check if entity already exists
+    entity_result_t* existing = memory_retrieve_entity_by_name("Fingolfin", ENTITY_CHARACTER);
+    if (existing != NULL && existing->count > 0) {
+        // Use existing entity
+        entity_id = existing->entities[0];
+        log_info("Using existing entity for Fingolfin");
+        
+        // Free result structure but not the entity ID we're keeping
+        entity_result_free_except_first(existing);
+    } else {
+        // Handle error
+        log_error("Cannot proceed without character entity");
+        if (existing != NULL) {
+            entity_result_free(existing);
+        }
+        return ERROR_ENTITY_CREATION_FAILED;
+    }
+}
+```
+
+## Integration with Lore System
+
+The memory management system integrates with the lore system through:
+
+1. Automatic entity extraction during lore processing
+2. Knowledge graph queries during lore rendering
+3. Relationship visualization in documentation
+
+See `../game/lore-management.mdc` for more details on lore integration. 

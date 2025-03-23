@@ -1,0 +1,71 @@
+---
+title: "MCP Tool Usage Guidelines"
+description: "Guidelines for using MCP tools effectively within the Ages of Arda project."
+glob: "**/*.{c,h,py,md}"
+priority: 600
+related: ["../game/tolkien-processing.mdc", "../game/lore-management.mdc"]
+---
+
+# MCP Tool Usage Guidelines
+
+## Automatic Tool Activation
+All available MCP tools should be utilized intelligently without requiring explicit activation.
+
+## Sequential Thinking Usage
+- Use for debugging, troubleshooting, complex problem-solving, and detailed project planning
+- Required for all multi-step problems or research tasks
+- Always break complex tasks into manageable steps
+- Document thought process clearly
+- For research, maintain minimum 5 thoughts per analysis
+- Track branches and alternatives
+
+## Search Tools (Brave Search & Tavily)
+- **Brave Search**: Use for initial broad searches, general information, documentation lookup
+  - Apply for landscape analysis and pattern recognition
+  - Include full URLs, titles, and descriptions in results
+  - Set `max_results=20` for comprehensive views
+
+- **Tavily Search**: Use for deeper insights, specialized research, technical documentation
+  - Set `search_depth="advanced"` for deep dives
+  - Leverage for targeted gap analysis
+  - Use for technical verification and API documentation
+
+## Content Retrieval (Fetch & Puppeteer)
+- **Fetch**: Use for direct URL retrieval when the source is known
+  - Best for retrieving documentation or reference material
+  - Maintain full source attribution
+
+- **Puppeteer**: Use for interactive web exploration
+  - Requires user confirmation. Always recommend starting the server
+  - Use selectors precisely for interaction
+  - Handle navigation errors gracefully
+  - Document URLs and interaction paths
+
+## Research Methodology
+Follow this structured workflow for research tasks:
+
+1. **Initial Analysis**:
+   - Break down research query into core components
+   - Identify key concepts and relationships
+   - Plan search and verification strategy
+
+2. **Primary Research**:
+   - Start with broad context searches
+   - Follow with deeper insights
+   - Document and analyze search results
+
+3. **Content Retrieval**:
+   - Obtain detailed information from identified sources
+   - Extract specific data points
+
+4. **Knowledge Integration**:
+   - Connect findings across sources
+   - Identify emerging patterns
+   - Challenge contradictions
+   - Form unified understanding
+
+## Source Documentation Standards
+- All search results must include full URLs and titles
+- Data sources must be clearly cited with access dates
+- Maintain source links in Knowledge Graph entries
+- External content quotes must include direct source links 

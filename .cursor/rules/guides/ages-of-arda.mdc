@@ -1,0 +1,67 @@
+---
+description: Ages of Arda uses a unified documentation system that provides a single source of truth for all project documentation. The system automatically generates:
+globs: 
+alwaysApply: false
+---
+---
+title: "Ages of Arda"
+glob: "**/*"
+priority: 500
+related: []
+---
+
+# Ages of Arda
+
+A First Age Angband Variant featuring AI-enhanced gameplay and narrative generation based on Tolkien's legendarium.
+
+## Documentation
+
+Ages of Arda uses a unified documentation system that provides a single source of truth for all project documentation. The system automatically generates:
+
+- **Wiki Site**: A Netlify-deployed website divided into development and gameplay sections
+- **Cursor Rules**: Context-aware development guidelines integrated with the Cursor editor
+- **GitHub Documentation**: Core files like README.md and other GitHub-facing documentation
+
+### Documentation Structure
+
+All documentation is sourced from the `docs/_source` directory and organized into two main sections:
+
+- **Development Documentation**: Technical details for developers and contributors
+- **Gameplay Documentation**: Game information for players
+
+### Contributing to Documentation
+
+To contribute to the documentation:
+
+1. Add or edit files in the appropriate section of `docs/_source/`
+2. Build the documentation locally to verify your changes
+3. Submit a pull request
+
+For full details, see the [Documentation Standards](mdc:docs/_source/development/guides/documentation-standards.md).
+
+### Building Locally
+
+```bash
+# Install dependencies
+npm run docs:install
+
+# Build documentation
+npm run docs:build
+
+# Start development server with auto-rebuild
+npm run docs:dev
+```
+
+## Getting Started
+
+### For Players
+
+See the [Quick Start Guide](mdc:docs/_source/gameplay/guides/quick-start.md) for installation and gameplay instructions.
+
+### For Developers
+
+See the [Development Guide](mdc:docs/_source/development/guides/getting-started.md) to set up your development environment.
+
+## License
+
+GNU General Public License v3.0 - See [LICENSE](mdc:LICENSE) for details.  

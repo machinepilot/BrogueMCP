@@ -1,0 +1,125 @@
+---
+description: This directory contains the self-healing component of the Ages of Arda Cursor rules system. This system automatically analyzes code errors and generates rule proposals to improve code quality over time.
+globs: 
+alwaysApply: false
+---
+---
+title: "Self-Healing Rules System"
+glob: "**/*"
+priority: 500
+related: []
+---
+
+Original Location: C:\working_directory\ages-project\clean-ages-of-arda\.cursor\rules\self-healing\README.md
+# Self-Healing Rules System
+
+This directory contains the self-healing component of the Ages of Arda Cursor rules system. This system automatically analyzes code errors and generates rule proposals to improve code quality over time.
+
+## Overview
+
+The self-healing system works in a continuous cycle:
+
+1. **Collect**: Gather errors from compilation logs, static analysis, and runtime
+2. **Analyze**: Group errors and identify recurring patterns
+3. **Generate**: Create rule proposals with guidelines and examples
+4. **Integrate**: Review and incorporate new rules into the main system
+5. **Monitor**: Track effectiveness and refine the process
+
+## Directory Structure
+
+```
+self-healing/
+├── error-analyzer.ps1       # Main analysis script
+├── schedule-analysis.ps1    # Scheduled task setup
+├── logs/                    # Analysis execution logs
+├── proposed-rules/          # Generated rule proposals
+├── patterns/                # Extracted error patterns
+└── error-database.json      # Error history database
+```
+
+## Setup and Usage
+
+### Setting Up the Scheduled Task
+
+1. Run the `schedule-analysis.ps1` script to set up a weekly analysis task:
+   ```
+   PowerShell -ExecutionPolicy Bypass -File .cursor\rules\self-healing\schedule-analysis.ps1
+   ```
+
+2. The script will prompt for credentials and ask if you want to run the analysis now.
+
+### Manual Analysis
+
+You can run the error analysis manually at any time:
+
+```
+PowerShell -ExecutionPolicy Bypass -File .cursor\rules\self-healing\error-analyzer.ps1
+```
+
+### Reviewing Rule Proposals
+
+After the analysis runs, you'll find rule proposals in the `proposed-rules/` directory:
+
+1. Each rule has a corresponding `.summary.md` file explaining the rule and integration steps
+2. Review the rule content for accuracy and relevance
+3. If approved, follow the integration steps in the summary file
+
+## Integration with Cursor Rules
+
+### Integration Process
+
+1. **Review**: Examine each rule proposal carefully
+2. **Test**: Apply the rule to sample code to verify its effectiveness
+3. **Refine**: Adjust the rule content if needed
+4. **Move**: Place the rule in the appropriate category directory
+5. **Update References**: Add the new rule to related files
+
+### Example Integration
+
+For a memory management rule proposal:
+
+1. Review the rule in `proposed-rules/memory_management-AUTO_xyz.mdc`
+2. If approved, move it to the game category:
+   ```
+   Move-Item "proposed-rules/memory_management-AUTO_xyz.mdc" "../game/"
+   ```
+3. Update related rules to reference it
+4. Run the verification script to ensure metadata is correct
+
+## Customization
+
+You can customize the self-healing system:
+
+1. **Thresholds**: Edit `$ErrorThreshold` in `error-analyzer.ps1` to adjust sensitivity
+2. **Analysis Period**: Modify `$LookbackDays` to change how far back the analysis looks
+3. **Categories**: Update the `Determine-RuleCategory` function to add new categories
+4. **Error Patterns**: Enhance the regex patterns to catch more error types
+
+## Advanced Usage
+
+### Integration with CI/CD
+
+The error analyzer can be integrated with your CI/CD pipeline to analyze errors from each build:
+
+1. Add a step in your build process to call the analyzer
+2. Set up a dedicated branch for rule proposals
+3. Create pull requests for approved rules
+
+### Custom Error Sources
+
+You can extend the analyzer to collect errors from additional sources:
+
+1. Create a new collector function similar to `Get-CompilerErrors`
+2. Add the function call to the `Analyze-CodeErrors` function
+3. Adjust error normalization to handle the new source format
+
+## Troubleshooting
+
+If you encounter issues:
+
+1. Check the log files in the `logs/` directory
+2. Verify that build and runtime logs are in the expected format
+3. Ensure the script has sufficient permissions to access log files
+4. Try running the script manually with elevated privileges
+
+For questions and support, contact the Ages of Arda development team.  

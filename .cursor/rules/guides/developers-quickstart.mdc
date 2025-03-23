@@ -1,0 +1,189 @@
+---
+title: "Developer's Quickstart Guide"
+description: "Get started quickly with the Ages of Arda Cursor Rules System for new developers."
+id: "dev-cursor-rules-quickstart"
+section: "development"
+category: "guides"
+created: "2023-12-18"
+updated: "2023-12-18"
+version: "1.0.0"
+tags: ["development", "onboarding", "cursor", "rules"]
+related: ["../documentation/system-overview.mdc", "../purpose.mdc"]
+---
+
+# Developer's Quickstart Guide for Ages of Arda Cursor Rules
+
+Welcome to the Ages of Arda project! This quickstart guide will help you get up and running with our Cursor Rules System, which provides intelligent guidance, consistent coding standards, and research protocols for our Tolkien-inspired game.
+
+## 1. Initial Setup (5 minutes)
+
+### Verify Rules Installation
+
+First, check that the cursor rules are properly installed in your environment:
+
+```powershell
+# From the project root
+Test-Path .cursor/rules
+```
+
+If the rules directory is missing, clone it from the project repository:
+
+```powershell
+git clone https://github.com/ages-of-arda/cursor-rules.git .cursor/rules
+```
+
+### Configure MCP Integration
+
+For advanced AI assistance, set up the Model Context Protocol servers:
+
+1. Ensure you have `.cursor/mcp.json` configured correctly
+2. Store your API keys securely:
+
+```powershell
+# Initialize secure credential storage
+python .cursor/rules/memory-bank/credential-manager.py init
+
+# Store your API keys
+python .cursor/rules/memory-bank/credential-manager.py store BRAVE_SEARCH_API_KEY
+python .cursor/rules/memory-bank/credential-manager.py store TAVILY_API_KEY
+
+# Update MCP configuration with secure credentials
+python .cursor/rules/memory-bank/credential-manager.py update-mcp
+```
+
+## 2. Understanding the Core Principles (10 minutes)
+
+The Ages of Arda Cursor Rules system is built on five core principles:
+
+1. **Contextual Intelligence** - Rules are applied based on file type and content
+2. **Tolkien Fidelity** - Ensuring accuracy to Tolkien's works is paramount
+3. **Technical Excellence** - Consistent, high-quality code is non-negotiable
+4. **Knowledge Integration** - All knowledge flows through connected systems
+5. **Self-Healing** - The system continuously improves itself
+
+Read the complete description in [purpose.mdc](../.cursor/rules/purpose.mdc).
+
+## 3. Core Files to Understand (10 minutes)
+
+Familiarize yourself with these essential rule files:
+
+| File | Purpose | When to Reference |
+|------|---------|-------------------|
+| `purpose.mdc` | Core philosophy | When you need to understand "why" |
+| `readme.mdc` | System overview | When you need to find specific rules |
+| `code-style/c-style.mdc` | C coding standards | When writing C code |
+| `code-style/python-style.mdc` | Python coding standards | When writing Python code |
+| `research/research-protocol.mdc` | Tolkien research methodology | When researching lore |
+| `mcp/tool-usage.mdc` | AI tool guidelines | When using AI assistance |
+
+## 4. Daily Workflow (Ongoing)
+
+### Code Development Workflow
+
+1. **Before coding**: 
+   - Check the relevant style guide for your language
+   - Review memory management rules for resource-intensive operations
+   - Query the knowledge graph for domain entities
+
+2. **During coding**:
+   - Cursor will automatically highlight relevant rules based on file type
+   - Follow the displayed guidance for formatting, naming, etc.
+   - Use code templates from example implementations
+
+3. **After coding**:
+   - Run verification scripts to ensure compliance
+   - Update documentation if you've modified interfaces
+
+### Tolkien Research Workflow
+
+1. **Planning phase**:
+   - Define clear objectives for your research
+   - Identify primary and secondary sources
+   - Create a research plan following the protocol
+
+2. **Research phase**:
+   - Use Brave Search and Tavily MCP servers for information gathering
+   - Document sources and confidence levels
+   - Store findings in the knowledge graph
+
+3. **Integration phase**:
+   - Link your findings to existing knowledge
+   - Update game code to reflect the lore
+   - Document decisions and their basis in canonical sources
+
+## 5. Key Commands Reference (Bookmark This!)
+
+### Rule Verification
+
+```powershell
+# Verify API keys and rules effectiveness
+PowerShell -ExecutionPolicy Bypass -File .cursor/rules/mcp/api-verification.ps1
+
+# Run automated tests for rules
+PowerShell -ExecutionPolicy Bypass -File .cursor/rules/integration/test-framework.ps1
+```
+
+### Secure Credential Management
+
+```powershell
+# Initialize credential store
+python .cursor/rules/memory-bank/credential-manager.py init
+
+# Store a credential
+python .cursor/rules/memory-bank/credential-manager.py store API_KEY_NAME
+
+# List stored credentials
+python .cursor/rules/memory-bank/credential-manager.py list
+```
+
+### Knowledge Graph Operations
+
+```powershell
+# Example Python code for knowledge graph operations
+python -c "
+from .cursor.rules.knowledge_graph import graph_api
+kg = graph_api.initialize_knowledge_graph()
+entities = kg.search_entities('Gandalf')
+print(entities)
+"
+```
+
+## 6. Common Issues & Solutions
+
+### "Rules not showing up in Cursor"
+
+- **Solution**: Run `cursor --reload-extensions` to refresh Cursor's extensions
+- **Prevention**: Ensure your Cursor version is up to date
+
+### "API key verification fails"
+
+- **Solution**: Re-run the credential manager to update your secure keys
+- **Prevention**: Periodically rotate API keys following security guidelines
+
+### "MCP tools not responding"
+
+- **Solution**: Check your MCP server configuration and restart servers
+- **Prevention**: Keep your MCP servers updated to the latest version
+
+### "Knowledge graph inconsistencies"
+
+- **Solution**: Run the graph maintenance script to identify and fix issues
+- **Prevention**: Follow the relationship guidelines in knowledge-graph-integration.mdc
+
+## 7. Getting Help
+
+- **Rule issues**: Report problems in the #cursor-rules Slack channel
+- **Documentation**: All rules documentation is available in the `.cursor/rules` directory
+- **Team support**: Tag @cursor-rules-maintainers for urgent assistance
+- **Updates**: New rule versions are announced in weekly development meetings
+
+## Next Steps
+
+Now that you're set up, we recommend:
+
+1. Read the [System Overview](../.cursor/rules/documentation/system-overview.mdc) for a comprehensive understanding
+2. Review the language-specific style guide for your primary development language
+3. Try running the test framework to see the rules in action
+4. Explore the knowledge graph with example queries
+
+Welcome to the team! You're now equipped to contribute to the Ages of Arda project with confidence and consistency. 

@@ -1,0 +1,90 @@
+---
+description: This is the master rule file that coordinates all other rule files in the project. It is automatically loaded for all files and provides the foundation for our rule system.
+globs: 
+alwaysApply: false
+---
+---
+title: "Ages of Arda Development Guidelines"
+glob: "**/*"
+priority: 500
+related: []
+---
+
+# Ages of Arda Development Guidelines
+
+This is the master rule file that coordinates all other rule files in the project. It is automatically loaded for all files and provides the foundation for our rule system.
+
+## Directory Structure
+
+Our rules are organized into logical categories:
+
+```
+.cursor/rules/
+├── README.mdc                 # This master rule file
+├── activators/                # Rule activation logic
+│   └── file-types.mdc         # Maps file types to rules
+├── ai/                        # AI-related guidelines
+│   ├── ai-gameplay.mdc        # Gameplay AI integration
+│   ├── ai-ux.mdc              # AI user experience
+│   └── multi-agent.mdc        # Multi-agent systems
+├── code-style/                # Programming standards
+│   ├── c-style.mdc            # C language style
+│   └── html.mdc               # HTML formatting
+├── game/                      # Game mechanics
+│   ├── angband-variant.mdc    # Angband variant development
+│   ├── lore-management.mdc    # Lore and world-building
+│   └── memory-bank.mdc        # Memory management
+├── infrastructure/            # Development infrastructure
+│   ├── github-standards.mdc   # GitHub workflow
+│   └── netlify.mdc            # Netlify deployment
+└── mcp/                       # Model Context Protocol
+    ├── mcp-integration.mdc    # MCP integration
+    └── mcp-server.mdc         # MCP server configuration
+```
+
+## Rule Categories
+
+- **Code Style**: Language-specific coding standards
+- **Game Mechanics**: Angband variant gameplay and development
+- **AI Systems**: AI-driven gameplay and user experience
+- **Infrastructure**: Deployment, builds, and repository management
+- **MCP**: Model Context Protocol integration and configuration
+- **Lore**: Story and world-building for the Ages of Arda universe
+
+## Automated Rule Selection Logic
+
+This rule system uses glob patterns and priorities to automatically load the appropriate rules:
+
+### Priority Levels
+- **1000-900**: Master rules (always loaded)
+- **899-700**: Domain rules (language/technology specific)
+- **699-500**: Feature rules (feature-specific guidelines)
+- **499-300**: Specialized rules (very specific contexts)
+- **299-100**: Optional rules (guidelines that may not always apply)
+
+### Glob Pattern Examples
+- C source files (`**/*.c`) → Load C style guidelines
+- AI components (`**/ai/**`) → Load AI gameplay rules
+- MCP integration (`**/mcp/**`) → Load MCP integration guidelines
+
+## How to Use These Rules
+
+When working in this codebase, the appropriate rules will be automatically loaded based on the files you're editing. The rule activation is determined by:
+
+1. File path and name matching via glob patterns
+2. Rule priority (higher priority rules are applied first)
+3. Explicit relationships between rules
+
+## Adding New Rules
+
+When adding a new rule file, include the following metadata:
+```
+---
+title: Rule Title
+glob: "pattern/to/match/**"
+priority: priority_number
+related: ["related-rule-1.mdc", "related-rule-2.mdc"]
+---
+```
+
+Place the new rule in the appropriate category directory and update any related rules to reference it. 

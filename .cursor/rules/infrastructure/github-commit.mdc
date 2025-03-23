@@ -1,0 +1,112 @@
+---
+title: "GitHub Commit Standards"
+glob: "**/*.md,**/*.js,**/*.c,**/*.h,**/*.html,**/*.css"
+priority: 850
+related: ["../code-style/c-style.mdc", "../guides/documentation-standards.mdc"]
+---
+
+# GitHub Commit Standards
+
+This document outlines the standards for making commits to the Ages of Arda GitHub repository, with special focus on the BrogueMCP module.
+
+## Commit Message Format
+
+All commit messages should follow this format:
+
+```
+[Module] Short summary (under 50 chars)
+
+More detailed explanatory text, if necessary. Wrap it to about 72 characters.
+Explain what the commit does, why it was made, and any relevant context.
+
+- Bullet points are acceptable
+- Typically hyphen or asterisk is used for the bullet
+
+If applicable, reference related issues or pull requests:
+Fixes #123, Relates to #456
+```
+
+## Module Prefixes
+
+Use one of these module prefixes at the start of your commit message:
+
+- `[BrogueMCP]` - Changes to the BrogueMCP module
+- `[DM-Agent]` - Changes to the Dungeon Master AI agent
+- `[UI]` - Changes to user interface components
+- `[Engine]` - Changes to the game engine
+- `[Doc]` - Documentation changes
+- `[Test]` - Test-related changes
+- `[Infra]` - Infrastructure or build system changes
+
+## Branch Strategy
+
+### Main Branches
+- `main` - Production-ready code
+- `development` - Active development branch
+
+### Feature Branches
+Feature branches should follow the naming convention:
+```
+feature/short-descriptive-name
+```
+
+### Fix Branches
+Fix branches should follow the naming convention:
+```
+fix/issue-number-short-description
+```
+
+## Commit Guidelines
+
+1. **Atomic Commits** - Each commit should represent a single logical change
+2. **Complete Commits** - The codebase should build/work after each commit
+3. **Clear Messages** - Commit messages should clearly explain what changed and why
+4. **Reference Issues** - Link commits to GitHub issues when applicable
+
+## Automated Quality Checks
+
+The following checks will be automatically performed on commits:
+
+- Code style compliance
+- Build verification
+- Test suite execution
+- Documentation standards
+- Memory leak detection (for C code)
+
+## Examples
+
+Good commit message:
+```
+[BrogueMCP] Add narrator personality system
+
+Implements a configurable narrator personality system for the Dungeon Master AI:
+- Adds personality attributes and presets
+- Creates UI for adjusting narrator voice
+- Integrates with prompt generation system
+
+The system allows players to customize the storytelling style during gameplay.
+Fixes #789
+```
+
+Bad commit message:
+```
+fixed stuff
+```
+
+## Using This Rule
+
+The Cursor editor will prompt you to format your commit messages according to these standards. When committing, ensure you:
+
+1. Include the appropriate module prefix
+2. Write a clear, concise summary line
+3. Add detailed explanation as needed
+4. Reference related issues
+
+## Automation with Cursor
+
+When using the Cursor editor, you can:
+
+1. Use the command palette and search for "Commit with Conventional Format"
+2. The editor will prompt you for the module and summary
+3. A properly formatted commit message will be generated
+4. You can then add details as needed 

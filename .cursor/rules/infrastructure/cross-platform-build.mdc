@@ -1,0 +1,157 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+title: "Cross-Platform Build Guidelines"
+glob: "**/*.bat,**/*.sh,**/Makefile,**/*.mk"
+priority: 800
+related: []
+---
+
+# Cross-Platform Build Guidelines for BrogueMCP
+
+This document outlines best practices for maintaining cross-platform compatibility in build scripts and configuration files for BrogueMCP.
+
+## Build Script Pairs
+
+Always create matching script pairs for each platform:
+
+| Windows | Unix/Linux/macOS |
+|---------|-----------------|
+| `.bat` | `.sh` |
+| `make-windows.bat` | `make-unix.sh` |
+
+Ensure that both scripts provide identical functionality and output.
+
+## Directory Creation
+
+When creating directories in scripts, follow these approaches for cross-platform compatibility:
+
+### PowerShell (Windows)
+
+```powershell
+# Single directory
+New-Item -Path "path/to/directory" -ItemType Directory -Force
+
+# Multiple directories
+foreach ($dir in @("dir1", "dir2", "dir3")) {
+    New-Item -Path $dir -ItemType Directory -Force
+}
+```
+
+### Bash/Shell (Unix/Linux/macOS)
+
+```bash
+# Create directories with parents
+mkdir -p path/to/directory
+
+# Multiple directories
+mkdir -p dir1 dir2 dir3
+```
+
+## Path Separators
+
+Be mindful of path separators in cross-platform code:
+
+```c
+#ifdef _WIN32
+    #define PATH_SEPARATOR "\\"
+#else
+    #define PATH_SEPARATOR "/"
+#endif
+
+// Usage
+char path[MAX_PATH];
+sprintf(path, "%s%s%s", directory, PATH_SEPARATOR, filename);
+```
+
+## Makefiles
+
+Follow these guidelines for Makefiles:
+
+1. Use conditional logic for platform-specific settings
+2. Provide sensible defaults that work across platforms
+3. Use variables for compiler and tool paths
+
+```makefile
+# Example of platform-specific settings
+ifeq ($(OS),Windows_NT)
+    CC = gcc
+    TARGET = brogue.exe
+    RM = del /Q
+else
+    CC = gcc
+    TARGET = brogue
+    RM = rm -f
+endif
+
+# Common flags
+CFLAGS = -Wall -O2
+
+# Platform-specific flags
+ifeq ($(OS),Windows_NT)
+    CFLAGS += -D_WIN32
+    LIBS = -lSDL2 -lSDL2_image
+else
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+        CFLAGS += -D LINUX
+        LIBS = -lSDL2 -lSDL2_image
+    endif
+    ifeq ($(UNAME_S),Darwin)
+        CFLAGS += -D MACOS
+        LIBS = -framework SDL2 -framework SDL2_image
+    endif
+endif
+```
+
+## Configuration Files
+
+Keep configuration files consistent across platforms:
+
+1. Use relative paths whenever possible
+2. Avoid hardcoded absolute paths
+3. Provide fallback options for platform-specific settings
+
+## Testing
+
+Implement a testing strategy for cross-platform builds:
+
+1. Test on all target platforms before committing changes
+2. Use virtual machines or containers for multi-platform testing
+3. Implement CI/CD workflows that test on multiple platforms
+
+## Implementation Checklist
+
+When implementing cross-platform features:
+
+- [ ] Create equivalent scripts for all target platforms
+- [ ] Test directory creation on Windows, macOS, and Linux
+- [ ] Verify file paths work correctly across platforms
+- [ ] Ensure build artifacts go to the correct locations
+- [ ] Check that clean/rebuild operations work correctly
+- [ ] Test with minimal dependencies installed
+
+## Platform-Specific Considerations
+
+### Windows
+
+- Use backslashes in Windows-specific code
+- Be cautious with long paths (MAX_PATH limitation)
+- Use appropriate file extensions (.exe, .dll)
+
+### macOS
+
+- Be mindful of macOS directory structure conventions
+- Test on both Intel and Apple Silicon when possible
+- Consider code signing requirements
+
+### Linux
+
+- Test on multiple distributions when possible
+- Be mindful of library path differences between distributions
+- Consider AppImage or Flatpak packaging for broader compatibility
+
+By following these guidelines, you can ensure that BrogueMCP builds and runs consistently across all target platforms. 

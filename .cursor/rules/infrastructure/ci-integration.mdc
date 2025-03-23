@@ -1,0 +1,704 @@
+---
+title: "Cursor Rules CI/CD Integration"
+description: "Guidelines for integrating Ages of Arda Cursor Rules with Continuous Integration and Deployment systems."
+glob: "**/*.{yaml,yml,json}"
+priority: 600
+related: ["../integration/rule-verification.mdc", "../memory-bank/secure-key-management.mdc"]
+---
+
+# Cursor Rules CI/CD Integration
+
+This document provides guidelines for integrating the Ages of Arda Cursor Rules System with Continuous Integration and Deployment (CI/CD) pipelines, ensuring consistent rule validation across development environments.
+
+## Core Integration Principles
+
+1. **Early Validation**: Verify rule compliance early in the development cycle
+2. **Consistent Enforcement**: Apply the same rules in all environments
+3. **Automated Feedback**: Provide developers with immediate feedback on rule violations
+4. **Secure Credentials**: Safely manage API keys in CI/CD environments
+5. **Progressive Enhancement**: Start with basic checks and progressively add more advanced validations
+
+## GitHub Actions Integration
+
+### Basic Rule Validation Workflow
+
+Create a `.github/workflows/cursor-rules-validation.yml` file:
+
+```yaml
+name: Cursor Rules Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  validate-cursor-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install cryptography pyyaml
+      
+      - name: Validate Rule Files
+        run: |
+          python .cursor/rules/infrastructure/validate-rules.py --ci
+      
+      - name: Check Rule Conflicts
+        run: |
+          python .cursor/rules/infrastructure/check-rule-conflicts.py
+      
+      - name: Generate Report
+        if: always()
+        run: |
+          python .cursor/rules/infrastructure/generate-validation-report.py
+      
+      - name: Upload Validation Report
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: cursor-rules-validation-report
+          path: validation-report.md
+```
+
+### Advanced Rule Testing Workflow
+
+For comprehensive testing including MCP integration, create a `.github/workflows/cursor-rules-testing.yml` file:
+
+```yaml
+name: Cursor Rules Testing
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight
+  workflow_dispatch:      # Allow manual triggering
+
+jobs:
+  test-cursor-rules:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install cryptography pyyaml requests
+      
+      - name: Set up MCP credentials
+        env:
+          BRAVE_SEARCH_API_KEY: ${{ secrets.BRAVE_SEARCH_API_KEY }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+        run: |
+          python .cursor/rules/infrastructure/ci-setup-credentials.py
+      
+      - name: Run Rule Tests
+        shell: pwsh
+        run: |
+          ./cursor/rules/integration/test-framework.ps1 -GenerateReport
+      
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: cursor-rules-test-report
+          path: test-reports/cursor-rules-tests.md
+```
+
+## Required Helper Scripts
+
+### Validation Script
+
+Create `.cursor/rules/infrastructure/validate-rules.py`:
+
+```python
+#!/usr/bin/env python3
+"""
+Validates cursor rule files for correct format and metadata
+"""
+
+import os
+import sys
+import argparse
+import yaml
+import json
+from pathlib import Path
+
+def validate_rule_file(file_path):
+    """Validate a single rule file"""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Check for frontmatter
+        if not content.startswith('---'):
+            return (False, f"Missing frontmatter in {file_path}")
+        
+        # Extract frontmatter
+        _, frontmatter, _ = content.split('---', 2)
+        
+        # Parse frontmatter
+        try:
+            metadata = yaml.safe_load(frontmatter)
+        except yaml.YAMLError as e:
+            return (False, f"Invalid YAML in frontmatter: {e}")
+        
+        # Check required fields
+        required_fields = ['title', 'glob', 'priority']
+        missing_fields = [field for field in required_fields if field not in metadata]
+        
+        if missing_fields:
+            return (False, f"Missing required fields in frontmatter: {', '.join(missing_fields)}")
+        
+        # Check recommended fields
+        recommended_fields = ['description']
+        missing_recommended = [field for field in recommended_fields if field not in metadata]
+        
+        if missing_recommended:
+            return (True, f"Warning: Missing recommended fields: {', '.join(missing_recommended)}")
+            
+        return (True, "Valid rule file")
+    except Exception as e:
+        return (False, f"Error validating {file_path}: {str(e)}")
+
+def main():
+    parser = argparse.ArgumentParser(description='Validate cursor rule files')
+    parser.add_argument('--ci', action='store_true', help='Run in CI mode (exit code on failures)')
+    args = parser.parse_args()
+    
+    rules_dir = Path('.cursor/rules')
+    if not rules_dir.exists():
+        print(f"Rules directory not found: {rules_dir}")
+        sys.exit(1)
+    
+    rule_files = list(rules_dir.glob('**/*.mdc'))
+    if not rule_files:
+        print("No rule files found")
+        sys.exit(1)
+    
+    print(f"Found {len(rule_files)} rule files to validate")
+    
+    results = []
+    for file in rule_files:
+        valid, message = validate_rule_file(file)
+        results.append({
+            'file': str(file),
+            'valid': valid,
+            'message': message
+        })
+        
+        status = "✅" if valid else "❌"
+        print(f"{status} {file}: {message}")
+    
+    invalid_count = sum(1 for r in results if not r['valid'])
+    warning_count = sum(1 for r in results if r['valid'] and r['message'].startswith('Warning'))
+    
+    print(f"\nValidation complete: {len(results)} files checked, {invalid_count} invalid, {warning_count} warnings")
+    
+    if args.ci and invalid_count > 0:
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()
+```
+
+### Conflict Checker
+
+Create `.cursor/rules/infrastructure/check-rule-conflicts.py`:
+
+```python
+#!/usr/bin/env python3
+"""
+Checks for conflicts between cursor rules
+"""
+
+import os
+import sys
+import yaml
+import json
+from pathlib import Path
+
+def extract_rule_metadata(file_path):
+    """Extract metadata from a rule file"""
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    if not content.startswith('---'):
+        return None
+    
+    try:
+        _, frontmatter, _ = content.split('---', 2)
+        metadata = yaml.safe_load(frontmatter)
+        metadata['file_path'] = str(file_path)
+        return metadata
+    except Exception:
+        return None
+
+def check_for_conflicts(rules):
+    """Check for conflicts between rules"""
+    conflicts = []
+    
+    # Group rules by glob pattern
+    rules_by_glob = {}
+    for rule in rules:
+        glob = rule.get('glob', '')
+        if glob:
+            if glob not in rules_by_glob:
+                rules_by_glob[glob] = []
+            rules_by_glob[glob].append(rule)
+    
+    # Check for priority conflicts
+    for glob, glob_rules in rules_by_glob.items():
+        if len(glob_rules) <= 1:
+            continue
+        
+        # Sort by priority
+        glob_rules.sort(key=lambda r: r.get('priority', 0), reverse=True)
+        
+        # Check for close priorities
+        for i in range(len(glob_rules) - 1):
+            rule1 = glob_rules[i]
+            rule2 = glob_rules[i + 1]
+            priority1 = rule1.get('priority', 0)
+            priority2 = rule2.get('priority', 0)
+            
+            if abs(priority1 - priority2) < 50:
+                conflicts.append({
+                    'type': 'priority',
+                    'glob': glob,
+                    'rule1': rule1,
+                    'rule2': rule2,
+                    'message': f"Priority conflict: {rule1['file_path']} ({priority1}) and {rule2['file_path']} ({priority2}) have similar priorities for the same glob pattern"
+                })
+    
+    return conflicts
+
+def main():
+    rules_dir = Path('.cursor/rules')
+    if not rules_dir.exists():
+        print(f"Rules directory not found: {rules_dir}")
+        sys.exit(1)
+    
+    rule_files = list(rules_dir.glob('**/*.mdc'))
+    if not rule_files:
+        print("No rule files found")
+        sys.exit(0)
+    
+    # Extract metadata
+    rules = []
+    for file in rule_files:
+        metadata = extract_rule_metadata(file)
+        if metadata:
+            rules.append(metadata)
+    
+    print(f"Loaded {len(rules)} rules for conflict detection")
+    
+    # Check for conflicts
+    conflicts = check_for_conflicts(rules)
+    
+    if conflicts:
+        print(f"Found {len(conflicts)} potential conflicts:")
+        for i, conflict in enumerate(conflicts, 1):
+            print(f"Conflict {i}: {conflict['message']}")
+        sys.exit(1)
+    else:
+        print("No rule conflicts detected")
+        sys.exit(0)
+
+if __name__ == '__main__':
+    main()
+```
+
+### CI Credential Setup
+
+Create `.cursor/rules/infrastructure/ci-setup-credentials.py`:
+
+```python
+#!/usr/bin/env python3
+"""
+Sets up credentials for CI environment
+"""
+
+import os
+import sys
+import json
+from pathlib import Path
+import base64
+import random
+import string
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
+def setup_credentials():
+    """Set up credentials for CI testing"""
+    # Create directories
+    credentials_dir = Path('.memory-bank/.credentials')
+    credentials_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Generate a deterministic but unique salt for CI
+    salt = b'AgesOfArdaCITestingSalt'
+    with open(credentials_dir / 'salt.bin', 'wb') as f:
+        f.write(salt)
+    
+    # Generate a password (this is only for CI testing, not production)
+    ci_password = "CITestingPassword"
+    
+    # Generate encryption key
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=100000,
+    )
+    key = base64.urlsafe_b64encode(kdf.derive(ci_password.encode()))
+    
+    # Save master key
+    with open(credentials_dir / 'master.key', 'wb') as f:
+        f.write(key)
+    
+    # Create config
+    config = {
+        "version": "1.0",
+        "credentials": {
+            "default": {}
+        }
+    }
+    
+    # Save config
+    with open(credentials_dir / 'config.json', 'w') as f:
+        json.dump(config, f, indent=2)
+    
+    # Set up Fernet
+    fernet = Fernet(key)
+    
+    # Store API keys from environment variables
+    api_keys = [
+        'BRAVE_SEARCH_API_KEY',
+        'TAVILY_API_KEY'
+    ]
+    
+    for key_name in api_keys:
+        key_value = os.environ.get(key_name)
+        if key_value:
+            print(f"Storing {key_name} in secure credential store")
+            
+            # Generate credential ID
+            credential_id = ''.join(random.choices(string.ascii_lowercase + string.digits, k=12))
+            
+            # Update config
+            config['credentials']['default'][key_name] = {
+                "id": credential_id,
+                "created": "2023-12-18T00:00:00",
+                "type": "encrypted"
+            }
+            
+            # Encrypt and store
+            encrypted_value = fernet.encrypt(key_value.encode())
+            with open(credentials_dir / f"{credential_id}.enc", 'wb') as f:
+                f.write(encrypted_value)
+        else:
+            print(f"Warning: {key_name} not found in environment variables")
+    
+    # Save updated config
+    with open(credentials_dir / 'config.json', 'w') as f:
+        json.dump(config, f, indent=2)
+    
+    # Update MCP configuration
+    mcp_config_path = Path('.cursor/mcp.json')
+    if mcp_config_path.exists():
+        try:
+            with open(mcp_config_path, 'r') as f:
+                mcp_config = json.load(f)
+            
+            # Update with placeholders
+            for key_name in api_keys:
+                if key_name == 'BRAVE_SEARCH_API_KEY' and 'braveSearch' in mcp_config['mcpServer']:
+                    mcp_config['mcpServer']['braveSearch']['configuration']['apiKey'] = f"${{{key_name}}}"
+                elif key_name == 'TAVILY_API_KEY' and 'tavily' in mcp_config['mcpServer']:
+                    mcp_config['mcpServer']['tavily']['configuration']['apiKey'] = f"${{{key_name}}}"
+            
+            with open(mcp_config_path, 'w') as f:
+                json.dump(mcp_config, f, indent=2)
+            
+            print("Updated MCP configuration with credential placeholders")
+        except Exception as e:
+            print(f"Error updating MCP configuration: {e}")
+    else:
+        print("MCP configuration file not found")
+
+if __name__ == '__main__':
+    setup_credentials()
+    print("CI credential setup complete")
+```
+
+## Azure DevOps Integration
+
+For Azure DevOps pipelines, create an `azure-pipelines.yml` file:
+
+```yaml
+trigger:
+- main
+- develop
+
+pool:
+  vmImage: 'windows-latest'
+
+stages:
+- stage: Validate
+  displayName: 'Validate Cursor Rules'
+  jobs:
+  - job: ValidateRules
+    steps:
+    - checkout: self
+      
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.10'
+        addToPath: true
+    
+    - script: |
+        python -m pip install --upgrade pip
+        pip install cryptography pyyaml requests
+      displayName: 'Install dependencies'
+    
+    - script: |
+        python .cursor/rules/infrastructure/validate-rules.py --ci
+      displayName: 'Validate Rule Files'
+    
+    - script: |
+        python .cursor/rules/infrastructure/check-rule-conflicts.py
+      displayName: 'Check Rule Conflicts'
+    
+    - task: PowerShell@2
+      inputs:
+        filePath: '.cursor/rules/integration/test-framework.ps1'
+        arguments: '-GenerateReport'
+      displayName: 'Run Rule Tests'
+      env:
+        BRAVE_SEARCH_API_KEY: $(BRAVE_SEARCH_API_KEY)
+        TAVILY_API_KEY: $(TAVILY_API_KEY)
+    
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: 'test-reports'
+        artifactName: 'TestReports'
+      displayName: 'Publish Test Reports'
+```
+
+## Integration with PR Reviews
+
+To provide automatic feedback on pull requests, add this to the GitHub workflow:
+
+```yaml
+- name: Analyze Rules
+  if: github.event_name == 'pull_request'
+  run: |
+    python .cursor/rules/infrastructure/analyze-pr-rules.py
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+Create the PR analysis script at `.cursor/rules/infrastructure/analyze-pr-rules.py`:
+
+```python
+#!/usr/bin/env python3
+"""
+Analyzes rule changes in PRs and posts comments
+"""
+
+import os
+import sys
+import json
+import requests
+from pathlib import Path
+
+def get_pr_number():
+    """Get the PR number from GitHub Actions context"""
+    github_event_path = os.environ.get('GITHUB_EVENT_PATH')
+    if not github_event_path:
+        print("Not running in a GitHub Actions context")
+        return None
+    
+    with open(github_event_path, 'r') as f:
+        event = json.load(f)
+    
+    return event.get('pull_request', {}).get('number')
+
+def get_changed_rules():
+    """Get list of rule files changed in the PR"""
+    pr_number = get_pr_number()
+    if not pr_number:
+        return []
+    
+    token = os.environ.get('GITHUB_TOKEN')
+    if not token:
+        print("GITHUB_TOKEN not found in environment")
+        return []
+    
+    repo = os.environ.get('GITHUB_REPOSITORY')
+    if not repo:
+        print("GITHUB_REPOSITORY not found in environment")
+        return []
+    
+    api_url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}/files"
+    headers = {
+        'Authorization': f'token {token}',
+        'Accept': 'application/vnd.github.v3+json'
+    }
+    
+    response = requests.get(api_url, headers=headers)
+    if response.status_code != 200:
+        print(f"Error fetching PR files: {response.status_code}")
+        return []
+    
+    files = response.json()
+    rule_files = [f for f in files if f['filename'].startswith('.cursor/rules/') and f['filename'].endswith('.mdc')]
+    return rule_files
+
+def analyze_rule_changes(changed_files):
+    """Analyze changes in rule files"""
+    analysis = []
+    for file in changed_files:
+        file_path = file['filename']
+        analysis.append({
+            'file': file_path,
+            'status': file['status'],  # added, modified, removed
+            'changes': file['changes'],
+            'recommendations': []
+        })
+        
+        # Add recommendations based on file
+        if file['status'] == 'added':
+            analysis[-1]['recommendations'].append("Ensure the new rule has a clear purpose and doesn't conflict with existing rules")
+        elif file['status'] == 'modified':
+            analysis[-1]['recommendations'].append("Check if priority or glob pattern changes might affect rule precedence")
+    
+    return analysis
+
+def post_pr_comment(analysis):
+    """Post analysis results as a PR comment"""
+    pr_number = get_pr_number()
+    if not pr_number:
+        return
+    
+    token = os.environ.get('GITHUB_TOKEN')
+    repo = os.environ.get('GITHUB_REPOSITORY')
+    
+    if not token or not repo:
+        return
+    
+    api_url = f"https://api.github.com/repos/{repo}/issues/{pr_number}/comments"
+    headers = {
+        'Authorization': f'token {token}',
+        'Accept': 'application/vnd.github.v3+json'
+    }
+    
+    # Prepare comment markdown
+    comment = "## Cursor Rules Analysis\n\n"
+    
+    if not analysis:
+        comment += "No rule files were changed in this PR.\n"
+    else:
+        comment += "### Changed Rules\n\n"
+        
+        for item in analysis:
+            comment += f"#### {item['file']} ({item['status']})\n"
+            comment += f"- Changes: {item['changes']} lines\n"
+            
+            if item['recommendations']:
+                comment += "- Recommendations:\n"
+                for rec in item['recommendations']:
+                    comment += f"  - {rec}\n"
+            
+            comment += "\n"
+    
+    # Add final note
+    comment += "\nPlease ensure all rule changes follow the [Cursor Rules Development Guidelines](./.cursor/rules/documentation/system-overview.mdc)."
+    
+    data = {
+        'body': comment
+    }
+    
+    response = requests.post(api_url, headers=headers, json=data)
+    if response.status_code != 201:
+        print(f"Error posting comment: {response.status_code}")
+    else:
+        print("Analysis comment posted to PR")
+
+def main():
+    changed_files = get_changed_rules()
+    print(f"Found {len(changed_files)} changed rule files")
+    
+    analysis = analyze_rule_changes(changed_files)
+    post_pr_comment(analysis)
+
+if __name__ == '__main__':
+    main()
+```
+
+## Secure Credential Handling in CI/CD
+
+Follow these best practices for handling API keys and sensitive credentials in CI/CD:
+
+1. **Use Secret Storage**: 
+   - GitHub: Use GitHub Secrets
+   - Azure DevOps: Use Variable Groups with secret variables
+   - Jenkins: Use Credentials Plugin
+
+2. **Environment Variables**:
+   - Pass secrets as environment variables
+   - Never log or echo secret values
+   - Mask secret values in pipeline logs
+
+3. **Reduced Permissions**:
+   - Use read-only API keys for CI environments 
+   - Generate CI-specific keys with limited quotas
+   - Regularly rotate CI keys
+
+4. **Configuration**:
+   - Use placeholder values in checked-in configuration files
+   - Replace placeholders at runtime with actual values
+   - Implement the secure credential management pattern
+
+## Best Practices for CI Pipeline Design
+
+1. **Fast Feedback Loop**:
+   - Run basic validation on all PRs
+   - Run comprehensive tests less frequently (scheduled or on specific branches)
+   - Separate validation from testing jobs
+
+2. **Clear Reporting**:
+   - Generate markdown reports for better readability
+   - Publish reports as pipeline artifacts
+   - Comment results directly on PRs
+
+3. **Progressive Implementation**:
+   - Start with basic file validation
+   - Add conflict detection
+   - Implement comprehensive testing
+   - Enable PR comments and suggestions
+
+4. **Development Workflow Integration**:
+   - Run local validation before pushing
+   - Use PR checks to enforce rule compliance
+   - Include cursor rule changes in code reviews
+
+## Conclusion
+
+Integrating the Ages of Arda Cursor Rules System with CI/CD pipelines provides consistent rule enforcement across all development environments. This ensures that all code changes follow the established standards and maintains the high quality expected in the Ages of Arda project.
+
+The provided scripts and configuration files can be adapted to your specific CI/CD platform, ensuring a smooth integration with your existing development workflow. 

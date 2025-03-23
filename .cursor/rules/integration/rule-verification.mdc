@@ -1,0 +1,118 @@
+---
+title: "Rule Integration Verification"
+description: "System for detecting and resolving conflicts between cursor rules."
+glob: "**/*"
+priority: 999
+related: ["../readme.mdc"]
+---
+
+# Rule Integration Verification
+
+This rule provides mechanisms to detect and resolve conflicts between cursor rules, ensuring a consistent development experience.
+
+## Rule Conflict Detection
+
+Rule conflicts can occur when multiple rules apply to the same files but provide contradictory guidance. This verification system helps identify and resolve such conflicts.
+
+### Common Conflict Types
+
+1. **Priority Conflicts**: Rules with similar priorities applied to the same files
+2. **Directive Conflicts**: Rules that give contradictory instructions
+3. **Tool Usage Conflicts**: Different specifications for the same tools
+4. **Formatting Conflicts**: Contradictory formatting requirements
+
+## Verification Process
+
+### Manual Verification
+
+Run the following PowerShell script to identify potential rule conflicts:
+
+```powershell
+# PowerShell script to check for rule conflicts
+function Test-RuleConflicts {
+    $ruleFiles = Get-ChildItem -Path .cursor/rules -Recurse -Filter "*.mdc"
+    $rules = @()
+    
+    foreach ($file in $ruleFiles) {
+        $content = Get-Content -Path $file.FullName -Raw
+        if ($content -match "---\s*\n(.*?)\n---"s) {
+            $metadata = $matches[1]
+            $globPattern = if ($metadata -match "glob:\s*""([^""]*)""") { $matches[1] } else { "" }
+            $priority = if ($metadata -match "priority:\s*(\d+)") { [int]$matches[1] } else { 0 }
+            
+            $rules += [PSCustomObject]@{
+                File = $file.FullName
+                Glob = $globPattern
+                Priority = $priority
+            }
+        }
+    }
+    
+    # Find potential conflicts (rules with same glob and similar priority)
+    $conflicts = @()
+    for ($i = 0; $i -lt $rules.Count; $i++) {
+        for ($j = $i + 1; $j -lt $rules.Count; $j++) {
+            if (($rules[$i].Glob -eq $rules[$j].Glob) -and 
+                ([Math]::Abs($rules[$i].Priority - $rules[$j].Priority) -lt 50)) {
+                $conflicts += [PSCustomObject]@{
+                    Rule1 = $rules[$i].File
+                    Rule2 = $rules[$j].File
+                    Glob = $rules[$i].Glob
+                    Priority1 = $rules[$i].Priority
+                    Priority2 = $rules[$j].Priority
+                }
+            }
+        }
+    }
+    
+    return $conflicts
+}
+
+# Execute the check
+$conflicts = Test-RuleConflicts
+if ($conflicts.Count -gt 0) {
+    Write-Host "Potential rule conflicts detected:"
+    $conflicts | Format-Table -AutoSize
+} else {
+    Write-Host "No rule conflicts detected."
+}
+```
+
+### Automated Integration Tests
+
+To ensure rule compatibility over time, create integration tests that:
+
+1. Apply multiple rules to sample files
+2. Check for contradictory outcomes
+3. Verify priority order is respected
+4. Confirm all rules can be processed without errors
+
+## Resolution Guidelines
+
+When conflicts are detected:
+
+1. **Adjust Priorities**: Ensure proper priority separation between potentially conflicting rules
+2. **Update Related Arrays**: Make sure rules reference each other in their `related` arrays
+3. **Clarify Scope**: Refine glob patterns to minimize overlap
+4. **Document Precedence**: In cases of intentional overlap, document which rule takes precedence
+5. **Merge Rules**: Consider combining highly related rules with similar applications
+
+## Integration with Self-Healing System
+
+The rule verification system should be integrated with the self-healing system:
+
+1. Run verification checks as part of the self-healing analysis
+2. Generate rule improvement proposals for detected conflicts
+3. Track resolution effectiveness over time
+4. Maintain a history of resolved conflicts for reference
+
+## Usage
+
+To verify rule integration:
+
+1. Run the rule conflict detection script
+2. Review any identified conflicts
+3. Apply the resolution guidelines to address conflicts
+4. Rerun verification to confirm conflicts are resolved
+
+This process should be performed after adding new rules or making significant changes to existing rules. 

@@ -1,0 +1,221 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+title: "C Style Guide for Roguelike Development"
+glob: "**/*.c,**/*.h"
+priority: 900
+related: []
+---
+
+# C Style Guide for Roguelike Development
+
+This guide outlines C coding standards optimized for roguelike development in BrogueMCP. It focuses on code readability, cross-platform compatibility, and performance considerations for grid-based games.
+
+## Formatting and Layout
+
+### Indentation and Spacing
+
+- Use 4 spaces for indentation, not tabs
+- Maximum line length is 120 characters
+- Add spaces after commas in parameter lists
+- No space between function name and opening parenthesis
+- One space after keywords like `if`, `for`, `while`, etc.
+
+```c
+void functionName(int parameter1, int parameter2)
+{
+    if (condition) {
+        // Code here
+    }
+}
+```
+
+### Braces
+
+- Opening braces on the same line for control statements
+- Opening braces on a new line for function definitions
+- Always use braces for control statements, even for single-line blocks
+
+```c
+// Function definition
+void functionName(int parameter)
+{
+    // Function body
+}
+
+// Control statement
+if (condition) {
+    doSomething();
+}
+```
+
+## Naming Conventions
+
+- `camelCase` for variable and function names
+- `UPPER_CASE` for constants and macros
+- `PascalCase` for type definitions, structs, and enums
+- Prefix global variables with `g_`
+- Use descriptive, meaningful names that convey purpose
+
+```c
+#define MAX_DUNGEON_DEPTH 100
+
+typedef struct DungeonCell {
+    int terrainType;
+} DungeonCell;
+
+int g_currentDepth = 0;
+
+void createRoom(int width, int height);
+```
+
+## Common Roguelike Patterns
+
+### Grid-Based Operations
+
+- Use 2D arrays for maps/grids, with consistent coordinate systems
+- Document coordinate systems clearly (origin, axes directions)
+- Use `typedef` for grid cell types
+
+```c
+typedef struct Cell {
+    int terrain;
+    int entity;
+    int item;
+    // Other properties
+} Cell;
+
+Cell dungeonMap[MAX_HEIGHT][MAX_WIDTH];
+
+// Access pattern
+Cell* getCell(int x, int y) {
+    if (x >= 0 && x < MAX_WIDTH && y >= 0 && y < MAX_HEIGHT) {
+        return &dungeonMap[y][x];
+    }
+    return NULL;
+}
+```
+
+### Memory Management
+
+- Prefer stack allocation for temporary data
+- Use consistent allocation/deallocation patterns
+- Check all memory allocations for success
+
+```c
+// Preferred pattern
+SomeStruct* createObject(int size) {
+    SomeStruct* obj = malloc(sizeof(SomeStruct));
+    if (obj == NULL) {
+        return NULL;  // Handle error
+    }
+    
+    // Initialize
+    obj->data = malloc(size * sizeof(int));
+    if (obj->data == NULL) {
+        free(obj);  // Clean up previous allocation
+        return NULL;
+    }
+    
+    return obj;
+}
+
+void destroyObject(SomeStruct* obj) {
+    if (obj != NULL) {
+        free(obj->data);
+        free(obj);
+    }
+}
+```
+
+### Random Number Generation
+
+- Use a consistent RNG system throughout the code
+- Document the RNG behavior and seed management
+- Consider platform differences in RNG implementation
+
+```c
+// Preferred pattern
+int randomInt(int min, int max) {
+    // Ensure good distribution
+    return min + (int)(randomFloat() * (max - min + 1));
+}
+
+float randomFloat() {
+    // Implementation with good statistical properties
+    return (float)rand() / RAND_MAX;
+}
+```
+
+## Comments and Documentation
+
+- Use clear, concise comments to explain "why", not just "what"
+- Document parameters, return values, and side effects for functions
+- Use consistent header documentation format
+
+```c
+/**
+ * Creates a new room in the dungeon.
+ * 
+ * @param x The x-coordinate of the top-left corner
+ * @param y The y-coordinate of the top-left corner
+ * @param width The width of the room
+ * @param height The height of the room
+ * @return 1 if room was created successfully, 0 otherwise
+ */
+int createRoom(int x, int y, int width, int height);
+```
+
+## Cross-Platform Considerations
+
+- Avoid platform-specific code; use abstractions when necessary
+- Be careful with assumptions about integer sizes
+- Use standard library functions when possible
+- Test on all target platforms
+
+```c
+// Preferred
+#include <stdint.h>
+
+void function(int32_t value) {
+    // This will have consistent behavior across platforms
+}
+
+// Avoid
+void function(long value) {
+    // Size of long varies between 32-bit and 64-bit platforms
+}
+```
+
+## Error Handling
+
+- Check return values from functions that can fail
+- Use consistent error reporting patterns
+- Propagate errors up the call stack when appropriate
+
+```c
+int loadDungeon(const char* filename) {
+    FILE* file = fopen(filename, "r");
+    if (file == NULL) {
+        logError("Failed to open file: %s", filename);
+        return 0;  // Error code
+    }
+    
+    // Load data
+    
+    fclose(file);
+    return 1;  // Success
+}
+```
+
+## Optimization
+
+- Focus on readability first, optimize only when necessary
+- Profile before optimizing
+- Document optimization techniques and reasoning
+- Be cautious with pointer arithmetic and unsafe optimizations
+
+Follow these guidelines to maintain a consistent, readable, and robust codebase for BrogueMCP development.

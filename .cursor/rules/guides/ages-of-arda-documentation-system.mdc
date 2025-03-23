@@ -1,0 +1,111 @@
+---
+description: This directory contains the unified documentation system for the Ages of Arda project. The system provides a single source of truth for all documentation, which is then automatically compiled into multiple formats:
+globs: 
+alwaysApply: false
+---
+---
+title: "Ages of Arda Documentation System"
+glob: "**/*"
+priority: 500
+related: []
+---
+
+# Ages of Arda Documentation System
+
+This directory contains the unified documentation system for the Ages of Arda project. The system provides a single source of truth for all documentation, which is then automatically compiled into multiple formats:
+
+- Wiki pages
+- Cursor rules
+- GitHub documentation
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 14.x or higher
+- npm 6.x or higher
+
+### Installation
+
+```bash
+cd docs
+npm install
+```
+
+### Building Documentation
+
+```bash
+npm run build
+```
+
+This will process all documentation in the `_source` directory and generate output formats based on the configuration in `_config.yml`.
+
+### Migrating Existing Documentation
+
+To migrate documentation from the old system to the new one:
+
+```bash
+npm run migrate
+```
+
+### Development Mode
+
+```bash
+npm run dev
+```
+
+This will start a local web server and watch for changes to documentation files, rebuilding when changes are detected.
+
+## Documentation Structure
+
+- `_source/` - Source documentation files
+  - `development/` - Developer documentation
+  - `gameplay/` - Player documentation
+- `_templates/` - Templates for output formats
+- `_scripts/` - Build scripts
+- `_schemas/` - Schema definitions
+- `_assets/` - Images and other assets
+
+## Writing Documentation
+
+All documentation should follow the [Documentation Standards](mdc:docs/_source/development/guides/documentation-standards.md).
+
+### Basic Document Template
+
+```markdown
+---
+title: "Document Title"
+id: "unique-document-identifier"
+section: "development|gameplay"
+category: "guides|architecture|reference"
+created: "YYYY-MM-DD"
+updated: "YYYY-MM-DD"
+version: "MAJOR.MINOR.PATCH"
+---
+
+# Document Title
+
+Your content here...
+
+## History
+- **YYYY-MM-DD**: Initial document creation
+```
+
+## Integration with Cursor Rules
+
+Documents can be automatically converted to Cursor rules by adding these frontmatter fields:
+
+```yaml
+cursor_rule: true
+glob: "**/*.c"  # Files this rule applies to
+priority: 800   # Rule priority
+rule_category: "code-style"  # Directory within rules
+```
+
+## Building the Wiki
+
+The documentation system automatically builds wiki pages in the `../wiki` directory, maintaining the separation between development and gameplay sections.
+
+## Continuous Integration
+
+Documentation is automatically built and deployed on changes to the `docs/_source` directory through our CI/CD pipeline.  

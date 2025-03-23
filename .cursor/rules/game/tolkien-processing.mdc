@@ -1,0 +1,121 @@
+---
+title: "Tolkien ePub Processing Guidelines"
+description: "This document outlines the principles and practices for processing Tolkien's works and extracting structured data for the Ages of Arda project."
+glob: "**/processing/**/*.py"
+priority: 750
+related: ["../code-style/python-style.mdc", "lore-management.mdc", "../ai/multi-agent.mdc"]
+alwaysApply: false
+---
+
+# Tolkien ePub Processing Guidelines
+
+This document outlines the principles and practices for processing Tolkien's works and extracting structured data for the Ages of Arda project.
+
+## Core Principles
+
+1. **Source Integrity**
+   - Preserve original text during extraction
+   - Track source locations (book, chapter, paragraph)
+   - Maintain clear provenance for all extracted data
+   - Handle special elements (poems, songs, languages) with care
+
+2. **Entity Extraction**
+   - Extract entities with consistent categorization
+   - Maintain relationships between entities
+   - Normalize names and references
+   - Assign proper age context (First Age, Second Age, etc.)
+
+3. **Data Structure**
+   - Consistent JSON schema for all extracted data
+   - Hierarchical organization by age, region, and entity type
+   - Cross-referenced entities with relationship metadata
+   - Validation against canonical sources
+
+## Entity Categories
+
+```python
+ENTITY_CATEGORIES = {
+    "CHARACTER": {
+        "subtypes": ["PERSON", "VALAR", "MAIAR", "MORTAL", "ELF", "DWARF", "HOBBIT", "OTHER"],
+        "attributes": ["name", "alternate_names", "race", "allegiance", "family", "birth", "death"]
+    },
+    "LOCATION": {
+        "subtypes": ["REALM", "REGION", "SETTLEMENT", "LANDFORM", "STRUCTURE", "BODY_OF_WATER"],
+        "attributes": ["name", "alternate_names", "region", "inhabitants", "description", "significance"]
+    },
+    "ITEM": {
+        "subtypes": ["WEAPON", "JEWELRY", "ARTIFACT", "HEIRLOOM", "CRAFTED_ITEM"],
+        "attributes": ["name", "creator", "powers", "history", "current_location"]
+    },
+    "EVENT": {
+        "subtypes": ["BATTLE", "JOURNEY", "MEETING", "FOUNDING", "DESTRUCTION", "CREATION"],
+        "attributes": ["name", "date", "location", "participants", "outcome", "significance"]
+    },
+    "RACE": {
+        "subtypes": ["ELDER", "YOUNGER", "CREATED", "OTHER"],
+        "attributes": ["name", "origin", "traits", "language", "notable_members", "settlements"]
+    },
+    "LANGUAGE": {
+        "subtypes": ["ELVISH", "MANNISH", "DWARVISH", "ENTISH", "BLACK_SPEECH", "OTHER"],
+        "attributes": ["name", "speakers", "origin", "writing_system", "known_phrases"]
+    }
+}
+```
+
+## Processing Pipeline
+
+1. **Content Extraction**
+   - Parse ePub files
+   - Extract structured content
+   - Identify chapter boundaries
+   - Extract special content (songs, poems)
+
+2. **Entity Extraction**
+   - Apply NLP processing
+   - Identify named entities
+   - Classify entity types
+   - Extract contextual relationships
+
+3. **Entity Consolidation**
+   - Deduplicate entities
+   - Resolve references
+   - Merge partial information
+   - Normalize entity attributes
+
+4. **Memory Bank Integration**
+   - Format for memory bank structure
+   - Organize by age and category
+   - Generate descriptive content
+   - Establish cross-references
+
+## Schema Requirements
+
+All entity JSON must include:
+- Unique identifier
+- Primary name
+- Entity type and subtype
+- Source references (book, chapter)
+- Age assignment
+- Confidence level for extracted data
+- Relationships to other entities
+
+## Age Assignment Rules
+
+- **First Age**: Events from creation to the War of Wrath
+- **Second Age**: From the defeat of Morgoth to the defeat of Sauron by the Last Alliance
+- **Third Age**: From the defeat of Sauron to the War of the Ring
+- **Fourth Age**: Following the War of the Ring
+
+When entities span multiple ages, prioritize:
+1. The age of their most significant actions
+2. The age in which they're most prominently featured
+3. The earliest age in which they appear
+
+## Data Validation
+
+All extracted data must be validated for:
+- Schema compliance
+- Canonical accuracy
+- Relationship consistency
+- Temporal consistency
+- Age assignment correctness 

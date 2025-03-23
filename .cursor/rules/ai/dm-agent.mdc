@@ -1,0 +1,125 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+title: "Dungeon Master Agent Guidelines"
+glob: "**/dm-agent/**"
+priority: 850
+related: ["../mcp/agent-integration.mdc"]
+---
+
+# Dungeon Master Agent Guidelines
+
+This document outlines best practices for developing and interacting with the Dungeon Master (DM) agent in BrogueMCP.
+
+## Agent Responsibilities
+
+The DM agent serves as an adaptive storyteller and dungeon manager with the following responsibilities:
+
+1. Dynamic scenario generation
+2. Environmental storytelling
+3. Adaptive difficulty adjustment
+4. Player guidance and hints
+5. Narrative context for procedural content
+
+## Communication Protocol
+
+The DM agent uses a structured JSON-based communication protocol:
+
+```json
+// Agent Request
+{
+  "type": "dm_action",
+  "action": "create_encounter",
+  "parameters": {
+    "location": {"x": 25, "y": 30},
+    "difficulty": "medium",
+    "theme": "goblin_ambush"
+  },
+  "context": {
+    "player_health": 75,
+    "player_level": 3,
+    "nearby_entities": [
+      {"type": "monster", "name": "rat", "distance": 4}
+    ],
+    "environment": "cave"
+  }
+}
+
+// Agent Response
+{
+  "status": "success",
+  "action_result": {
+    "entities_created": [
+      {"type": "monster", "name": "goblin", "position": {"x": 23, "y": 29}},
+      {"type": "monster", "name": "goblin archer", "position": {"x": 27, "y": 31}}
+    ],
+    "narrative": "You hear chittering echoes from the darkness ahead. Suddenly, a pair of goblins emerge from behind stalagmites, weapons drawn.",
+    "ambient_effects": ["dim_light", "dripping_water"]
+  },
+  "suggestions": {
+    "player_hint": "The archers seem to be protecting something valuable...",
+    "follow_up": "treasure_reveal"
+  }
+}
+```
+
+## Agent Implementation
+
+When implementing the DM agent:
+
+1. Use a modular design with specialized components
+2. Implement a memory system for narrative consistency
+3. Balance randomness with coherent storytelling
+4. Provide configurable personality parameters
+
+Example architecture:
+
+```
+DMAgent
+├── ScenarioGenerator
+├── EntityManager
+├── NarrativeEngine
+├── MemorySystem
+└── ResponseFormatter
+```
+
+## Content Guidelines
+
+When designing content for the DM agent:
+
+1. Create modular narrative elements that can be combined
+2. Design encounters with multiple difficulty variations
+3. Include environmental descriptions that enhance immersion
+4. Create a variety of reward structures
+
+## Testing and Evaluation
+
+To ensure quality DM agent behavior:
+
+1. Implement automated playtests with different player strategies
+2. Develop metrics for narrative coherence and engagement
+3. Create regression tests for key scenarios
+4. Collect and analyze playtest feedback
+
+## Integration with Game Systems
+
+For seamless integration:
+
+1. Ensure the DM agent respects game balance
+2. Implement graceful fallbacks for agent unavailability
+3. Create debugging tools for agent interactions
+4. Allow configuration of agent verbosity and intervention frequency
+
+## Performance Considerations
+
+To maintain good performance:
+
+1. Implement response caching for common scenarios
+2. Use asynchronous processing for complex narrative generation
+3. Batch communications where possible
+4. Set appropriate timeouts for agent responses
+
+By following these guidelines, you can create a compelling and robust DM agent that enhances the roguelike experience with dynamic storytelling and adaptive content generation.

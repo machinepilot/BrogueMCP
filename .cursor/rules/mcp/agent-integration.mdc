@@ -1,0 +1,196 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+title: "MCP Agent Integration Guidelines"
+glob: "**/dm-agent/**,**/src/mcp.c,**/src/mcp.h"
+priority: 850
+related: []
+---
+
+# MCP Agent Integration Guidelines for BrogueMCP
+
+This document outlines best practices for integrating MCP agents with BrogueMCP, particularly focusing on the Dungeon Master (DM) agent.
+
+## Agent Communication Architecture
+
+The BrogueMCP agent integration follows this communication architecture:
+
+```
+[BrogueMCP Game] <--> [MCP Interface Layer] <--> [MCP Server] <--> [Agent(s)]
+```
+
+## MCP Interface Implementation
+
+When implementing the MCP interface in BrogueMCP:
+
+1. Use a clean API boundary between game logic and MCP
+2. Implement both synchronous and asynchronous communication patterns
+3. Provide robust error handling for communication failures
+4. Include debug/logging capabilities
+
+Example interface pattern:
+
+```c
+// mcp.h
+typedef struct MCPMessage {
+    int type;
+    char* payload;
+    size_t payloadSize;
+} MCPMessage;
+
+typedef void (*MCPCallback)(MCPMessage* response, void* userData);
+
+// Initialize the MCP system
+int mcp_init(const char* serverAddress, int port);
+
+// Synchronous request
+MCPMessage* mcp_request(MCPMessage* request);
+
+// Asynchronous request
+int mcp_request_async(MCPMessage* request, MCPCallback callback, void* userData);
+
+// Clean up resources
+void mcp_cleanup(void);
+```
+
+## Game State Representation
+
+When sharing game state with the agent:
+
+1. Define a clear, consistent JSON schema for game state
+2. Include only necessary information to avoid overwhelming the agent
+3. Use consistent naming conventions
+4. Document the schema thoroughly
+
+Example game state schema:
+
+```json
+{
+  "dungeon": {
+    "level": 5,
+    "cells": [
+      { "x": 0, "y": 0, "type": "wall", "visible": true },
+      { "x": 1, "y": 0, "type": "floor", "visible": true },
+      // ... more cells
+    ]
+  },
+  "player": {
+    "health": 80,
+    "maxHealth": 100,
+    "position": { "x": 10, "y": 15 },
+    "inventory": [
+      { "type": "weapon", "name": "sword", "damage": "2d6" },
+      // ... more items
+    ]
+  },
+  "entities": [
+    { "id": 1, "type": "monster", "name": "goblin", "position": { "x": 5, "y": 7 } },
+    // ... more entities
+  ]
+}
+```
+
+## Agent Response Processing
+
+When processing agent responses:
+
+1. Validate all incoming data before using it
+2. Handle malformed or unexpected responses gracefully
+3. Implement timeouts and fallback behaviors
+4. Provide feedback to the agent about response quality
+
+Example validation pattern:
+
+```c
+bool validateAgentResponse(MCPMessage* response) {
+    if (!response || !response->payload) {
+        return false;
+    }
+    
+    // Parse JSON
+    cJSON* root = cJSON_Parse(response->payload);
+    if (!root) {
+        return false;
+    }
+    
+    // Validate structure
+    cJSON* action = cJSON_GetObjectItem(root, "action");
+    if (!action || !cJSON_IsString(action)) {
+        cJSON_Delete(root);
+        return false;
+    }
+    
+    // Additional validation...
+    
+    cJSON_Delete(root);
+    return true;
+}
+```
+
+## DM Agent Specific Guidelines
+
+For the Dungeon Master agent:
+
+1. Provide rich but focused context about the game world
+2. Implement consistent command formats for dungeon manipulation
+3. Define clear constraints on agent capabilities
+4. Include narrative elements to enhance the storytelling experience
+
+Example DM command format:
+
+```json
+{
+  "action": "spawnMonster",
+  "parameters": {
+    "type": "goblin",
+    "position": { "x": 12, "y": 7 },
+    "disposition": "hostile",
+    "dialogue": "You shall not pass!"
+  },
+  "narrative": {
+    "description": "A snarling goblin emerges from the shadows, brandishing a rusty dagger.",
+    "atmosphere": "tense"
+  }
+}
+```
+
+## Testing Agent Integration
+
+Implement a comprehensive testing strategy:
+
+1. Create automated tests with mock agent responses
+2. Implement an agent simulator for local testing
+3. Record and replay actual agent interactions for regression testing
+4. Test edge cases (timeouts, malformed responses, etc.)
+
+## Performance Considerations
+
+For optimal performance:
+
+1. Minimize data sent to/from the agent
+2. Implement efficient serialization/deserialization
+3. Use asynchronous communication where possible to avoid blocking game logic
+4. Consider batching updates when appropriate
+
+## Security Considerations
+
+Implement appropriate security measures:
+
+1. Validate all agent input before processing
+2. Implement rate limiting to prevent DoS
+3. Consider encryption for sensitive communications
+4. Run the agent with appropriate permissions and sandboxing
+
+## Memory Management
+
+Follow these memory management principles:
+
+1. Clear ownership of allocated memory
+2. Consistent patterns for allocation/deallocation
+3. Avoid memory leaks in async communication paths
+4. Proper cleanup on error conditions
+
+By following these guidelines, you can create a robust and maintainable integration between BrogueMCP and MCP agents, enhancing gameplay through advanced AI capabilities.

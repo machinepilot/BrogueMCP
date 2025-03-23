@@ -1,0 +1,95 @@
+---
+description: 
+globs: **/ai/ux/**,**/interface/**
+alwaysApply: false
+---
+
+---
+title: AI User Experience Guidelines
+glob: "**/ai/ux/**,**/interface/**"
+priority: 650
+related: ["ai-gameplay.mdc", "../mcp/mcp-integration.mdc"]
+---
+# AI User Experience Guidelines
+
+These guidelines ensure that AI integrations in the Ages of Arda provide a seamless and intuitive user experience.
+
+## Core UX Principles
+
+1. **Transparency**
+   - Clearly indicate when content is AI-generated
+   - Provide insight into AI decision-making processes
+   - Allow players to influence or override AI decisions
+
+2. **Responsiveness**
+   - AI responses should feel immediate (under 500ms)
+   - Show appropriate loading indicators for longer processes
+   - Provide immediate feedback when AI is processing
+
+3. **Consistency**
+   - AI behaviors should be predictable and consistent
+   - UI elements for AI features should follow established patterns
+   - AI tone and style should match the game's aesthetic
+
+4. **Accessibility**
+   - AI features should be accessible to all players
+   - Provide text alternatives for AI-generated content
+   - Ensure AI systems don't create barriers for players
+
+## Implementation Guidelines
+
+```c
+/**
+ * Display an AI-generated response with appropriate UI
+ */
+void
+display_ai_response(display_context_t *ctx, const char *response, ai_response_type_t type)
+{
+    /* Prepare UI container */
+    ui_panel_t *panel = create_ui_panel(ctx, UI_STYLE_AI_RESPONSE);
+    
+    /* Add AI indicator */
+    add_ai_indicator_to_panel(panel, type);
+    
+    /* Display response text */
+    add_text_to_panel(panel, response, TEXT_STYLE_AI_RESPONSE);
+    
+    /* Add interaction controls if appropriate */
+    if (type == AI_RESPONSE_INTERACTIVE) {
+        add_interaction_controls(panel);
+    }
+    
+    /* Show the panel */
+    show_ui_panel(ctx, panel);
+}
+```
+
+## Response Timing
+
+| Interaction Type | Target Response Time | Max Acceptable |
+|------------------|----------------------|----------------|
+| Combat suggestions | 200ms | 500ms |
+| NPC dialogue | 500ms | 1000ms |
+| Lore generation | 1000ms | 2000ms |
+| World events | 800ms | 1500ms |
+
+## User Control Settings
+
+- Allow users to adjust AI involvement level
+- Provide settings for AI response length/detail
+- Enable toggling specific AI features
+- Remember user preferences between sessions
+
+## Error Handling
+
+- Present AI errors in user-friendly language
+- Offer meaningful alternatives when AI is unavailable
+- Log detailed error information for developers
+- Provide graceful fallbacks for all AI features
+
+## Feedback Mechanisms
+
+- Allow players to rate AI-generated content
+- Collect specific feedback on confusing/inappropriate responses
+- Track which AI features are most/least used
+- Use feedback to improve prompts and processing  

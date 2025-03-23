@@ -1,0 +1,369 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+title: "Roguelike Design Patterns"
+glob: "**/src/**/*.c,**/src/**/*.h"
+priority: 850
+related: []
+---
+
+# Roguelike Design Patterns for BrogueMCP
+
+This document outlines common design patterns and best practices for roguelike game development in BrogueMCP.
+
+## Procedural Generation
+
+### Dungeon Generation
+
+When implementing procedural dungeon generation:
+
+1. Separate the generation algorithm from the rendering code
+2. Implement a modular approach with composable generation steps
+3. Use a seed-based approach for reproducible results
+
+Example structure:
+
+```c
+// Generation context
+typedef struct DungeonGenContext {
+    int width;
+    int height;
+    unsigned int seed;
+    // Additional parameters
+} DungeonGenContext;
+
+// Generation phases
+void initializeDungeon(DungeonGenContext* context, Cell** map);
+void placeRooms(DungeonGenContext* context, Cell** map);
+void createCorridors(DungeonGenContext* context, Cell** map);
+void addFeatures(DungeonGenContext* context, Cell** map);
+void populateEntities(DungeonGenContext* context, Cell** map);
+
+// Main generation function
+Cell** generateDungeon(int width, int height, unsigned int seed) {
+    // Create the map
+    Cell** map = allocateMap(width, height);
+    
+    // Setup context
+    DungeonGenContext context;
+    context.width = width;
+    context.height = height;
+    context.seed = seed;
+    
+    // Execute generation phases
+    initializeDungeon(&context, map);
+    placeRooms(&context, map);
+    createCorridors(&context, map);
+    addFeatures(&context, map);
+    populateEntities(&context, map);
+    
+    return map;
+}
+```
+
+### Random Number Generation
+
+Use a consistent RNG approach throughout the codebase:
+
+```c
+// Initialize RNG with seed
+void initRNG(unsigned int seed) {
+    srand(seed);
+}
+
+// Get random integer in range [min, max]
+int randomInt(int min, int max) {
+    return min + rand() % (max - min + 1);
+}
+
+// Get random float in range [0, 1]
+float randomFloat() {
+    return (float)rand() / RAND_MAX;
+}
+
+// Get random boolean with specified probability
+bool randomChance(float probability) {
+    return randomFloat() < probability;
+}
+```
+
+## Turn-Based Systems
+
+Implement clean separation between game state and actions:
+
+```c
+// Action representation
+typedef struct Action {
+    int type;
+    Entity* actor;
+    Entity* target;
+    int x, y;  // Target coordinates
+    // Additional parameters
+} Action;
+
+// Result of an action
+typedef struct ActionResult {
+    bool success;
+    char* message;
+    // Effects of the action
+} ActionResult;
+
+// Process an action and update game state
+ActionResult* processAction(GameState* state, Action* action);
+
+// Manage the game loop
+void gameTurn(GameState* state) {
+    // Get player action
+    Action* playerAction = getPlayerAction(state);
+    
+    // Process player action
+    ActionResult* result = processAction(state, playerAction);
+    
+    // Update UI with result
+    displayActionResult(result);
+    
+    // Process AI turns
+    for (int i = 0; i < state->entityCount; i++) {
+        if (state->entities[i]->isAI && state->entities[i]->isActive) {
+            Action* aiAction = calculateAIAction(state, state->entities[i]);
+            processAction(state, aiAction);
+            free(aiAction);
+        }
+    }
+    
+    // Cleanup
+    free(playerAction);
+    free(result);
+}
+```
+
+## Entity Component System
+
+Consider using an Entity Component System for flexible game objects:
+
+```c
+// Component types
+typedef enum {
+    COMPONENT_POSITION,
+    COMPONENT_RENDERABLE,
+    COMPONENT_PHYSICS,
+    COMPONENT_AI,
+    COMPONENT_ITEM,
+    // Other component types
+    COMPONENT_COUNT
+} ComponentType;
+
+// Component base
+typedef struct Component {
+    ComponentType type;
+} Component;
+
+// Position component
+typedef struct PositionComponent {
+    Component base;
+    int x, y;
+} PositionComponent;
+
+// Entity
+typedef struct Entity {
+    int id;
+    Component* components[COMPONENT_COUNT];
+} Entity;
+
+// Component management
+void attachComponent(Entity* entity, Component* component);
+Component* getComponent(Entity* entity, ComponentType type);
+void removeComponent(Entity* entity, ComponentType type);
+```
+
+## Field of View and Lighting
+
+Implement efficient field of view calculations:
+
+```c
+// Calculate field of view from position
+void calculateFOV(GameState* state, int x, int y, int radius) {
+    // Reset visibility
+    for (int cy = 0; cy < state->mapHeight; cy++) {
+        for (int cx = 0; cx < state->mapWidth; cx++) {
+            state->map[cy][cx].visible = false;
+        }
+    }
+    
+    // Implement shadowcasting or similar algorithm
+    for (int octant = 0; octant < 8; octant++) {
+        castLight(state, x, y, radius, 1, 1.0, 0.0, octant);
+    }
+}
+
+// Update explored state based on visibility
+void updateExplored(GameState* state) {
+    for (int y = 0; y < state->mapHeight; y++) {
+        for (int x = 0; x < state->mapWidth; x++) {
+            if (state->map[y][x].visible) {
+                state->map[y][x].explored = true;
+            }
+        }
+    }
+}
+```
+
+## Pathfinding
+
+Implement A* or similar pathfinding for AI movement:
+
+```c
+// Find path from start to goal
+Path* findPath(GameState* state, int startX, int startY, int goalX, int goalY) {
+    // Initialize open and closed sets
+    PriorityQueue* openSet = createPriorityQueue();
+    bool** closedSet = createBooleanGrid(state->mapWidth, state->mapHeight);
+    
+    // Implement A* algorithm
+    // ...
+    
+    // Clean up and return result
+    destroyPriorityQueue(openSet);
+    destroyBooleanGrid(closedSet, state->mapWidth);
+    
+    return result;
+}
+```
+
+## Game Loop
+
+Implement a clean game loop that separates update and render:
+
+```c
+void gameLoop() {
+    bool running = true;
+    double lastTime = getTime();
+    
+    while (running) {
+        double currentTime = getTime();
+        double deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
+        
+        // Process input (non-blocking)
+        Event event;
+        while (pollEvent(&event)) {
+            if (event.type == EVENT_QUIT) {
+                running = false;
+            }
+            handleEvent(&event);
+        }
+        
+        // Update game state
+        updateGame(deltaTime);
+        
+        // Render
+        renderGame();
+        
+        // Cap frame rate if needed
+        sleepIfNeeded();
+    }
+}
+```
+
+## Saving and Loading
+
+Implement a robust save/load system:
+
+```c
+// Save game state to file
+bool saveGame(GameState* state, const char* filename) {
+    FILE* file = fopen(filename, "wb");
+    if (!file) {
+        return false;
+    }
+    
+    // Write header
+    SaveHeader header;
+    header.version = SAVE_VERSION;
+    header.seed = state->seed;
+    fwrite(&header, sizeof(SaveHeader), 1, file);
+    
+    // Write game state
+    serializeGameState(state, file);
+    
+    fclose(file);
+    return true;
+}
+
+// Load game state from file
+GameState* loadGame(const char* filename) {
+    FILE* file = fopen(filename, "rb");
+    if (!file) {
+        return NULL;
+    }
+    
+    // Read and validate header
+    SaveHeader header;
+    fread(&header, sizeof(SaveHeader), 1, file);
+    
+    if (header.version != SAVE_VERSION) {
+        fclose(file);
+        return NULL;  // Incompatible version
+    }
+    
+    // Create and load game state
+    GameState* state = createGameState();
+    state->seed = header.seed;
+    
+    deserializeGameState(state, file);
+    
+    fclose(file);
+    return state;
+}
+```
+
+## Memory Management
+
+Implement consistent patterns for game resources:
+
+```c
+// Create game state
+GameState* createGameState() {
+    GameState* state = malloc(sizeof(GameState));
+    if (!state) {
+        return NULL;
+    }
+    
+    // Initialize fields
+    state->map = NULL;
+    state->entities = NULL;
+    state->entityCount = 0;
+    state->entityCapacity = 0;
+    
+    return state;
+}
+
+// Destroy game state and free all resources
+void destroyGameState(GameState* state) {
+    if (!state) {
+        return;
+    }
+    
+    // Free map
+    if (state->map) {
+        for (int y = 0; y < state->mapHeight; y++) {
+            free(state->map[y]);
+        }
+        free(state->map);
+    }
+    
+    // Free entities
+    for (int i = 0; i < state->entityCount; i++) {
+        destroyEntity(state->entities[i]);
+    }
+    free(state->entities);
+    
+    // Free state itself
+    free(state);
+}
+```
+
+By following these patterns and best practices, you can create a well-structured and maintainable roguelike game in BrogueMCP that follows established conventions while allowing for innovation and experimentation.

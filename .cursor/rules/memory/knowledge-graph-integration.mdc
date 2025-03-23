@@ -1,0 +1,382 @@
+---
+title: "Knowledge Graph Integration"
+description: "Guidelines for integrating the Knowledge Graph MCP server with the Ages of Arda Cursor Rules System."
+glob: "**/*.{py,c,h,md}"
+priority: 645
+related: ["memory-management.mdc", "example-implementation.mdc", "../memory-bank/secure-key-management.mdc"]
+---
+
+# Knowledge Graph Integration
+
+This rule provides guidelines for integrating the Knowledge Graph MCP server with the Ages of Arda project, ensuring consistent knowledge management across the system.
+
+## Core Concepts
+
+### Knowledge Graph Structure
+
+The Knowledge Graph represents interconnected knowledge with:
+
+1. **Entities**: Nodes representing distinct concepts, objects, or entities
+2. **Relationships**: Edges connecting entities and defining their associations
+3. **Properties**: Attributes that describe entities and relationships
+4. **Metadata**: Information about when, how, and from where knowledge was acquired
+
+### Integration with MCP Server
+
+The Memory Graph MCP server provides the following capabilities:
+
+1. **Knowledge Storage**: Persistent storage of project knowledge
+2. **Knowledge Retrieval**: Context-aware information access
+3. **Knowledge Navigation**: Traversal of related information
+4. **Knowledge Inference**: Derivation of implicit knowledge
+
+## Implementation Patterns
+
+### Initialization
+
+Initialize knowledge graph connection at the beginning of each session:
+
+```python
+from mcpserver import MemoryGraphAPI
+
+def initialize_knowledge_graph(project_id="ages-of-arda"):
+    """Initialize connection to the knowledge graph"""
+    graph = MemoryGraphAPI(
+        storage_path=".memory-bank/knowledge-graph",
+        project_id=project_id
+    )
+    return graph
+```
+
+### Entity Management
+
+#### Creating Entities
+
+```python
+def create_tolkien_entity(graph, entity_type, name, properties=None):
+    """
+    Create a Tolkien entity in the knowledge graph
+    
+    Args:
+        graph: MemoryGraphAPI instance
+        entity_type: Type of entity (CHARACTER, LOCATION, etc.)
+        name: Primary name of the entity
+        properties: Dictionary of additional properties
+        
+    Returns:
+        entity_id: Unique identifier for the created entity
+    """
+    properties = properties or {}
+    
+    # Set default properties
+    defaults = {
+        "created_at": datetime.now().isoformat(),
+        "source": "manual",
+        "confidence": 1.0
+    }
+    
+    # Merge with provided properties
+    for key, value in defaults.items():
+        if key not in properties:
+            properties[key] = value
+    
+    # Create entity
+    entity_id = graph.create_entity(
+        entity_type=entity_type,
+        name=name,
+        properties=properties
+    )
+    
+    return entity_id
+```
+
+#### Retrieving Entities
+
+```python
+def find_tolkien_entities(graph, query, entity_type=None, limit=10):
+    """
+    Find entities in the knowledge graph
+    
+    Args:
+        graph: MemoryGraphAPI instance
+        query: Search query (name or property value)
+        entity_type: Optional type filter
+        limit: Maximum number of results
+        
+    Returns:
+        List of matching entities
+    """
+    filters = {}
+    if entity_type:
+        filters["entity_type"] = entity_type
+    
+    results = graph.search_entities(
+        query=query,
+        filters=filters,
+        limit=limit
+    )
+    
+    return results
+```
+
+### Relationship Management
+
+#### Creating Relationships
+
+```python
+def create_relationship(graph, source_id, target_id, relationship_type, properties=None):
+    """
+    Create a relationship between two entities
+    
+    Args:
+        graph: MemoryGraphAPI instance
+        source_id: ID of the source entity
+        target_id: ID of the target entity
+        relationship_type: Type of relationship
+        properties: Optional properties for the relationship
+        
+    Returns:
+        relationship_id: ID of the created relationship
+    """
+    properties = properties or {}
+    
+    # Set default properties
+    defaults = {
+        "created_at": datetime.now().isoformat(),
+        "source": "manual",
+        "confidence": 1.0
+    }
+    
+    # Merge with provided properties
+    for key, value in defaults.items():
+        if key not in properties:
+            properties[key] = value
+    
+    # Create relationship
+    relationship_id = graph.create_relationship(
+        source_id=source_id,
+        target_id=target_id,
+        relationship_type=relationship_type,
+        properties=properties
+    )
+    
+    return relationship_id
+```
+
+### Knowledge Traversal
+
+```python
+def explore_related_entities(graph, entity_id, max_depth=2, relationship_types=None):
+    """
+    Traverse the knowledge graph to find related entities
+    
+    Args:
+        graph: MemoryGraphAPI instance
+        entity_id: Starting entity ID
+        max_depth: Maximum depth of traversal
+        relationship_types: Optional filter for relationship types
+        
+    Returns:
+        Graph of related entities
+    """
+    traversal_options = {
+        "max_depth": max_depth,
+        "direction": "both"
+    }
+    
+    if relationship_types:
+        traversal_options["relationship_types"] = relationship_types
+    
+    subgraph = graph.traverse(
+        entity_id=entity_id,
+        **traversal_options
+    )
+    
+    return subgraph
+```
+
+### Knowledge Export and Import
+
+```python
+def export_knowledge_subgraph(graph, entity_ids, output_file):
+    """
+    Export a subgraph of the knowledge graph
+    
+    Args:
+        graph: MemoryGraphAPI instance
+        entity_ids: List of entity IDs to export
+        output_file: Path to save the exported data
+    """
+    # Extract subgraph
+    subgraph = graph.extract_subgraph(entity_ids)
+    
+    # Export to file
+    with open(output_file, 'w') as f:
+        json.dump(subgraph, f, indent=2)
+
+def import_knowledge_subgraph(graph, input_file, merge_strategy="update"):
+    """
+    Import a subgraph into the knowledge graph
+    
+    Args:
+        graph: MemoryGraphAPI instance
+        input_file: Path to the file containing the subgraph
+        merge_strategy: How to handle conflicts (update, replace, skip)
+    """
+    # Load subgraph
+    with open(input_file, 'r') as f:
+        subgraph = json.load(f)
+    
+    # Import to graph
+    result = graph.import_subgraph(subgraph, merge_strategy=merge_strategy)
+    
+    return result
+```
+
+## Secure Credential Management
+
+The Knowledge Graph MCP server may require credentials for authentication. Use the secure credential management system:
+
+```bash
+# Store credentials
+python .cursor/rules/memory-bank/credential-manager.py store MEMORY_GRAPH_API_KEY
+
+# Update configuration
+python .cursor/rules/memory-bank/credential-manager.py update-mcp
+```
+
+## MCP Server Configuration
+
+Configure the Memory Graph MCP server in `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServer": {
+    "memoryGraph": {
+      "enabled": true,
+      "configuration": {
+        "apiKey": "${MEMORY_GRAPH_API_KEY}",
+        "storagePath": ".memory-bank/knowledge-graph",
+        "persistenceEnabled": true,
+        "maxEntities": 10000
+      }
+    }
+  }
+}
+```
+
+## Integration with Tolkien Processing
+
+The Knowledge Graph is particularly valuable for Tolkien processing:
+
+1. **Entity Extraction**: Store extracted entities in the knowledge graph
+2. **Relationship Discovery**: Capture connections between entities
+3. **Knowledge Validation**: Cross-reference information across sources
+4. **Lore Consistency**: Ensure coherent world-building
+
+Example workflow:
+
+```python
+def process_tolkien_text(text, graph):
+    """Process Tolkien text and store entities in knowledge graph"""
+    # Extract entities
+    entities = extract_tolkien_entities(text)
+    
+    # Store in knowledge graph
+    entity_ids = []
+    for entity in entities:
+        entity_id = create_tolkien_entity(
+            graph,
+            entity_type=entity["type"],
+            name=entity["name"],
+            properties=entity["properties"]
+        )
+        entity_ids.append(entity_id)
+    
+    # Create relationships
+    for relation in entities.get("relationships", []):
+        source_id = find_entity_id_by_name(graph, relation["source"])
+        target_id = find_entity_id_by_name(graph, relation["target"])
+        
+        if source_id and target_id:
+            create_relationship(
+                graph,
+                source_id=source_id,
+                target_id=target_id,
+                relationship_type=relation["type"],
+                properties=relation.get("properties", {})
+            )
+    
+    return entity_ids
+```
+
+## Usage in Development Workflows
+
+### Research Workflow
+
+1. Begin research by checking the knowledge graph for existing information
+2. Update knowledge graph with new findings during research
+3. Link research sources to entities for traceability
+4. Create relationships between new and existing knowledge
+
+### Code Implementation Workflow
+
+1. Query knowledge graph for domain entities before implementation
+2. Reference knowledge graph entity IDs in code comments
+3. Update knowledge graph with implementation details
+4. Link code artifacts to knowledge entities
+
+## Best Practices
+
+1. **Consistent Entity Types**: Use predefined entity and relationship types
+2. **Source Attribution**: Always record the source of knowledge
+3. **Confidence Scores**: Include confidence levels for uncertain information
+4. **Regular Exports**: Backup knowledge graph regularly
+5. **Validation**: Periodically validate knowledge for consistency
+6. **Cross-Referencing**: Link related entities extensively
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Duplicate Entities**: 
+   - Check for existing entities before creation
+   - Use merge operations instead of create when appropriate
+
+2. **Orphaned Entities**:
+   - Always create relationships for new entities
+   - Run periodic checks for isolated entities
+
+3. **Conflicting Information**:
+   - Record source and confidence for each property
+   - Implement resolution strategies for conflicts
+
+### Maintenance
+
+Run periodic maintenance tasks:
+
+```python
+def maintain_knowledge_graph(graph):
+    """Perform maintenance on the knowledge graph"""
+    # Validate consistency
+    issues = graph.validate()
+    
+    # Find orphaned entities
+    orphans = graph.find_orphaned_entities()
+    
+    # Find potential duplicates
+    duplicates = graph.find_potential_duplicates()
+    
+    # Generate report
+    report = {
+        "issues": issues,
+        "orphans": orphans,
+        "duplicates": duplicates
+    }
+    
+    return report
+```
+
+## Conclusion
+
+The Knowledge Graph integration provides a powerful foundation for managing the complex lore and interconnected knowledge of the Ages of Arda project. By following these guidelines, you can ensure consistent, traceable, and accessible knowledge throughout the development process. 

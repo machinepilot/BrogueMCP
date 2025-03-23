@@ -1,0 +1,86 @@
+---
+description: 
+globs: **/ai/**,**/npc/**,**/gameplay/**
+alwaysApply: false
+---
+
+---
+title: AI-Driven Emergent Gameplay Guidelines
+glob: "**/ai/**,**/npc/**,**/gameplay/**"
+priority: 700
+related: ["ai-ux.mdc", "../mcp/mcp-integration.mdc", "../game/angband-variant.mdc"]
+---
+# AI-Driven Emergent Gameplay Guidelines
+
+## Core Principles
+- AI should enhance, not replace player agency
+- Emergent gameplay should feel natural and consistent
+- Performance impact should be minimal
+- Offline fallback options must exist
+
+## AI Agent Types
+1. **Narrative Agents**
+   - Generate dynamic descriptions
+   - Create contextual dialogue
+   - Adapt story elements to player choices
+
+2. **Tactical Agents**
+   - Analyze combat situations
+   - Suggest optimal strategies
+   - Learn from player behavior
+
+3. **World Agents**
+   - Manage faction relationships
+   - Control dynamic environment changes
+   - Generate side quests and events
+
+## Implementation Patterns
+```c
+/**
+ * Request AI-generated content with fallback
+ */
+char *
+get_ai_response(game_state_t *state, const char *prompt_type, const char *context)
+{
+    char *response = NULL;
+    
+    /* Try primary AI system */
+    response = mcp_request(state, prompt_type, context);
+    
+    /* Fall back to template if AI unavailable */
+    if (response == NULL) {
+        response = get_template_response(prompt_type, context);
+    }
+    
+    return response;
+}
+```
+
+## Memory Management
+- Short-term memory: Current game session
+- Medium-term memory: Current character lifetime
+- Long-term memory: Persistent across playthroughs
+
+## Prompt Engineering
+- Keep prompts under 1000 tokens when possible
+- Include only relevant context
+- Use consistent formatting
+- Include examples for complex behaviors
+
+## Response Processing
+- Validate all AI outputs before applying
+- Filter inappropriate content
+- Ensure game balance is maintained
+- Apply rate limiting for AI calls
+
+## Testing Scenarios
+1. Offline mode testing
+2. Response latency testing
+3. Edge case handling
+4. Content appropriateness
+
+## Metrics to Track
+- Response time
+- Token usage
+- Player engagement with AI content
+- Error rates  

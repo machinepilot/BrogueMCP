@@ -1,0 +1,54 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+title: "BrogueMCP Cursor Rules System"
+glob: "**/*"
+priority: 1000
+related: []
+---
+
+# BrogueMCP Cursor Rules System
+
+This directory contains a tailored Cursor rules system for BrogueMCP development. These rules are designed to facilitate roguelike game development with a focus on procedural generation, turn-based mechanics, and MCP agent integration.
+
+## Rule Structure
+
+The rules are organized into the following categories:
+
+| Category | Purpose |
+|----------|---------|
+| code-style | C language style guidelines specific to roguelike development |
+| game | Roguelike patterns and procedural generation best practices |
+| mcp | Integration with MCP server and agent communication |
+| ai | AI behavior and DM agent implementation |
+| infrastructure | Cross-platform build and deployment standards |
+
+## Key Development Principles
+
+1. **Cross-Platform Compatibility**: Ensure code works consistently across Windows, macOS, and Linux
+2. **Roguelike Patterns**: Follow established patterns for procedural generation and turn-based gameplay
+3. **Agent Integration**: Implement clean interfaces for MCP agent communication
+4. **Memory Management**: Follow strict memory management practices for resource-constrained environments
+
+## Usage
+
+The rules system automatically applies the appropriate rules based on file types and locations. No manual rule selection is necessary in most cases.
+
+## Configuration
+
+The MCP server for BrogueMCP is configured to use ports 8100-8199, differentiating it from the Ages of Arda project.
+
+## Memory Bank
+
+BrogueMCP uses a dedicated memory bank located in `memory-bank/` to store agent knowledge and gameplay patterns.
+
+## Development Workflow
+
+1. Build and test the game using the provided scripts
+2. The DM agent can be tested using the test-dm scripts
+3. Cursor rules will provide guidance on code style and architecture as you develop
+
+For more detailed information, see the specific rule files in each category directory.

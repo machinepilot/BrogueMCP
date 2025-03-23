@@ -1,0 +1,211 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+title: "Ages of Arda Development Guidelines"
+description: "This is the master rule file that coordinates all other rule files in the project. It is automatically loaded for all files and provides the foundation for our rule system."
+glob: "**"
+priority: 1000
+alwaysApply: true
+---
+
+# Ages of Arda Development Guidelines
+
+This is the master rule file that coordinates all other rule files in the project. It is automatically loaded for all files and provides the foundation for our rule system.
+
+## Directory Structure
+
+Our rules are organized into logical categories:
+
+```
+.cursor/rules/
+├── README.mdc                 # This master rule file
+├── activators/                # Rule activation logic
+│   └── file-types.mdc         # Maps file types to rules
+├── ai/                        # AI-related guidelines
+│   ├── ai-gameplay.mdc        # Gameplay AI integration
+│   ├── ai-ux.mdc              # AI user experience
+│   └── multi-agent.mdc        # Multi-agent systems
+├── code-style/                # Programming standards
+│   ├── c-style.mdc            # C language style
+│   ├── c-style-enhanced.mdc   # Enhanced C style guide
+│   └── html.mdc               # HTML formatting
+├── game/                      # Game mechanics
+│   ├── angband-variant.mdc    # Angband variant development
+│   ├── lore-management.mdc    # Lore and world-building
+│   └── memory-bank.mdc        # Memory management
+├── infrastructure/            # Development infrastructure
+│   ├── github-standards.mdc   # GitHub workflow
+│   ├── directory_creation.mdc # Cross-platform directory creation
+│   └── netlify.mdc            # Netlify deployment
+├── mcp/                       # Model Context Protocol
+│   ├── mcp-integration.mdc    # MCP integration
+│   ├── mcp-server.mdc         # MCP server configuration
+│   └── tool-usage.mdc         # MCP tool usage guidelines
+├── memory/                    # Memory and knowledge management
+│   └── memory-management.mdc  # Memory management protocol
+├── research/                  # Research methodologies
+│   └── research-protocol.mdc  # Research protocol for Tolkien content
+└── self-healing/              # Self-healing rules system
+    ├── README.md              # Self-healing system overview
+    └── improvement-protocol.mdc # Self-healing improvement protocol
+```
+
+## Rule Categories
+
+- **Code Style**: Language-specific coding standards
+- **Game Mechanics**: Angband variant gameplay and development
+- **AI Systems**: AI-driven gameplay and user experience
+- **Infrastructure**: Deployment, builds, and repository management
+- **MCP**: Model Context Protocol integration and configuration
+- **Lore**: Story and world-building for the Ages of Arda universe
+- **Memory**: Knowledge graph and memory management
+- **Research**: Structured research methodologies for Tolkien content
+- **Self-Healing**: Automated error detection and rule generation
+
+## Automated Rule Selection Logic
+
+This rule system uses glob patterns and priorities to automatically load the appropriate rules:
+
+### Priority Levels
+- **1000-900**: Master rules (always loaded)
+- **899-800**: Code style and standards
+- **799-700**: Domain rules (language/technology specific)
+- **699-600**: MCP and tool integration
+- **599-500**: Feature rules (feature-specific guidelines)
+- **499-300**: Specialized rules (very specific contexts)
+- **299-100**: Optional rules (guidelines that may not always apply)
+
+### Glob Pattern Examples
+- C source files (`**/*.c`) → Load C style guidelines
+- AI components (`**/ai/**`) → Load AI gameplay rules
+- MCP integration (`**/mcp/**`) → Load MCP integration guidelines
+- Research files (`**/processing/**`) → Load research protocol
+
+## How to Use These Rules
+
+When working in this codebase, the appropriate rules will be automatically loaded based on the files you're editing. The rule activation is determined by:
+
+1. File path and name matching via glob patterns
+2. Rule priority (higher priority rules are applied first)
+3. Explicit relationships between rules
+
+## Tool Integration
+
+### MCP Tools Integration
+The project now includes comprehensive integration with MCP tools:
+
+1. **Sequential Thinking**: Used for complex problem solving and debugging
+2. **Brave Search**: Used for general research and documentation lookup
+3. **Tavily Search**: Used for deep technical research and verification
+4. **Fetch**: Used for retrieving documentation from known sources
+5. **Puppeteer**: Used for interactive web exploration with user approval
+6. **Knowledge Graph**: Used for persistent storage of project knowledge
+
+Configuration for these tools is maintained in `.cursor/mcp.json`.
+
+## Research Methodology
+
+The project now includes a structured research protocol for Tolkien content:
+
+1. **Initial Engagement**: Define objectives and source materials
+2. **Research Planning**: Identify themes and outline research approach
+3. **Research Cycles**: Systematic analysis and deep investigation
+4. **Final Documentation**: Standard documentation format with knowledge development
+
+## Adding New Rules
+
+When adding a new rule file, include the following metadata:
+```
+---
+title: Rule Title
+glob: "pattern/to/match/**"
+priority: priority_number
+related: ["related-rule-1.mdc", "related-rule-2.mdc"]
+---
+```
+
+Place the new rule in the appropriate category directory and update any related rules to reference it.
+
+# Cursor Rules for Ages of Arda
+
+This directory contains rules and automation scripts for the Ages of Arda project when working within the Cursor IDE.
+
+## Directory Structure
+
+```
+.cursor/rules/
+├── activators/        # Scripts that activate on specific events
+├── ai/                # AI-specific rules and configuration
+├── code-style/        # Code style and formatting rules
+├── game/              # Game-specific rules
+├── guides/            # Developer guidance documents
+├── infrastructure/    # Infrastructure and system rules
+│   ├── directory_creation.mdc  # Cross-platform directory creation rules
+│   ├── verify_directories.ps1  # PowerShell directory verification script
+│   ├── verify_directories.sh   # Bash directory verification script
+│   └── init.ps1                # Initialization script that runs at startup
+├── mcp/               # Model Context Protocol rules
+├── memory/            # Memory and knowledge management
+├── research/          # Research methodologies
+└── self-healing/      # Rules for self-correcting systems
+```
+
+## High Priority Rules
+
+The following rules must be followed by all developers:
+
+1. **Cross-Platform Directory Creation**: Follow the guidelines in `infrastructure/directory_creation.mdc` to ensure directory operations work across all platforms. Directory verification scripts automatically run at startup to ensure the required directory structure exists.
+
+2. **Code Style Guidelines**: Follow project-specific code style rules defined in the `code-style/` directory.
+
+3. **MCP Integration**: Follow the Model Context Protocol rules defined in the `mcp/` directory for AI integration.
+
+4. **Research Protocol**: Follow the structured research methodology for Tolkien content in the `research/` directory.
+
+5. **Memory Management**: Follow memory and knowledge graph management protocols in the `memory/` directory.
+
+## Automated Checking
+
+Many of these rules are automatically checked and enforced through scripts in this directory. The initialization scripts in `infrastructure/` run automatically when Cursor loads to validate and correct the project environment.
+
+## Rule Development
+
+When developing new rules:
+
+1. Place rules in the appropriate subdirectory
+2. Create a .mdc file with clear documentation
+3. If automation is needed, create associated scripts
+4. Update this readme with any high-priority rules
+
+## Running Rule Scripts Manually
+
+You can manually run rule scripts to verify compliance:
+
+```powershell
+# PowerShell
+& .cursor/rules/infrastructure/verify_directories.ps1
+```
+
+```bash
+# Bash
+bash .cursor/rules/infrastructure/verify_directories.sh
+```
+
+## Adding New Required Directories
+
+When adding new required directories to the project, update the following files:
+
+1. `infrastructure/directory_creation.mdc` with examples
+2. `infrastructure/verify_directories.ps1` with the new directory
+3. `infrastructure/verify_directories.sh` with the new directory
+4. Any relevant Python setup code (e.g., `setup_directories()` functions)
+
+---

@@ -1,0 +1,250 @@
+---
+title: "Ages of Arda Cursor Rules System"
+description: "Comprehensive documentation of the Cursor rules system used in the Ages of Arda project."
+id: "dev-cursor-rules-system"
+section: "development"
+category: "guides"
+created: "2023-12-15"
+updated: "2023-12-15"
+version: "1.0.0"
+tags: ["development", "documentation", "cursor", "rules"]
+related: ["dev-documentation-standards", "dev-tooling-setup"]
+---
+
+# Ages of Arda Cursor Rules System
+
+This document provides a comprehensive guide to the Ages of Arda Cursor rules system - a sophisticated framework for maintaining code quality, consistency, and development standards across the project. This system is designed to make game development more efficient by providing context-aware guidance directly within your code editor.
+
+## System Overview
+
+The Cursor rules system provides intelligent, context-sensitive assistance through a hierarchical set of rule files that are automatically applied based on file type, location, and content. The system integrates with Model Context Protocol (MCP) servers to provide advanced capabilities including:
+
+- Sequential thinking for complex problem-solving
+- Search-enhanced research for Tolkien lore accuracy
+- Memory integration for consistent knowledge management
+- Self-healing capabilities to identify and fix common errors
+
+## Directory Structure
+
+The rules are organized into logical categories:
+
+```
+.cursor/rules/
+├── README.mdc                 # Master rule file
+├── activators/                # Rule activation logic
+├── ai/                        # AI-related guidelines
+├── code-style/                # Programming standards
+├── game/                      # Game mechanics
+├── infrastructure/            # Development infrastructure
+├── integration/               # Rule integration verification
+├── mcp/                       # Model Context Protocol
+├── memory/                    # Memory and knowledge management
+├── research/                  # Research methodologies
+└── self-healing/              # Self-healing rules system
+```
+
+## Rule Categories
+
+### Master Rules (Priority 1000-900)
+The highest-priority rules that establish the foundation of the system:
+
+- **readme.mdc**: The master rule file that coordinates all other rules
+- **integration/rule-verification.mdc**: System for detecting and resolving rule conflicts
+
+### Code Style Rules (Priority 899-800)
+Language-specific coding standards for maintaining consistent code:
+
+- **code-style/c-style.mdc**: Basic C language style guidelines
+- **code-style/c-style-enhanced.mdc**: Enhanced C style with advanced practices
+- **code-style/html.mdc**: HTML formatting standards
+
+### Domain Rules (Priority 799-700)
+Language and technology-specific guidelines:
+
+- **game/tolkien-processing.mdc**: Guidelines for processing Tolkien's works
+- **game/lore-management.mdc**: Lore and world-building standards
+- **game/memory-bank.mdc**: Memory management for game entities
+- **research/research-protocol.mdc**: Research methodology for Tolkien content
+
+### MCP and Tool Integration (Priority 699-600)
+Integration with AI and external tools:
+
+- **mcp/tool-usage.mdc**: Guidelines for using MCP tools
+- **mcp/mcp-integration.mdc**: MCP integration specifications
+- **mcp/mcp-server.mdc**: MCP server configuration
+- **memory/memory-management.mdc**: Memory and knowledge graph management
+
+### Feature Rules (Priority 599-500)
+Feature-specific guidelines:
+
+- **self-healing/improvement-protocol.mdc**: Self-healing system enhancement
+
+### Specialized and Optional Rules (Priority 499-100)
+More specific and situational rules.
+
+## MCP Tool Integration
+
+The project integrates with several MCP tools as configured in `.cursor/mcp.json`:
+
+### Sequential Thinking
+Used for complex problem-solving, debugging, and detailed planning:
+
+```json
+"sequentialThinking": {
+  "enabled": true,
+  "configuration": {
+    "defaultSteps": 5,
+    "maxDepth": 10
+  }
+}
+```
+
+### Brave Search
+Used for broad information gathering and general research:
+
+```json
+"braveSearch": {
+  "enabled": true,
+  "configuration": {
+    "apiKey": "YOUR_BRAVE_API_KEY",
+    "defaultCount": 20,
+    "countLimit": 50
+  }
+}
+```
+
+### Tavily Search
+Used for deeper insights and specialized research:
+
+```json
+"tavily": {
+  "enabled": true,
+  "configuration": {
+    "apiKey": "YOUR_TAVILY_API_KEY",
+    "searchDepth": "advanced"
+  }
+}
+```
+
+## Rule File Structure
+
+Each rule file follows this standard structure:
+
+```markdown
+---
+title: "Rule Title"
+description: "Brief description of the rule's purpose"
+glob: "pattern/to/match/**"
+priority: priority_number
+related: ["related-rule-1.mdc", "related-rule-2.mdc"]
+---
+
+# Rule Title
+
+Main content of the rule...
+
+## Section 1
+
+Content for section 1...
+
+## Section 2
+
+Content for section 2...
+```
+
+### Required Frontmatter
+
+- **title**: Clear, descriptive title
+- **description**: Brief explanation of the rule's purpose
+- **glob**: Pattern to match files this rule applies to
+- **priority**: Numerical priority (higher numbers = higher priority)
+- **related**: Array of related rule files
+
+### Optional Frontmatter
+
+- **alwaysApply**: Boolean indicating if rule should always apply
+- **tags**: Array of categorization tags
+
+## Rule Application Logic
+
+Rules are applied based on:
+
+1. **File Matching**: Files are matched against glob patterns
+2. **Priority Order**: Rules with higher priority are applied first
+3. **Relationships**: Related rules are considered together
+
+## Rule Development Guidelines
+
+When developing new rules:
+
+1. **Use Standard Structure**: Follow the frontmatter format described above
+2. **Choose Appropriate Priority**:
+   - Master rules: 1000-900
+   - Code style: 899-800
+   - Domain rules: 799-700
+   - MCP/Tools: 699-600
+   - Features: 599-500
+   - Specialized: 499-300
+   - Optional: 299-100
+
+3. **Specify Relationships**: List related rules in the `related` array
+4. **Use Specific Glob Patterns**: Avoid overly broad patterns like `**/*`
+5. **Document Thoroughly**: Include clear examples and usage guidelines
+6. **Verify Integration**: Run rule verification to check for conflicts
+
+## Rule Verification
+
+The system includes verification tools for detecting and resolving rule conflicts:
+
+```powershell
+# PowerShell script to check for rule conflicts
+function Test-RuleConflicts {
+    # Implementation details in integration/rule-verification.mdc
+}
+```
+
+Run this verification after adding new rules or making significant changes.
+
+## Self-Healing Capabilities
+
+The self-healing system automatically analyzes code errors and generates rule proposals:
+
+1. **Error Collection**: Gather errors from compilation logs, static analysis, and runtime
+2. **Pattern Analysis**: Group errors and identify recurring patterns
+3. **Rule Generation**: Create rule proposals with guidelines and examples
+4. **Integration**: Review and incorporate new rules into the main system
+
+## Memory Management
+
+The memory management system provides consistent knowledge storage across the project:
+
+1. **Entity Management**: Creation and retrieval of game entities
+2. **Relationship Tracking**: Connections between entities
+3. **Knowledge Integration**: Integration with the lore system
+
+## Usage Examples
+
+### Applying Rules to C Code
+
+When working with C files, the system automatically applies:
+- Basic C style guidelines
+- Enhanced C style practices
+- Memory management rules
+- Game-specific rules based on file location
+
+### Researching Tolkien Content
+
+When working with lore processing, the system provides:
+- Structured research methodology
+- Integration with search tools
+- Memory bank integration guidelines
+- Entity extraction and processing standards
+
+## History
+
+- **2023-12-15**: Initial documentation creation
+- **2023-12-01**: Enhanced MCP integration with tool usage guidelines
+- **2023-11-15**: Added memory management protocol
+- **2023-11-01**: Added research protocol for Tolkien content
+- **2023-10-15**: Added enhanced C style guide
+- **2023-10-01**: Initial rule system implementation 

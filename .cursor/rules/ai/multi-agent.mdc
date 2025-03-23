@@ -1,0 +1,113 @@
+---
+description: 
+globs: **/ai/agents/**,**/agents/**
+alwaysApply: false
+---
+
+---
+title: Multi-Agent System Guidelines
+glob: "**/ai/agents/**,**/agents/**"
+priority: 650
+related: ["ai-gameplay.mdc", "ai-ux.mdc", "../mcp/mcp-integration.mdc"]
+---
+# Multi-Agent System Guidelines
+
+This document outlines the architecture and best practices for implementing multi-agent AI systems in the Ages of Arda.
+
+## Core Concepts
+
+1. **Agent Types**
+   - **Specialized Agents**: Focus on specific domains (combat, dialogue, lore)
+   - **Coordinator Agents**: Orchestrate specialized agents
+   - **Memory Agents**: Maintain and retrieve contextual information
+   - **Critic Agents**: Evaluate and refine outputs from other agents
+
+2. **Communication Patterns**
+   - Agent-to-agent communication via structured messages
+   - Centralized coordinator for complex decisions
+   - Event-based notifications for world changes
+   - Shared context for collaborative tasks
+
+3. **System Architecture**
+   - Modular design with well-defined interfaces
+   - Asynchronous processing for non-blocking operation
+   - Fallback mechanisms for agent failures
+   - Centralized logging and monitoring
+
+## Implementation Example
+
+```c
+/**
+ * Process a player action through the multi-agent system
+ */
+action_result_t *
+process_player_action_with_agents(game_state_t *state, player_action_t *action)
+{
+    agent_context_t *context = NULL;
+    agent_message_t *messages = NULL;
+    action_result_t *result = NULL;
+    
+    /* Create shared context for agents */
+    context = create_agent_context(state, action);
+    
+    /* Dispatch to appropriate specialized agents */
+    if (action->type == ACTION_COMBAT) {
+        messages = combat_agent_process(context);
+    } else if (action->type == ACTION_DIALOGUE) {
+        messages = dialogue_agent_process(context);
+    } else {
+        messages = generic_agent_process(context);
+    }
+    
+    /* Let critic agent review the results */
+    messages = critic_agent_review(context, messages);
+    
+    /* Let coordinator make final decision */
+    result = coordinator_agent_decide(context, messages);
+    
+    /* Clean up */
+    free_agent_messages(messages);
+    free_agent_context(context);
+    
+    return result;
+}
+```
+
+## Agent Interaction Protocols
+
+1. **Request-Response**
+   - Agent A sends structured request to Agent B
+   - Agent B processes and returns a response
+   - Synchronous operation with timeout handling
+
+2. **Publish-Subscribe**
+   - Agents publish events to topics
+   - Interested agents subscribe to relevant topics
+   - Asynchronous operation with queuing
+
+3. **Blackboard**
+   - Shared memory space for collaborative problem-solving
+   - Agents read from and write to the blackboard
+   - Supports complex multi-step reasoning
+
+## Memory Architecture
+
+- **Short-term Memory**: Current game state and recent events
+- **Working Memory**: Active reasoning and problem-solving
+- **Long-term Memory**: Historical events and player patterns
+- **Semantic Memory**: Game world knowledge and rules
+
+## Testing and Evaluation
+
+- Unit test individual agents in isolation
+- Integration test agent interactions
+- Scenario-based testing for complex situations
+- A/B testing for agent variations
+- Player feedback collection and analysis
+
+## Performance Considerations
+
+- Prioritize agent processing based on importance
+- Implement timeouts for all agent operations
+- Use cached results when appropriate
+- Monitor token usage and latency  

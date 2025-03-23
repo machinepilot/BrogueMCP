@@ -1,0 +1,77 @@
+---
+title: "Memory Management Protocol"
+description: "Protocol for managing knowledge storage, retrieval, and maintenance across the Ages of Arda project."
+glob: "**/*.{c,h,py,md}"
+priority: 650
+related: ["../mcp/tool-usage.mdc", "../game/lore-management.mdc"]
+---
+
+# Memory Management Protocol
+
+This protocol defines how knowledge is stored, retrieved, and maintained across sessions in the Ages of Arda project.
+
+## Knowledge Graph Integration
+
+### Entity Types
+- **Characters**: NPCs, historical figures, and entities from Tolkien's works
+- **Locations**: Geographic features, settlements, and regions
+- **Artifacts**: Significant items, weapons, and objects
+- **Events**: Historical occurrences, battles, and significant moments
+- **Concepts**: Abstract ideas, magic systems, and cultural elements
+
+### Relationship Types
+- **Interacts_With**: Character-to-character relationships
+- **Located_In**: Entity's physical location
+- **Created_By**: Attribution of creation
+- **Part_Of**: Hierarchical belonging
+- **Occurred_At**: Event's location
+- **Occurred_During**: Event's timeframe
+- **Possesses**: Ownership or possession
+- **Related_To**: General relationship
+
+## Memory Operations
+
+### Memory Retrieval
+- At the beginning of each session, retrieve all relevant information from the knowledge graph
+- When working on a specific component, first load its related entities and relationships
+- Use context-aware retrieval to maintain relevance
+
+### Memory Storage
+When new lore information is discovered or created:
+
+1. Create new entities for:
+   - Characters with defined attributes
+   - Locations with geographical context
+   - Artifacts with properties
+   - Events with temporal data
+   - Concepts with definitions
+
+2. Establish relationships:
+   - Connect new entities to existing knowledge
+   - Preserve lore-accurate connections
+   - Maintain historical accuracy
+   - Document source material references
+
+3. Store metadata:
+   - Creation timestamp
+   - Source reference
+   - Confidence level
+   - Canon status (primary/secondary)
+
+### Memory Access Pattern
+- Access appropriate entities before modifying related code
+- Traverse relationships to understand dependencies
+- Query for conflicting information before adding new lore
+- Validate against canonical sources
+
+## Memory Bank Integration
+- All memory operations should interact with the `.memory-bank` directory
+- Follow the established schema for memory bank entries
+- Ensure compatibility with the memory graph structure
+- Maintain consistent format for retrieval efficiency
+
+## Implementation Guidelines
+- Use knowledge graph queries before making lore-related changes
+- Document sources of information in memory updates
+- Preserve relationships between entities in all operations
+- Maintain data schema compatibility across memory systems 
