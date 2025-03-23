@@ -1,3 +1,13 @@
+---
+title: "Brogue Dungeon Master AI Agent"
+id: "dm-agent-readme"
+section: "development"
+category: "reference"
+created: "2025-03-18"
+updated: "2025-03-23"
+version: "1.0.0"
+---
+
 # Brogue Dungeon Master AI Agent
 
 This project implements a Dungeon Master AI agent for BrogueMCP, enhancing gameplay with dynamic narrative elements powered by Ollama's local LLM.
@@ -10,6 +20,7 @@ The Dungeon Master AI enhances the Brogue roguelike experience by:
 2. Maintaining memory of player encounters and discoveries
 3. Providing contextually relevant descriptions based on game state
 4. Creating a more immersive dungeon crawling experience
+5. Supporting customizable narrator personalities and styles
 
 ## Project Structure
 
@@ -103,11 +114,22 @@ make bin/brogue
 
 3. Play normally - the DM agent will automatically enhance your gameplay with narrative elements.
 
+## Features
+
+### Narrator Personality System
+
+The DM agent includes a powerful Narrator Personality System that allows customization of the narration style. Press `N` during gameplay to access the Narrator Settings UI.
+
+See [docs/technical/DM-AI-NARRATOR.md](../docs/technical/DM-AI-NARRATOR.md) for details on the narrator system.
+
 ## Customization
 
 ### Narrative Style
 
-You can customize the narrative style by editing the system prompts in `dm-agent/narrative/generator.js`.
+You can customize the narrative style by:
+
+1. Using the in-game Narrator Settings UI (press `N` during gameplay)
+2. Editing the system prompts in `dm-agent/narrative/generator.js`
 
 ### Event Selection
 
@@ -131,6 +153,19 @@ Adjust how memories are stored and retrieved in `dm-agent/memory/manager.js`.
 - Check for firewall or network issues
 - Try running `curl http://localhost:3000` to test the API
 
+## Documentation
+
+For detailed documentation on the DM Agent system, see:
+
+- [docs/technical/DM-AI-INTEGRATION.md](../docs/technical/DM-AI-INTEGRATION.md) - Technical details about integrating the DM Agent
+- [docs/technical/DM-AI-NARRATOR.md](../docs/technical/DM-AI-NARRATOR.md) - Documentation for the Narrator Personality System
+- [docs/technical/DM-AI-IMPLEMENTATION.md](../docs/technical/DM-AI-IMPLEMENTATION.md) - Implementation details and architecture
+
 ## License
 
-MIT 
+MIT
+
+## History
+- **2023-12-15**: Updated documentation references
+- **2023-12-10**: Added reference to Narrator Personality System
+- **2023-12-01**: Initial documentation created 

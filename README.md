@@ -1,4 +1,3 @@
-
 # BrogueMCP: AI-Enhanced Dungeon Adventures 🧙‍♂️🔮
 
 > *Countless adventurers before you have descended this torch-lit staircase,
@@ -8,6 +7,20 @@
 > ***Welcome to the Dungeons of Doom — Now with an AI Dungeon Master!***
 
 <img src="docs/images/broguemcp-banner.png" alt="BrogueMCP Banner" width="800"/>
+
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/yourusername/BrogueMCP/actions)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue)](https://github.com/yourusername/BrogueMCP/releases)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE.txt)
+
+## 📋 Table of Contents
+
+- [What is BrogueMCP?](#-what-is-broguemcp)
+- [Quick Start](#-quick-start)
+- [Key Features](#-key-features)
+- [Documentation](#-documentation)
+- [Community](#-community)
+- [Screenshots](#-screenshots)
+- [License](#-license)
 
 ## 🌟 What is BrogueMCP?
 
@@ -22,27 +35,13 @@ BrogueMCP takes the beloved roguelike Brogue and transforms it with an **AI-powe
 
 ## 🚀 Quick Start
 
-### Playing the Game
-
 1. **[Download the latest release](https://github.com/yourusername/BrogueMCP/releases)**
-2. **Install [Ollama](https://ollama.ai) and download the llama3 model**:
-   ```
-   ollama pull llama3
-   ```
-3. **Start the DM Agent**:
-   ```
-   cd BrogueMCP/dm-agent
-   npm install  # First time only
-   npm start
-   ```
-4. **Launch BrogueMCP**:
-   - **Windows**: Run `brogue.exe`
-   - **Mac**: Open the app (right-click and choose "Open" the first time)
-   - **Linux**: Run `./brogue` (ensure you have SDL2 and SDL2_image installed)
+2. **Follow the [installation guide](INSTALL.md)** to set up BrogueMCP and the Dungeon Master AI
+3. **Launch the game** and begin your adventure!
 
-5. **Begin your adventure!** The DM will narrate key moments as you play.
+See the [INSTALL.md](INSTALL.md) file for detailed installation instructions for all platforms.
 
-## ✨ Special Features
+## ✨ Key Features
 
 ### 🔮 The AI Dungeon Master
 
@@ -66,65 +65,26 @@ Press `N` during gameplay to customize your storytelling experience:
 
 *"You would be wise to tread carefully in these depths, for not all darkness yields to the simple flame of a torch..."* — Gandalf-style narration
 
-## 🛠️ For Developers
-
-BrogueMCP is perfect for developers interested in game AI and procedural storytelling:
-
-### Project Architecture
-
-```
-BrogueMCP/
-├── src/              # Core game code (C)
-│   └── mcp/          # MCP integration code
-├── dm-agent/         # DM Agent server (Node.js)
-│   ├── server/       # Express server
-│   ├── memory/       # Memory management
-│   ├── narrative/    # Narrative generation
-│   └── public/       # UI for narrator settings
-└── memory-bank/      # Stored game memories
-```
-
-### Getting Started with Development
-
-1. **Clone the repository**:
-   ```
-   git clone https://github.com/yourusername/BrogueMCP.git
-   cd BrogueMCP
-   ```
-
-2. **Set up the DM Agent**:
-   ```
-   cd dm-agent
-   cp .env.sample .env
-   npm install
-   ```
-
-3. **Build the game**:
-   ```
-   # See BUILD.md for detailed instructions
-   make bin/brogue
-   ```
-
-4. **Test the DM Agent separately**:
-   ```
-   # Windows
-   ./test-dm.bat
-   
-   # Linux/Mac
-   bash test-dm.sh
-   ```
-
-### Contributing
-
-We welcome contributions! See our [contribution guide](CONTRIBUTING.md) for all the ways you can help make BrogueMCP better.
-
 ## 📚 Documentation
 
-- [DM AI Documentation](BrogueMCP/README-DM-AI.md) - Technical details about the AI system
-- [Narrator System Guide](BrogueMCP/dm-agent/README-NARRATOR.md) - How to customize your storyteller
-- [Playtest Guide](BrogueMCP/README-PLAYTEST.md) - How to test and provide feedback
-- [Wiki](https://brogue.fandom.com/wiki/Brogue_Wiki) - Original Brogue wiki
-- [Original website](https://sites.google.com/site/broguegame/)
+### For Players
+
+- [Installation Guide](INSTALL.md) - How to install the game on any platform
+- [Gameplay Guide](GAMEPLAY.md) - Core game mechanics and features
+- [DM-AI Guide](DM-AI.md) - How the Dungeon Master AI enhances your experience
+- [Changelog](CHANGELOG.md) - What's new in each version
+
+### For Developers
+
+- [Building from Source](BUILDING.md) - How to compile the game
+- [Cursor Rules System](docs/cursor-rules/README.md) - AI-powered development assistance
+- [DM-AI Integration](docs/technical/DM-AI-INTEGRATION.md) - Technical details of the AI integration
+- [Contributing](docs/development/CONTRIBUTING.md) - How to contribute to the project
+
+### External Resources
+
+- [Original Brogue Wiki](https://brogue.fandom.com/wiki/Brogue_Wiki)
+- [Original Brogue Website](https://sites.google.com/site/broguegame/)
 
 ## 👥 Community
 
@@ -141,7 +101,7 @@ We welcome contributions! See our [contribution guide](CONTRIBUTING.md) for all 
 
 ## 📝 License
 
-MIT License - See LICENSE.txt for details.
+MIT License - See [LICENSE.txt](LICENSE.txt) for details.
 
 ---
 

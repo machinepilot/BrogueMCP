@@ -1,4 +1,16 @@
-# Narrator Personality System
+---
+title: "Dungeon Master AI Narrator Personality System"
+id: "dm-ai-narrator"
+section: "development"
+category: "technical"
+created: "2023-12-15"
+updated: "2023-12-15"
+version: "1.0.0"
+contributors: ["BrogueMCP Development Team"]
+tags: ["dm-agent", "narrator", "ai", "customization"]
+---
+
+# Dungeon Master AI Narrator Personality System
 
 The Narrator Personality System introduces dynamic storytelling capabilities to the BrogueMCP Dungeon Master AI. This system allows players to customize how the game narrates events, tailoring the storytelling style to their preferences.
 
@@ -50,7 +62,7 @@ The narrator personality is divided into three main categories:
 - **Galadriel**: Highly cosmic awareness, nature-focused, and with ethereal, prophetic speech patterns.
 - **Aragorn**: Balanced tone, practical wisdom, direct communication with occasional poetic flourishes.
 
-## Technical Details
+## Technical Implementation
 
 ### Architecture
 
@@ -62,6 +74,15 @@ The Narrator Personality System consists of:
 4. **Web Interface**: User-friendly UI for adjusting settings.
 5. **Integration with NarrativeGenerator**: Enhances AI prompts based on personality settings.
 
+### Prompt Enhancement Strategy
+
+The system implements a layered prompt structure that captures:
+- Core personality attributes (formality, wisdom, verbosity)
+- Thematic tendencies (nature references, metaphor complexity)
+- Speech patterns (archaism, question frequency)
+
+This structure is translated into system prompt modifications that guide the AI's responses in a consistent and predictable way.
+
 ### Server Routes
 
 - **GET /narrator**: Opens the narrator settings UI
@@ -69,19 +90,36 @@ The Narrator Personality System consists of:
 - **POST /api/narrator/settings**: Updates narrator settings
 - **GET /api/narrator/ui**: Gets the HTML for the settings UI
 
-### Files
+### Configuration System
 
-- **narrator.js**: Core personality system
-- **settings.js**: Settings management
-- **narrator.html**: Web UI
-- **narrator.css**: Styling for the UI
-- **generator.js** (modified): Integrates personality into narrative generation
+- Settings are stored in JSON format
+- Configuration is loaded at startup and saved when modified
+- Support for multiple saved presets
+- Default configuration with "Gandalf" personality
 
 ## Extending the System
 
 ### Adding New Presets
 
-To add new built-in presets, edit the `NARRATOR_PRESETS` object in `narrator.js`.
+To add new built-in presets, edit the `NARRATOR_PRESETS` object in `narrator.js`:
+
+```javascript
+// Adding a new preset
+const NARRATOR_PRESETS = {
+  // Existing presets...
+  
+  "gimli": {
+    "name": "Gimli",
+    "description": "Gruff, direct, and occasionally humorous dwarf",
+    "attributes": {
+      "voiceTone": 4,        // More casual
+      "wisdomLevel": 6,      // Seasoned but not ancient
+      "verbosity": 3,        // Brief and to the point
+      // Add other attributes...
+    }
+  }
+};
+```
 
 ### Customizing the UI
 
@@ -95,12 +133,6 @@ To add new personality dimensions:
 2. Update the `getSystemPromptModifier` method to include the new attribute
 3. Modify the `enhancePrompt` method to use the new attribute
 4. Update the UI generation in `generateSettingsHTML`
-
-## Troubleshooting
-
-- **UI not opening**: Ensure the DM agent server is running at http://localhost:3001
-- **Settings not saving**: Check console for errors; ensure the config directory is writable
-- **Changes not reflected in narration**: Remember that personality effects are probabilistic and contextual
 
 ## Example Usage
 
@@ -116,4 +148,23 @@ narratorGenerator.getNarratorSettings().setAttribute('verbosity', 8);
 
 // Adding a signature phrase
 narratorGenerator.getNarratorSettings().addSignaturePhrase('All we have to decide is what to do with the time that is given us.');
-``` 
+```
+
+## Troubleshooting
+
+- **UI not opening**: Ensure the DM agent server is running at http://localhost:3001
+- **Settings not saving**: Check console for errors; ensure the config directory is writable
+- **Changes not reflected in narration**: Remember that personality effects are probabilistic and contextual
+
+## Future Enhancements
+
+Potential improvements to the system include:
+
+1. **Expanded Presets**: Add more character-inspired presets from various literary works
+2. **Advanced Preview**: Implement real-time preview generation of narration examples
+3. **Finer Controls**: Add more granular control over specific event types
+4. **Voice Integration**: Connect to text-to-speech systems for voiced narration
+5. **Contextual Awareness**: Improve sensitivity to game state and player history
+
+## History
+- **2023-12-15**: Initial documentation created 
