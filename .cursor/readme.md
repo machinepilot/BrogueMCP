@@ -194,17 +194,3 @@ If you have questions about the rules system:
 
 Happy roguelike development!
 ```
-
-## 9. Implementation Steps
-
-To create and maintain this readme:
-
-1. Create a new file at `.cursor/rules/README.md`
-2. Follow the structure outlined above
-3. Add specific examples from your actual codebase
-4. Include screenshots of the rules in action if possible
-5. Link to more detailed documentation for advanced topics
-6. Have several developers review for clarity and completeness
-7. Update as the rule system evolves
-
-This readme provides a comprehensive but beginner-friendly introduction to your cursor rules system, helping new developers understand the big picture while providing practical guidance for using the system effectively.
